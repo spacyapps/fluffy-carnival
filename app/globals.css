@@ -1,26 +1,55 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --space-bg: #0a0a1f;
+  --accent: #00f5ff;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--space-bg);
+  color: #e0e0ff;
+  overflow-x: hidden;
+}
+
+/* Stars + Nebula */
+.stars {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: radial-gradient(circle at 30% 40%, rgba(255,255,255,0.08) 0%, transparent 60%),
+              radial-gradient(circle at 70% 70%, rgba(180,100,255,0.1) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.stars::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(white 1px, transparent 1px),
+    radial-gradient(white 1px, transparent 1px);
+  background-size: 90px 90px, 140px 140px;
+  background-position: 0 0, 50px 30px;
+  opacity: 0.7;
+  animation: twinkle 10s infinite alternate ease-in-out;
+}
+
+@keyframes twinkle { 0% { opacity: 0.5; } 100% { opacity: 0.85; } }
+
+.nebula {
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  background: radial-gradient(ellipse at 50% 30%, rgba(120, 60, 220, 0.18) 0%, transparent 65%);
+  animation: drift 140s linear infinite;
+}
+
+@keyframes drift {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(40px, -40px) rotate(8deg); }
 }
