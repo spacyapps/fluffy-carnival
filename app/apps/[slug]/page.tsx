@@ -45,10 +45,11 @@ export default async function AppPage({
       }}
     >
       <Stars density={50} />
-      <div style={{ position: 'relative', padding: '28px 56px 80px' }}>
+      <div className="bo-app-wrap" style={{ position: 'relative', padding: '28px 56px 80px' }}>
 
         {/* Header */}
         <div
+          className="bo-app-header"
           style={{
             display: 'grid',
             gridTemplateColumns: '1fr auto 1fr',
@@ -75,6 +76,7 @@ export default async function AppPage({
           </Link>
           <Logotype size={12} />
           <span
+            className="bo-hide-mobile"
             style={{
               fontFamily: 'var(--font-mono)',
               fontSize: 11,
@@ -89,6 +91,7 @@ export default async function AppPage({
 
         {/* Hero grid */}
         <div
+          className="bo-app-hero"
           style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
@@ -100,6 +103,7 @@ export default async function AppPage({
           <div>
             <AppIcon glyph={app.glyph} color={app.color} size={84} icon={app.icon} />
             <h1
+              className="bo-h-app"
               style={{
                 fontFamily: 'var(--font-serif)',
                 fontWeight: 300,
@@ -160,7 +164,7 @@ export default async function AppPage({
                   </p>
                 ))}
             </div>
-            <div style={{ display: 'flex', gap: 12 }}>
+            <div className="bo-cta-wrap" style={{ display: 'flex', gap: 12 }}>
               {app.guide && (
                 <a
                   href="#guide"
@@ -316,7 +320,7 @@ export default async function AppPage({
         </div>
 
         {/* Features */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+        <div className="bo-grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
           {(app.features ?? FEATURES).map((f, i) => (
             <div
               key={i}
@@ -401,7 +405,7 @@ export default async function AppPage({
             </div>
 
             {/* Title */}
-            <div style={{ padding: '48px 40px 0' }}>
+            <div className="bo-guide-title" style={{ padding: '48px 40px 0' }}>
               <h2 style={{
                 fontFamily: 'var(--font-serif)',
                 fontWeight: 300,
@@ -418,7 +422,7 @@ export default async function AppPage({
             </div>
 
             {/* Steps */}
-            <div style={{ padding: '40px 40px 48px', display: 'flex', flexDirection: 'column', gap: 0 }}>
+            <div className="bo-guide-body" style={{ padding: '40px 40px 48px', display: 'flex', flexDirection: 'column', gap: 0 }}>
               {app.guide.steps.map((step, i) => (
                 <div key={i} style={{
                   display: 'grid',

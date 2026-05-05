@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import {
   Fraunces,
   Bricolage_Grotesque,
@@ -30,6 +30,11 @@ const jetbrainsMono = JetBrains_Mono({
   variable: '--font-jetbrains',
   weight: ['300', '400', '500'],
 });
+
+export const viewport: Viewport = {
+  width: 1080,
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
   title: 'SpacyApps — Cosmic Boutique',

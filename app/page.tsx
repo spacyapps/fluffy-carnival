@@ -30,15 +30,15 @@ export default function Home() {
     <div style={{ width: '100%', background: 'var(--bg)', color: 'var(--ink)', fontFamily: 'var(--font-body)' }}>
 
       {/* HERO */}
-      <section style={{ position: 'relative', minHeight: 920, padding: '24px 56px 80px', overflow: 'hidden' }}>
+      <section className="bo-hero" style={{ position: 'relative', minHeight: 920, padding: '24px 56px 80px', overflow: 'hidden' }}>
         <Stars density={100} />
         <Nav />
 
-        <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', marginTop: 40, zIndex: 2 }}>
+        <div className="bo-planet-hero" style={{ position: 'relative', display: 'flex', justifyContent: 'center', marginTop: 40, zIndex: 2 }}>
           <BigPlanet size={400} />
         </div>
 
-        <div style={{ position: 'absolute', top: '38%', right: '8%', opacity: 0.6, animation: 'bo-float 5s ease-in-out infinite' }}>
+        <div className="bo-hide-mobile" style={{ position: 'absolute', top: '38%', right: '8%', opacity: 0.6, animation: 'bo-float 5s ease-in-out infinite' }}>
           <Comet />
         </div>
 
@@ -63,7 +63,7 @@ export default function Home() {
           <p style={{ fontSize: 18, lineHeight: 1.6, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
             <span style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: 'var(--ink)' }}>SPACYAPPS</span> is a one-person studio building iOS &amp; Safari apps to assist certain user types. The site is also a space log — there&apos;s writing here when it&apos;s received from orbit.
           </p>
-          <div style={{ display: 'flex', gap: 14, justifyContent: 'center', marginTop: 36 }}>
+          <div className="bo-cta-wrap" style={{ display: 'flex', gap: 14, justifyContent: 'center', marginTop: 36 }}>
             <Link
               href="#apps"
               style={{
@@ -83,7 +83,7 @@ export default function Home() {
               Tour the missions →
             </Link>
             <Link
-              href="#journal"
+              href="#log"
               style={{
                 background: 'transparent',
                 color: 'var(--ink)',
@@ -97,7 +97,7 @@ export default function Home() {
                 display: 'inline-block',
               }}
             >
-              Read the journal
+              Read the log
             </Link>
           </div>
         </div>
@@ -107,13 +107,14 @@ export default function Home() {
       <Marquee />
 
       {/* APPS */}
-      <section id="missions" style={{ padding: '96px 56px' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 56 }}>
+      <section id="missions" className="bo-section" style={{ padding: '96px 56px' }}>
+        <div className="bo-flex-col" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 56 }}>
           <div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 3, color: 'var(--accent)', marginBottom: 14 }}>
               I.  MISSIONS
             </div>
             <h2
+              className="bo-h-xl"
               style={{
                 fontFamily: 'var(--font-serif)',
                 fontWeight: 300,
@@ -127,12 +128,12 @@ export default function Home() {
               <span style={{ fontStyle: 'italic', color: 'var(--accent-2)' }}>currently in orbit.</span>
             </h2>
           </div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink-faint)', letterSpacing: 1.5 }}>
+          <div className="bo-hide-mobile" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink-faint)', letterSpacing: 1.5 }}>
             02 SHIPPED · 01 INCOMING
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+        <div className="bo-grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
           {APPS.map((app, i) => (
             <Link
               key={app.slug}
@@ -178,13 +179,14 @@ export default function Home() {
       </section>
 
       {/* NOW */}
-      <section id="now" style={{ padding: '88px 56px', borderTop: '1px solid var(--line)' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: 64, alignItems: 'flex-start' }}>
+      <section id="now" className="bo-section" style={{ padding: '88px 56px', borderTop: '1px solid var(--line)' }}>
+        <div className="bo-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: 64, alignItems: 'flex-start' }}>
           <div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 3, color: 'var(--accent-3)', marginBottom: 14 }}>
               II.  ON THE WORKBENCH
             </div>
             <h2
+              className="bo-h-lg"
               style={{
                 fontFamily: 'var(--font-serif)',
                 fontWeight: 300,
@@ -217,6 +219,7 @@ export default function Home() {
             {NOW.map((item, i) => (
               <div
                 key={i}
+                className="bo-now-row"
                 style={{
                   display: 'grid',
                   gridTemplateColumns: '70px 130px 1fr 90px',
@@ -226,24 +229,25 @@ export default function Home() {
                   borderBottom: '1px solid var(--line)',
                 }}
               >
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-faint)', letterSpacing: 1 }}>{item.date}</span>
+                <span className="bo-now-date" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-faint)', letterSpacing: 1 }}>{item.date}</span>
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: item.statusColor, letterSpacing: 1.5, textTransform: 'uppercase', fontWeight: 600 }}>● {item.status}</span>
                 <span style={{ fontFamily: 'var(--font-serif)', fontSize: 20, fontWeight: 400, color: 'var(--ink)', letterSpacing: -0.4, lineHeight: 1.3 }}>{item.title}</span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-faint)', textAlign: 'right', letterSpacing: 1, textTransform: 'uppercase' }}>{item.tag}</span>
+                <span className="bo-now-tag" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-faint)', textAlign: 'right', letterSpacing: 1, textTransform: 'uppercase' }}>{item.tag}</span>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* JOURNAL */}
-      <section id="journal" style={{ padding: '96px 56px', borderTop: '1px solid var(--line)' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 56 }}>
+      {/* LOG */}
+      <section id="log" className="bo-section" style={{ padding: '96px 56px', borderTop: '1px solid var(--line)' }}>
+        <div className="bo-flex-col" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 56 }}>
           <div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 3, color: 'var(--accent-2)', marginBottom: 14 }}>
-              III.  THE JOURNAL
+              III.  THE LOG
             </div>
             <h2
+              className="bo-h-lg"
               style={{
                 fontFamily: 'var(--font-serif)',
                 fontWeight: 300,
@@ -253,7 +257,7 @@ export default function Home() {
                 lineHeight: 0.95,
               }}
             >
-              Field notes from <span style={{ fontStyle: 'italic', color: 'var(--accent-2)' }}>orbit.</span>
+              Transmissions from <span style={{ fontStyle: 'italic', color: 'var(--accent-2)' }}>orbit.</span>
             </h2>
           </div>
           <Link href="#" className="bo-link" style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 17, color: 'var(--ink-dim)' }}>
@@ -261,7 +265,7 @@ export default function Home() {
           </Link>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 48 }}>
+        <div className="bo-grid-2" style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 48 }}>
           <article
             className="bo-card"
             style={{
@@ -323,13 +327,14 @@ export default function Home() {
       </section>
 
       {/* CONTACT */}
-      <section id="contact" style={{ position: 'relative', padding: '96px 56px 64px', borderTop: '1px solid var(--line)', textAlign: 'center', overflow: 'hidden' }}>
+      <section id="contact" className="bo-section" style={{ position: 'relative', padding: '96px 56px 64px', borderTop: '1px solid var(--line)', textAlign: 'center', overflow: 'hidden' }}>
         <Stars density={30} />
         <div style={{ position: 'relative' }}>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 3, color: 'var(--accent)', marginBottom: 18 }}>
             IV.  SIGNAL STATUS
           </div>
           <h2
+            className="bo-h-xxl"
             style={{
               fontFamily: 'var(--font-serif)',
               fontWeight: 300,
@@ -349,6 +354,7 @@ export default function Home() {
 
       {/* FOOTER */}
       <footer
+        className="bo-footer"
         style={{
           padding: '36px 56px 32px',
           borderTop: '1px solid var(--line)',
