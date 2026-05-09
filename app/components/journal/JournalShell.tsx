@@ -111,6 +111,11 @@ export function PostBody({ blocks, topic }: { blocks: Post['body']; topic: Topic
             <Flourish glyph={b.glyph || 'dots'} color={topic.color} />
           </div>
         );
+        if (b.kind === 'image' && b.src) return (
+          <div key={i} style={{ margin: '8px 0 28px', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--line)' }}>
+            <img src={b.src} alt="" style={{ display: 'block', width: '100%', height: 'auto' }} />
+          </div>
+        );
         return null;
       })}
     </div>

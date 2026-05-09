@@ -1,4 +1,4 @@
-export type BlockKind = 'lede' | 'p' | 'h' | 'pull' | 'list' | 'code' | 'flourish';
+export type BlockKind = 'lede' | 'p' | 'h' | 'pull' | 'list' | 'code' | 'flourish' | 'image';
 
 export interface Block {
   kind: BlockKind;
@@ -6,6 +6,7 @@ export interface Block {
   items?: string[];
   lang?: string;
   glyph?: 'orbit' | 'star' | 'dots';
+  src?: string;
 }
 
 export interface Post {
@@ -86,10 +87,28 @@ export const POSTS: Post[] = [
   },
   {
     id: 'fl-05', slug: 'secret-stuff-first-release', topic: 'first_light',
-    title: 'Secret Stuff — First Release', date: '', dateLabel: 'Coming soon',
-    read: '—', kind: 'essay', cx: 910, cy: 540, ring: 0, angle: 0,
+    title: 'Secret Stuff — First Release', date: '2026-05-09', dateLabel: 'May 9, 2026',
+    read: '3 min', kind: 'essay', cx: 910, cy: 540, ring: 0, angle: 0,
     excerpt: 'The story of shipping Secret Stuff for the first time — what it took, what broke, and what stuck.',
-    body: [],
+    body: [
+      { kind: 'lede', text: 'Back in 2009 or 2010 (roughly), when everyone was constantly borrowing each other\'s phones, I ran into a problem. Friends would swipe through my photos, notes, and everything else without thinking twice. I loved sharing — but I also wanted some things to stay private.' },
+      { kind: 'p', text: 'At the time, real app privacy was almost nonexistent. So I decided to build my own solution.' },
+      { kind: 'pull', text: 'A Picture Key. Pick any photo, draw your unique gesture on it — speed, direction, shape — and that becomes your lock. No more forgetting passwords. Just a personal, visual signature that only you know.' },
+      { kind: 'p', text: 'I called the app SecretStuff.' },
+      { kind: 'p', text: 'It worked better than I expected. People loved it. It made money, but more importantly, the whole experience — designing the signature-matching algorithm, polishing the UI, shipping updates — levelled up my skills and confidence in ways that helped everything else I worked on.' },
+      { kind: 'image', src: '/secret-stuff-draw-key.jpg' },
+      { kind: 'flourish', glyph: 'orbit' },
+      { kind: 'p', text: 'Years later, AI is prominent & helpful. So I hope this inspires you to succeed in this new AI World.' },
+      { kind: 'h', text: 'Key Takeaways' },
+      { kind: 'list', items: [
+        'Surround yourself with positive people that will bring you up, not down.',
+        'Innovation, desire, and thinking different will help you survive anything.',
+        'If you have an idea born from a real frustration, build it.',
+        'Think Different. — Apple / Steve Jobs',
+        'Do or do not — there is no try. — Yoda',
+      ]},
+      { kind: 'pull', text: 'What\'s your SecretStuff? Go Nutz. — SpacyApps' },
+    ],
   },
   {
     id: 'fl-06', slug: 'signature-gesture-algorithm', topic: 'first_light',
