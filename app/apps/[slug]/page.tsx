@@ -6,6 +6,16 @@ import Stars from '../../components/boutique/Stars';
 import Logotype from '../../components/boutique/Logotype';
 import AppIcon from '../../components/boutique/AppIcon';
 
+function highlightTerms(text: string) {
+  const terms = ['yo-yo effect', 'greedy'];
+  const pattern = new RegExp(`(${terms.join('|')})`, 'gi');
+  return text.split(pattern).map((part, i) =>
+    terms.some(t => t.toLowerCase() === part.toLowerCase())
+      ? <span key={i} style={{ color: 'var(--accent)', fontStyle: 'italic' }}>{part}</span>
+      : part
+  );
+}
+
 export async function generateStaticParams() {
   return APPS.map((app) => ({ slug: app.slug }));
 }
@@ -394,38 +404,42 @@ export default async function AppPage({
               <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 36, margin: '0 0 40px', letterSpacing: -1, lineHeight: 1.15, color: 'var(--ink)' }}>
                 <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>{f.detail!.title}</span>
               </h2>
-              {f.detail!.images && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 48 }}>
-                  {f.detail!.images.map((src, j) => (
-                    <div key={j} style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)' }}>
-                      <Image
-                        src={src}
-                        alt=""
-                        width={j === 0 ? 2324 : 1168}
-                        height={j === 0 ? 1146 : 784}
-                        style={{ display: 'block', width: '100%', height: 'auto' }}
-                      />
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 48, alignItems: 'flex-start' }}>
+                {/* Left: text */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+                  {f.detail!.sections.map((section, j) => (
+                    <div key={j}>
+                      {section.heading && (
+                        <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 22, fontWeight: 400, margin: '0 0 12px', letterSpacing: -0.3, color: 'var(--accent)' }}>
+                          {section.heading}
+                        </h3>
+                      )}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                        {section.body.split('\n\n').map((para, k) => (
+                          <p key={k} style={{ fontFamily: 'var(--font-body)', fontSize: 15, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
+                            {highlightTerms(para)}
+                          </p>
+                        ))}
+                      </div>
                     </div>
                   ))}
                 </div>
-              )}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
-                {f.detail!.sections.map((section, j) => (
-                  <div key={j}>
-                    {section.heading && (
-                      <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 22, fontWeight: 400, margin: '0 0 12px', letterSpacing: -0.3, color: 'var(--accent)' }}>
-                        {section.heading}
-                      </h3>
-                    )}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                      {section.body.split('\n\n').map((para, k) => (
-                        <p key={k} style={{ fontFamily: 'var(--font-body)', fontSize: 15, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
-                          {para}
-                        </p>
-                      ))}
-                    </div>
+                {/* Right: images */}
+                {f.detail!.images && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'sticky', top: 24 }}>
+                    {f.detail!.images.map((src, j) => (
+                      <div key={j} style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)' }}>
+                        <Image
+                          src={src}
+                          alt=""
+                          width={j === 0 ? 2324 : 1168}
+                          height={j === 0 ? 1146 : 784}
+                          style={{ display: 'block', width: '100%', height: 'auto' }}
+                        />
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>
