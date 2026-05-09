@@ -5,6 +5,7 @@ import { APPS } from '../../data/apps';
 import Stars from '../../components/boutique/Stars';
 import Logotype from '../../components/boutique/Logotype';
 import AppIcon from '../../components/boutique/AppIcon';
+import YoYoAnimation from '../../components/boutique/YoYoAnimation';
 
 function highlightTerms(text: string) {
   const terms = ['yo-yo effect', 'greedy'];
@@ -433,9 +434,9 @@ export default async function AppPage({
                                 {highlightTerms(p)}
                               </p>
                             ))}
-                            <pre style={{ fontFamily: 'var(--font-mono)', fontSize: 12, lineHeight: 1.8, color: 'var(--accent)', background: 'rgba(0,0,0,0.3)', borderRadius: 8, padding: '14px 18px', margin: '4px 0', whiteSpace: 'pre', overflowX: 'auto' }}>
-                              {section.analogy.diagram}
-                            </pre>
+                            <div style={{ margin: '4px 0', background: 'rgba(0,0,0,0.25)', borderRadius: 8, padding: '16px 12px' }}>
+                              <YoYoAnimation />
+                            </div>
                             <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, lineHeight: 1.65, color: 'var(--ink-faint)', fontWeight: 300, margin: 0, fontStyle: 'italic' }}>
                               {section.analogy.caption}
                             </p>
