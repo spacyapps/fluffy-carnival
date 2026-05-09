@@ -212,7 +212,7 @@ export default function Home() {
                   animation: 'bo-pulse 2s ease-in-out infinite',
                 }}
               />
-              LAST PINGED 04.30.2026 — 22:17 PT
+              LAST PINGED 05.08.2026 — 22:17 PT
             </div>
           </div>
           <div>
