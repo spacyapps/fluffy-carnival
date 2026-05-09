@@ -18,7 +18,7 @@ export interface App {
     detail?: {
       title: string;
       images?: string[];
-      sections: { heading?: string; body: string }[];
+      sections: { heading?: string; body: string; callout?: string }[];
     };
   }[];
   guide?: { heading: string; steps: { title: string; body: string }[] };
@@ -46,7 +46,8 @@ export const APPS: App[] = [
           images: ['/secret-stuff-algo-code.png', '/secret-stuff-algo-diagram.jpg'],
           sections: [
             {
-              body: 'When a user draws their Picture Key, the app records a sequence of points — the raw coordinates of a finger moving across the screen. The saved key is one sequence; the login attempt is another. The goal: decide if two hand-drawn paths are the same, knowing that no two drawings are ever identical.',
+              body: 'When a user draws their Picture Key, the app records a sequence of points — the raw coordinates of a finger moving across the screen. The saved key is one sequence; the login attempt is another.',
+              callout: 'The goal: decide if two hand-drawn paths are the same, knowing that no two drawings are ever identical.',
             },
             {
               heading: 'Rectangles of Tolerance',

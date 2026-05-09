@@ -420,6 +420,11 @@ export default async function AppPage({
                             {highlightTerms(para)}
                           </p>
                         ))}
+                        {section.callout && (
+                          <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 19, lineHeight: 1.5, color: 'var(--ink)', fontWeight: 300, margin: '8px 0 0', paddingLeft: 16, borderLeft: '2px solid var(--accent)' }}>
+                            {section.callout}
+                          </p>
+                        )}
                       </div>
                     </div>
                   ))}
