@@ -8,6 +8,13 @@ export interface NowEntry {
 
 export const NOW: NowEntry[] = [
   {
+    date: 'May 8',
+    status: 'Live',
+    statusColor: 'oklch(0.72 0.17 145)',
+    title: 'Secret Stuff — Yo-Yo Signature Algorithm deep dive published',
+    tag: 'web',
+  },
+  {
     date: 'May 7',
     status: 'Live',
     statusColor: 'oklch(0.72 0.17 145)',

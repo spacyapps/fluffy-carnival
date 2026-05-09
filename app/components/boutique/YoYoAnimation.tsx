@@ -2,17 +2,17 @@
 
 import { useEffect, useState } from 'react';
 
-// [x, y] for each path — uneven spacing mimics real hand-drawn points
-const SAVED   = [[30,60],[85,54],[135,62],[174,57],[254,63],[344,56],[414,61],[474,58]] as const;
-const ATTEMPT = [[30,126],[72,131],[120,124],[190,130],[238,125],[288,132],[348,127],[418,130],[474,127]] as const;
+// Both tracks share the same y-band (~73 vs ~95) so CGRectIntersectsRect passes
+// at every step with sensitivity=22 (2*sens=44 > max y-gap of 31px).
+const SAVED   = [[30,73],[78,68],[126,74],[174,70],[224,76],[272,71],[320,77],[368,72],[420,76],[462,73]] as const;
+const ATTEMPT = [[30,95],[62,99],[94,93],[128,98],[162,94],[198,99],[234,94],[270,99],[308,94],[346,99],[392,94],[462,97]] as const;
 
-// yo-yo sequence: [savedIdx, attemptIdx, who-advanced]
-// computed from actual greedy rule: whichever side's NEXT point
-// is closer to the OTHER side's CURRENT position gets to advance.
+// Greedy sequence computed from actual algorithm: advance whichever path's NEXT point
+// is closer to the OTHER path's CURRENT position. Verified against CGRectIntersectsRect.
 const SEQ: [number, number, 's'|'a'|null][] = [
-  [0,0,null],[0,1,'a'],[1,1,'s'],[1,2,'a'],[2,2,'s'],[3,2,'s'],
-  [3,3,'a'],[4,3,'s'],[4,4,'a'],[4,5,'a'],[5,5,'s'],[5,6,'a'],
-  [6,6,'s'],[6,7,'a'],[6,8,'a'],[7,8,'s'],
+  [0,0,null],[0,1,'a'],[1,1,'s'],[1,2,'a'],[2,2,'s'],[2,3,'a'],[2,4,'a'],[3,4,'s'],
+  [3,5,'a'],[4,5,'s'],[4,6,'a'],[5,6,'s'],[5,7,'a'],[5,8,'a'],[6,8,'s'],[6,9,'a'],
+  [7,9,'s'],[7,10,'a'],[8,10,'s'],[8,11,'a'],[9,11,'s'],
 ];
 
 const SC = '#3dd5e8'; // saved — cyan
@@ -35,7 +35,7 @@ export default function YoYoAnimation() {
   const [ax, ay] = ATTEMPT[ai];
 
   const dist    = Math.sqrt((sx - ax) ** 2 + (sy - ay) ** 2);
-  const tension = Math.min(1, Math.max(0, (dist - 50) / 100));
+  const tension = Math.min(1, Math.max(0, (dist - 20) / 40));
   const bungeeColor = tension > 0.5 ? '#e85c3a' : '#e8a87c';
 
   const label = isLast          ? '✓  MATCH'
@@ -46,7 +46,7 @@ export default function YoYoAnimation() {
   return (
     <div style={{ lineHeight: 0, fontSize: 0 }}>
       <svg
-        viewBox="0 0 510 178"
+        viewBox="0 0 510 145"
         style={{ width: '100%', height: 'auto', display: 'block', overflow: 'visible' }}
       >
         {/* Path connectors */}
@@ -88,16 +88,6 @@ export default function YoYoAnimation() {
           opacity={0.85}
         />
 
-        {/* Bungee label at midpoint */}
-        <text
-          x={(sx + ax) / 2 + 7}
-          y={(sy + ay) / 2 + 4}
-          fill={bungeeColor} fontSize={9}
-          fontFamily="monospace" letterSpacing="1" opacity="0.75"
-        >
-          bungee
-        </text>
-
         {/* Track labels */}
         <text x="4" y={SAVED[0][1] - 12}
           fill={SC} fontSize={9} fontFamily="monospace" letterSpacing="2.5" opacity="0.75">
@@ -109,7 +99,7 @@ export default function YoYoAnimation() {
         </text>
 
         {/* Step label */}
-        <text x="255" y="172" textAnchor="middle"
+        <text x="255" y="140" textAnchor="middle"
           fill={isLast ? AC : 'rgba(236,230,214,0.4)'}
           fontSize={9} fontFamily="monospace" letterSpacing="2.5">
           {label}

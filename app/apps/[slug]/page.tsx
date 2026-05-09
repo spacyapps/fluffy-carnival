@@ -1,11 +1,12 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { APPS } from '../../data/apps';
+import { APPS, type App } from '../../data/apps';
 import Stars from '../../components/boutique/Stars';
 import Logotype from '../../components/boutique/Logotype';
 import AppIcon from '../../components/boutique/AppIcon';
 import YoYoAnimation from '../../components/boutique/YoYoAnimation';
+import AuthMatchSVG from '../../components/boutique/AuthMatchSVG';
 
 function highlightTerms(text: string) {
   const terms = ['yo-yo effect', 'greedy'];
@@ -17,11 +18,61 @@ function highlightTerms(text: string) {
   );
 }
 
+type Section = {
+  heading?: string;
+  body: string;
+  callout?: string;
+  analogy?: { body: string[]; diagram: string; caption: string; footer: string };
+};
+
+function renderSection(section: Section) {
+  return (
+    <div>
+      {section.heading && (
+        <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 22, fontWeight: 400, margin: '0 0 12px', letterSpacing: -0.3, color: 'var(--accent)' }}>
+          {section.heading}
+        </h3>
+      )}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {section.body.split('\n\n').map((para, k) => (
+          <p key={k} style={{ fontFamily: 'var(--font-body)', fontSize: 15, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
+            {highlightTerms(para)}
+          </p>
+        ))}
+        {section.callout && (
+          <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 19, lineHeight: 1.5, color: 'var(--ink)', fontWeight: 300, margin: '8px 0 0', paddingLeft: 16, borderLeft: '2px solid var(--accent)' }}>
+            {section.callout}
+          </p>
+        )}
+        {section.analogy && (
+          <div style={{ marginTop: 24, background: 'rgba(232,168,124,0.04)', border: '1px solid rgba(232,168,124,0.18)', borderRadius: 12, padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 3, color: 'var(--accent)', marginBottom: 4 }}>✦ IN PLAIN ENGLISH</div>
+            {section.analogy.body.map((p, k) => (
+              <p key={k} style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: 0, fontStyle: 'italic' }}>
+                {highlightTerms(p)}
+              </p>
+            ))}
+            <div style={{ margin: '4px 0', background: 'rgba(0,0,0,0.25)', borderRadius: 8, padding: '16px 12px' }}>
+              <YoYoAnimation />
+            </div>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, lineHeight: 1.65, color: 'var(--ink-faint)', fontWeight: 300, margin: 0, fontStyle: 'italic' }}>
+              {section.analogy.caption}
+            </p>
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: '4px 0 0', fontStyle: 'italic' }}>
+              {highlightTerms(section.analogy.footer)}
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export async function generateStaticParams() {
   return APPS.map((app) => ({ slug: app.slug }));
 }
 
-const FEATURES = [
+const FEATURES: NonNullable<App['features']> = [
   {
     title: 'Designed for focus',
     body: 'No streaks. No nudges. No dark patterns. Just the feature you came for.',
@@ -385,90 +436,80 @@ export default async function AppPage({
                 ))}
               </div>
               {f.detail && (
-                <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--line)', fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--accent)' }}>
-                  See deep dive ↓
-                </div>
+                <a href={`#dive-${f.title.toLowerCase().replace(/\s+/g, '-')}`} style={{ textDecoration: 'none' }}>
+                  <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--line)', fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--accent)' }}>
+                    See deep dive ↓
+                  </div>
+                </a>
               )}
             </div>
           ))}
         </div>
 
         {/* Feature deep dives */}
-        {(app.features ?? []).filter(f => f.detail).map((f, i) => (
-          <div key={i} style={{ marginTop: 60, background: '#08090b', borderRadius: 20, border: '1px solid var(--line)', overflow: 'hidden' }}>
-            <div style={{ padding: '20px 40px', borderBottom: '1px solid var(--line)', display: 'flex', alignItems: 'center', gap: 16 }}>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 3 }}>
-                ◈ ALGORITHM DEEP DIVE
-              </span>
-            </div>
-            <div style={{ padding: '48px 40px' }}>
-              <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 36, margin: '0 0 40px', letterSpacing: -1, lineHeight: 1.15, color: 'var(--ink)' }}>
-                <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>{f.detail!.title}</span>
-              </h2>
-              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 48, alignItems: 'flex-start' }}>
-                {/* Left: text */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
-                  {f.detail!.sections.map((section, j) => (
-                    <div key={j}>
-                      {section.heading && (
-                        <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 22, fontWeight: 400, margin: '0 0 12px', letterSpacing: -0.3, color: 'var(--accent)' }}>
-                          {section.heading}
-                        </h3>
-                      )}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                        {section.body.split('\n\n').map((para, k) => (
-                          <p key={k} style={{ fontFamily: 'var(--font-body)', fontSize: 15, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
-                            {highlightTerms(para)}
-                          </p>
-                        ))}
-                        {section.callout && (
-                          <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 19, lineHeight: 1.5, color: 'var(--ink)', fontWeight: 300, margin: '8px 0 0', paddingLeft: 16, borderLeft: '2px solid var(--accent)' }}>
-                            {section.callout}
-                          </p>
-                        )}
-                        {section.analogy && (
-                          <div style={{ marginTop: 24, background: 'rgba(232,168,124,0.04)', border: '1px solid rgba(232,168,124,0.18)', borderRadius: 12, padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-                            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 3, color: 'var(--accent)', marginBottom: 4 }}>✦ IN PLAIN ENGLISH</div>
-                            {section.analogy.body.map((p, k) => (
-                              <p key={k} style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: 0, fontStyle: 'italic' }}>
-                                {highlightTerms(p)}
-                              </p>
-                            ))}
-                            <div style={{ margin: '4px 0', background: 'rgba(0,0,0,0.25)', borderRadius: 8, padding: '16px 12px' }}>
-                              <YoYoAnimation />
-                            </div>
-                            <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, lineHeight: 1.65, color: 'var(--ink-faint)', fontWeight: 300, margin: 0, fontStyle: 'italic' }}>
-                              {section.analogy.caption}
-                            </p>
-                            <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: '4px 0 0', fontStyle: 'italic' }}>
-                              {highlightTerms(section.analogy.footer)}
-                            </p>
-                          </div>
-                        )}
+        {(app.features ?? []).filter(f => f.detail).map((f, i) => {
+          const secs = f.detail!.sections as Section[];
+          return (
+            <div key={i} id={`dive-${f.title.toLowerCase().replace(/\s+/g, '-')}`} style={{ marginTop: 60, background: '#08090b', borderRadius: 20, border: '1px solid var(--line)', overflow: 'hidden' }}>
+              <div style={{ padding: '20px 40px', borderBottom: '1px solid var(--line)', display: 'flex', alignItems: 'center', gap: 16 }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 3 }}>
+                  ◈ ALGORITHM DEEP DIVE
+                </span>
+              </div>
+              <div style={{ padding: '48px 40px', display: 'flex', flexDirection: 'column', gap: 44 }}>
+                <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 36, margin: 0, letterSpacing: -1, lineHeight: 1.15 }}>
+                  <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>{f.detail!.title}</span>
+                </h2>
+
+                {/* Sections 0+1 (intro + Rectangles of Tolerance) alongside images */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: 48, alignItems: 'flex-start' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+                    {secs[0] && renderSection(secs[0])}
+                    {secs[1] && (
+                      <div style={{ borderTop: '1px solid var(--line)', paddingTop: 28 }}>
+                        {renderSection(secs[1])}
                       </div>
+                    )}
+                  </div>
+                  {f.detail!.images && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {f.detail!.images.map((src, j) => (
+                        <div key={j} style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)' }}>
+                          <Image
+                            src={src}
+                            alt=""
+                            width={j === 0 ? 2324 : 1168}
+                            height={j === 0 ? 1146 : 784}
+                            style={{
+                              display: 'block',
+                              width: '100%',
+                              height: j === 0 ? '190px' : '200px',
+                              objectFit: 'cover',
+                              objectPosition: j === 0 ? 'top right' : 'center',
+                            }}
+                          />
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
-                {/* Right: images */}
-                {f.detail!.images && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'sticky', top: 24 }}>
-                    {f.detail!.images.map((src, j) => (
-                      <div key={j} style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)' }}>
-                        <Image
-                          src={src}
-                          alt=""
-                          width={j === 0 ? 2324 : 1168}
-                          height={j === 0 ? 1146 : 784}
-                          style={{ display: 'block', width: '100%', height: 'auto' }}
-                        />
-                      </div>
-                    ))}
+
+                {/* Section 2: The Yo-Yo Walk — full width (contains the analogy + animation) */}
+                {secs[2] && renderSection(secs[2])}
+
+                {/* Section 3: Why It Works + auth match SVG — side by side */}
+                {secs[3] && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'center' }}>
+                    <div>{renderSection(secs[3])}</div>
+                    <div style={{ padding: '24px', background: 'rgba(0,0,0,0.2)', borderRadius: 12, border: '1px solid var(--line)' }}>
+                      <AuthMatchSVG />
+                    </div>
                   </div>
                 )}
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {/* Mission briefing guide */}
         {app.guide && (

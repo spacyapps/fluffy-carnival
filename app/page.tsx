@@ -199,7 +199,7 @@ export default function Home() {
               <span style={{ fontStyle: 'italic' }}>Now</span> — what I&apos;m actually building.
             </h2>
             <p style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--ink-dim)', fontWeight: 300, maxWidth: 360, fontFamily: 'var(--font-body)', margin: 0 }}>
-              Borrowed from Derek Sivers — a public snapshot of what&apos;s on my desk right now. Updated whenever something ships, breaks, or gets gently shelved.
+              Current mission status — updated when things ship, break, or get gently shelved.
             </p>
             <div style={{ marginTop: 28, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-faint)', letterSpacing: 1.5, display: 'flex', alignItems: 'center', gap: 8 }}>
               <span
@@ -266,43 +266,50 @@ export default function Home() {
         </div>
 
         <div className="bo-grid-2" style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 48 }}>
-          <article
-            className="bo-card"
-            style={{
-              padding: '44px 40px',
-              cursor: 'pointer',
-              background: 'var(--bg-panel)',
-              border: '1px solid var(--line)',
-              borderRadius: 14,
-              position: 'relative',
-              overflow: 'hidden',
-            }}
+          <Link
+            href={POSTS[0].link ?? '#'}
+            style={{ textDecoration: 'none', color: 'inherit' }}
           >
-            <div style={{ position: 'absolute', top: -40, right: -40, opacity: 0.5 }}>
-              <BigPlanet size={220} />
-            </div>
-            <div style={{ position: 'relative' }}>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 2, marginBottom: 18 }}>
-                ✦ FEATURED  ·  {POSTS[0].date.toUpperCase()}
+            <article
+              className="bo-card"
+              style={{
+                padding: '44px 40px',
+                cursor: 'pointer',
+                background: 'var(--bg-panel)',
+                border: '1px solid var(--line)',
+                borderRadius: 14,
+                position: 'relative',
+                overflow: 'hidden',
+                height: '100%',
+                boxSizing: 'border-box',
+              }}
+            >
+              <div style={{ position: 'absolute', top: -40, right: -40, opacity: 0.5 }}>
+                <BigPlanet size={220} />
               </div>
-              <h3
-                style={{
-                  fontFamily: 'var(--font-serif)',
-                  fontSize: 44,
-                  fontWeight: 300,
-                  margin: '0 0 18px',
-                  letterSpacing: -1,
-                  lineHeight: 1.05,
-                }}
-              >
-                {POSTS[0].title}
-              </h3>
-              <p style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--ink-dim)', fontWeight: 300, margin: '0 0 24px', maxWidth: 480, fontFamily: 'var(--font-body)' }}>
-                {POSTS[0].excerpt}
-              </p>
-              <span style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 16, color: 'var(--accent)' }}>Keep reading →</span>
-            </div>
-          </article>
+              <div style={{ position: 'relative' }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 2, marginBottom: 18 }}>
+                  ✦ FEATURED  ·  {POSTS[0].date.toUpperCase()}
+                </div>
+                <h3
+                  style={{
+                    fontFamily: 'var(--font-serif)',
+                    fontSize: 44,
+                    fontWeight: 300,
+                    margin: '0 0 18px',
+                    letterSpacing: -1,
+                    lineHeight: 1.05,
+                  }}
+                >
+                  {POSTS[0].title}
+                </h3>
+                <p style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--ink-dim)', fontWeight: 300, margin: '0 0 24px', maxWidth: 480, fontFamily: 'var(--font-body)' }}>
+                  {POSTS[0].excerpt}
+                </p>
+                <span style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 16, color: 'var(--accent)' }}>Keep reading →</span>
+              </div>
+            </article>
+          </Link>
 
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             {POSTS.slice(1).map((p, i) => (
