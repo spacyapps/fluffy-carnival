@@ -61,7 +61,7 @@ export default function Home() {
 
         <div style={{ position: 'relative', textAlign: 'center', marginTop: 40, maxWidth: 620, marginLeft: 'auto', marginRight: 'auto', zIndex: 3 }}>
           <p style={{ fontSize: 18, lineHeight: 1.6, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
-            <span style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: 'var(--ink)' }}>SPACYAPPS</span> is a one-person studio building iOS &amp; Safari apps to assist certain user types. The site is also a space log — there&apos;s writing here when it&apos;s received from orbit.
+            <span style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: 'var(--ink)' }}>SPACYAPPS</span>{' '}is a one-person studio building Apple apps to assist certain user types. The site is also a space log — there&apos;s writing here when it&apos;s received from orbit.
           </p>
           <div className="bo-cta-wrap" style={{ display: 'flex', gap: 14, justifyContent: 'center', marginTop: 36 }}>
             <Link
@@ -374,7 +374,7 @@ export default function Home() {
       >
         <Logotype size={12} color="var(--ink-faint)" />
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-faint)', letterSpacing: 1.5 }}>
-          © MMXXVI  ·  ORBITING SAN FRANCISCO  ·  RSS · MASTODON · @SPACYAPPS
+          © MMX–MMXXVI  ·  @SPACYAPPS
         </span>
       </footer>
 

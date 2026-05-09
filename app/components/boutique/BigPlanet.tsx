@@ -8,7 +8,6 @@ const RING_PHRASES = [
   'Sole Space Adventurer',
   'Made in Space?',
   'AI as my ally',
-  'Old school vibes',
 ];
 
 const ringText = RING_PHRASES.join('   ✦   ') + '   ✦   ';
