@@ -377,6 +377,55 @@ export default async function AppPage({
           ))}
         </div>
 
+        {/* Feature deep dives */}
+        {(app.features ?? []).filter(f => f.detail).map((f, i) => (
+          <div key={i} style={{ marginTop: 60, background: '#08090b', borderRadius: 20, border: '1px solid var(--line)', overflow: 'hidden' }}>
+            <div style={{ padding: '20px 40px', borderBottom: '1px solid var(--line)', display: 'flex', alignItems: 'center', gap: 16 }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 3 }}>
+                ◈ ALGORITHM DEEP DIVE
+              </span>
+            </div>
+            <div style={{ padding: '48px 40px' }}>
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 36, margin: '0 0 40px', letterSpacing: -1, lineHeight: 1.15, color: 'var(--ink)' }}>
+                <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>{f.detail!.title}</span>
+              </h2>
+              {f.detail!.images && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 48 }}>
+                  {f.detail!.images.map((src, j) => (
+                    <div key={j} style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)' }}>
+                      <Image
+                        src={src}
+                        alt=""
+                        width={j === 0 ? 2324 : 1168}
+                        height={j === 0 ? 1146 : 784}
+                        style={{ display: 'block', width: '100%', height: 'auto' }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+                {f.detail!.sections.map((section, j) => (
+                  <div key={j}>
+                    {section.heading && (
+                      <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 22, fontWeight: 400, margin: '0 0 12px', letterSpacing: -0.3, color: 'var(--accent)' }}>
+                        {section.heading}
+                      </h3>
+                    )}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                      {section.body.split('\n\n').map((para, k) => (
+                        <p key={k} style={{ fontFamily: 'var(--font-body)', fontSize: 15, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
+                          {para}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
+
         {/* Mission briefing guide */}
         {app.guide && (
           <div id="guide" style={{

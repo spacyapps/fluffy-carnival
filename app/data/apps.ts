@@ -12,7 +12,15 @@ export interface App {
   videoUrl?: string;
   screenshot?: string;
   description?: string;
-  features?: { title: string; body: string }[];
+  features?: {
+    title: string;
+    body: string;
+    detail?: {
+      title: string;
+      images?: string[];
+      sections: { heading?: string; body: string }[];
+    };
+  }[];
   guide?: { heading: string; steps: { title: string; body: string }[] };
 }
 
@@ -33,6 +41,27 @@ export const APPS: App[] = [
       {
         title: 'Original signature algorithm',
         body: 'Written in Obj-C, the algorithm uses gesture point distances, relative locations, and per-metric thresholds to build a reliable single signature matching system. Kept in Obj-C for compatibility.',
+        detail: {
+          title: 'The Yo-Yo Matching Algorithm for Hand-Drawn Authentication',
+          images: ['/secret-stuff-algo-code.png', '/secret-stuff-algo-diagram.jpg'],
+          sections: [
+            {
+              body: 'When a user draws their Picture Key, the app records a sequence of points — the raw coordinates of a finger moving across the screen. The saved key is one sequence; the login attempt is another. The goal: decide if two hand-drawn paths are the same, knowing that no two drawings are ever identical.',
+            },
+            {
+              heading: 'Rectangles of Tolerance',
+              body: 'Every point in both sequences is given a tolerance rectangle — a square box centered on that point, extending outward by a fixed sensitivity distance on all sides. Two points "agree" if their boxes overlap. This accommodates the natural imprecision of a human hand rather than demanding pixel-perfect accuracy.',
+            },
+            {
+              heading: 'The Yo-Yo Walk',
+              body: 'The comparison uses two pointers — one for the saved key, one for the attempt — that walk their respective sequences together. At each step, the algorithm checks whether the current box from the saved path overlaps the current box from the attempt. If they don\'t overlap, the match fails immediately.\n\nWhen they do overlap, the algorithm decides which pointer to advance next. It measures two distances: how close the saved path\'s next point is to the attempt\'s current position, and vice versa. Whichever path\'s next point is closer to the other\'s current position gets to advance. This creates a yo-yo effect — the two pointers trade advances back and forth, one pulling ahead while the other catches up, keeping the boxes in contact as they move along both paths together.\n\nThis naturally handles the fact that two drawings of the same shape won\'t have the same number of sampled points. A faster draw produces fewer points; a slower one produces more. No preprocessing of the drawing is needed.',
+            },
+            {
+              heading: 'Why It Works for Authentication',
+              body: 'The immediate-fail rule is a deliberate security decision. A drawing that drifts outside the tolerance zone — even once — is rejected. There is no averaging, no best-fit recovery, no forgiveness for a single bad segment. The path either stays within its tolerance envelope the entire way, or it doesn\'t. That strictness is what makes it a reliable lock rather than just a similarity score.',
+            },
+          ],
+        },
       },
       {
         title: 'Obj-C → SwiftUI migration',
