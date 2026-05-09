@@ -373,6 +373,11 @@ export default async function AppPage({
                   </p>
                 ))}
               </div>
+              {f.detail && (
+                <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--line)', fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--accent)' }}>
+                  See deep dive ↓
+                </div>
+              )}
             </div>
           ))}
         </div>
