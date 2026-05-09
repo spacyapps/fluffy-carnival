@@ -7,10 +7,12 @@ const SAVED   = [[30,60],[85,54],[135,62],[174,57],[254,63],[344,56],[414,61],[4
 const ATTEMPT = [[30,126],[72,131],[120,124],[190,130],[238,125],[288,132],[348,127],[418,130],[474,127]] as const;
 
 // yo-yo sequence: [savedIdx, attemptIdx, who-advanced]
+// computed from actual greedy rule: whichever side's NEXT point
+// is closer to the OTHER side's CURRENT position gets to advance.
 const SEQ: [number, number, 's'|'a'|null][] = [
-  [0,0,null],[1,0,'s'],[1,1,'a'],[2,1,'s'],[2,2,'a'],[2,3,'a'],
-  [3,3,'s'],[4,3,'s'],[4,4,'a'],[4,5,'a'],[5,5,'s'],[5,6,'a'],
-  [6,6,'s'],[6,7,'a'],[7,7,'s'],[7,8,'a'],
+  [0,0,null],[0,1,'a'],[1,1,'s'],[1,2,'a'],[2,2,'s'],[3,2,'s'],
+  [3,3,'a'],[4,3,'s'],[4,4,'a'],[4,5,'a'],[5,5,'s'],[5,6,'a'],
+  [6,6,'s'],[6,7,'a'],[6,8,'a'],[7,8,'s'],
 ];
 
 const SC = '#3dd5e8'; // saved — cyan
