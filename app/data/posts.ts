@@ -10,7 +10,7 @@ export interface Post {
 export const POSTS: Post[] = [
   {
     slug: 'secret-stuff-algo-deep-dive',
-    title: 'The Yo-Yo Signature Matching Algorithm.',
+    title: 'The Signature Gesture Matching Algorithm.',
     date: 'May 8, 2026',
     read: '8 min read',
     excerpt: 'How a greedy pointer walk and overlapping tolerance boxes turn two imperfect hand-drawn paths into a reliable authentication lock — written in Obj-C circa 2010, still running today.',

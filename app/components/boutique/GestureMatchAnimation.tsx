@@ -18,7 +18,7 @@ const SEQ: [number, number, 's'|'a'|null][] = [
 const SC = '#3dd5e8'; // saved — cyan
 const AC = '#3de87a'; // attempt — green
 
-export default function YoYoAnimation() {
+export default function GestureMatchAnimation() {
   const [step, setStep] = useState(0);
   const isLast = step === SEQ.length - 1;
 

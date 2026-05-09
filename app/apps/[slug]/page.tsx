@@ -5,11 +5,11 @@ import { APPS, type App } from '../../data/apps';
 import Stars from '../../components/boutique/Stars';
 import Logotype from '../../components/boutique/Logotype';
 import AppIcon from '../../components/boutique/AppIcon';
-import YoYoAnimation from '../../components/boutique/YoYoAnimation';
+import GestureMatchAnimation from '../../components/boutique/GestureMatchAnimation';
 import AuthMatchSVG from '../../components/boutique/AuthMatchSVG';
 
 function highlightTerms(text: string) {
-  const terms = ['yo-yo effect', 'greedy'];
+  const terms = ['greedy traversal', 'greedy'];
   const pattern = new RegExp(`(${terms.join('|')})`, 'gi');
   return text.split(pattern).map((part, i) =>
     terms.some(t => t.toLowerCase() === part.toLowerCase())
@@ -53,7 +53,7 @@ function renderSection(section: Section) {
               </p>
             ))}
             <div style={{ margin: '4px 0', background: 'rgba(0,0,0,0.25)', borderRadius: 8, padding: '16px 12px' }}>
-              <YoYoAnimation />
+              <GestureMatchAnimation />
             </div>
             <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, lineHeight: 1.65, color: 'var(--ink-faint)', fontWeight: 300, margin: 0, fontStyle: 'italic' }}>
               {section.analogy.caption}
@@ -494,7 +494,7 @@ export default async function AppPage({
                   )}
                 </div>
 
-                {/* Section 2: The Yo-Yo Walk — full width (contains the analogy + animation) */}
+                {/* Section 2: The Greedy Traversal — full width (contains the analogy + animation) */}
                 {secs[2] && renderSection(secs[2])}
 
                 {/* Section 3: Why It Works + auth match SVG — side by side */}
