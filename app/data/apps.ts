@@ -50,7 +50,7 @@ export const APPS: App[] = [
         body: 'Written in Obj-C, the algorithm uses gesture point distances, relative locations, and per-metric thresholds to build a reliable single signature matching system. Kept in Obj-C for compatibility.',
         detail: {
           title: 'Signature Gesture Matching Algorithm for Hand-Drawn Authentication',
-          images: ['/secret-stuff-algo-code.png', '/secret-stuff-algo-diagram.jpg'],
+          images: ['/secret-stuff-algo-code.png'],
           sections: [
             {
               body: 'When a user draws their Picture Key, the app records a sequence of points — the raw coordinates of a finger moving across the screen. The saved key is one sequence; the login attempt is another.',

@@ -8,6 +8,77 @@ import AppIcon from '../../components/boutique/AppIcon';
 import GestureMatchAnimation from '../../components/boutique/GestureMatchAnimation';
 import AuthMatchSVG from '../../components/boutique/AuthMatchSVG';
 
+function ToleranceRectSVG() {
+  const accent = '#e8a87c';
+  const faint = 'rgba(236,230,214,0.34)';
+  const mono = 'var(--font-mono)';
+
+  // Match scenario: P and Q close, boxes overlap
+  const mPx = 72, mPy = 88, mQx = 100, mQy = 100, half = 28;
+  // Fail scenario: P and Q far apart, no overlap
+  const fPx = 194, fPy = 72, fQx = 230, fQy = 108, fHalf = 28;
+
+  // Overlap rect for match scenario
+  const ox1 = Math.max(mPx - half, mQx - half);
+  const oy1 = Math.max(mPy - half, mQy - half);
+  const ox2 = Math.min(mPx + half, mQx + half);
+  const oy2 = Math.min(mPy + half, mQy + half);
+
+  return (
+    <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)', background: 'rgba(0,0,0,0.25)' }}>
+      <svg width="100%" viewBox="0 0 296 190" style={{ display: 'block' }}>
+        {/* header label */}
+        <text x="148" y="18" textAnchor="middle" fontFamily={mono} fontSize="8" letterSpacing="2" fill={faint}>
+          RECTANGLES OF TOLERANCE
+        </text>
+
+        {/* ── MATCH SCENARIO ── */}
+        {/* P box */}
+        <rect x={mPx - half} y={mPy - half} width={half * 2} height={half * 2}
+          fill="none" stroke={accent} strokeOpacity="0.5" strokeWidth="1" strokeDasharray="3 3" />
+        {/* Q box */}
+        <rect x={mQx - half} y={mQy - half} width={half * 2} height={half * 2}
+          fill="none" stroke="#9bb5c9" strokeOpacity="0.5" strokeWidth="1" strokeDasharray="3 3" />
+        {/* overlap fill */}
+        {ox2 > ox1 && oy2 > oy1 && (
+          <rect x={ox1} y={oy1} width={ox2 - ox1} height={oy2 - oy1}
+            fill={accent} fillOpacity="0.12" />
+        )}
+        {/* P dot + label */}
+        <circle cx={mPx} cy={mPy} r="3" fill={accent} />
+        <text x={mPx - 2} y={mPy - half - 6} textAnchor="middle" fontFamily={mono} fontSize="9" fill={accent} fillOpacity="0.9">P</text>
+        {/* Q dot + label */}
+        <circle cx={mQx} cy={mQy} r="3" fill="#9bb5c9" />
+        <text x={mQx + 2} y={mQy + half + 14} textAnchor="middle" fontFamily={mono} fontSize="9" fill="#9bb5c9" fillOpacity="0.9">Q</text>
+        {/* result label */}
+        <text x="88" y="168" textAnchor="middle" fontFamily={mono} fontSize="8.5" letterSpacing="1" fill={accent} fillOpacity="0.85">boxes overlap → match</text>
+
+        {/* divider */}
+        <line x1="148" y1="32" x2="148" y2="162" stroke="rgba(236,230,214,0.1)" strokeWidth="1" />
+
+        {/* ── FAIL SCENARIO ── */}
+        {/* P box */}
+        <rect x={fPx - fHalf} y={fPy - fHalf} width={fHalf * 2} height={fHalf * 2}
+          fill="none" stroke={accent} strokeOpacity="0.5" strokeWidth="1" strokeDasharray="3 3" />
+        {/* Q box */}
+        <rect x={fQx - fHalf} y={fQy - fHalf} width={fHalf * 2} height={fHalf * 2}
+          fill="none" stroke="#9bb5c9" strokeOpacity="0.5" strokeWidth="1" strokeDasharray="3 3" />
+        {/* P dot + label */}
+        <circle cx={fPx} cy={fPy} r="3" fill={accent} />
+        <text x={fPx} y={fPy - fHalf - 6} textAnchor="middle" fontFamily={mono} fontSize="9" fill={accent} fillOpacity="0.9">P</text>
+        {/* Q dot + label */}
+        <circle cx={fQx} cy={fQy} r="3" fill="#9bb5c9" />
+        <text x={fQx} y={fQy + fHalf + 14} textAnchor="middle" fontFamily={mono} fontSize="9" fill="#9bb5c9" fillOpacity="0.9">Q</text>
+        {/* no-overlap cross */}
+        <line x1={fPx + fHalf + 2} y1={fPy} x2={fQx - fHalf - 2} y2={fQy}
+          stroke="rgba(236,230,214,0.15)" strokeWidth="1" strokeDasharray="2 4" />
+        {/* result label */}
+        <text x="212" y="168" textAnchor="middle" fontFamily={mono} fontSize="8.5" letterSpacing="1" fill="rgba(236,230,214,0.4)">no overlap → fail</text>
+      </svg>
+    </div>
+  );
+}
+
 function highlightTerms(text: string) {
   const terms = ['greedy traversal', 'greedy'];
   const pattern = new RegExp(`(${terms.join('|')})`, 'gi');
@@ -465,6 +536,9 @@ export default async function AppPage({
                 <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: 48, alignItems: 'flex-start' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
                     {secs[0] && renderSection(secs[0])}
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2, color: 'var(--ink-faint)', marginTop: -8 }}>
+                      Algorithm Implemented · August 2010
+                    </div>
                     {secs[1] && (
                       <div style={{ borderTop: '1px solid var(--line)', paddingTop: 28 }}>
                         {renderSection(secs[1])}
@@ -478,18 +552,19 @@ export default async function AppPage({
                           <Image
                             src={src}
                             alt=""
-                            width={j === 0 ? 2324 : 1168}
-                            height={j === 0 ? 1146 : 784}
+                            width={2324}
+                            height={1146}
                             style={{
                               display: 'block',
                               width: '100%',
-                              height: j === 0 ? '190px' : '200px',
+                              height: '190px',
                               objectFit: 'cover',
-                              objectPosition: j === 0 ? 'top right' : 'center',
+                              objectPosition: 'top right',
                             }}
                           />
                         </div>
                       ))}
+                      <ToleranceRectSVG />
                     </div>
                   )}
                 </div>
@@ -511,7 +586,7 @@ export default async function AppPage({
                 <div style={{ borderTop: '1px solid var(--line)', paddingTop: 24 }}>
                   <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 1.5, color: 'var(--ink-faint)', margin: 0, lineHeight: 1.9 }}>
                     Signature Gesture Matching Algorithm for Hand-Drawn Authentication<br />
-                    &copy; MMX Walter Mak / SpacyApps. All rights reserved.
+                    Authored 14 August 2010 &nbsp;·&nbsp; &copy; MMX Walter Mak / SpacyApps. All rights reserved.
                   </p>
                 </div>
               </div>
