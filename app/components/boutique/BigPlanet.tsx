@@ -16,14 +16,15 @@ const ringFull = (ringText + ringText + ringText).toUpperCase();
 const cx = 200, cy = 200, rx = 180, ry = 60;
 const tilt = -14;
 
+const r4 = (n: number) => Math.round(n * 10000) / 10000;
 const RING_PARTICLES = Array.from({ length: 60 }, (_, i) => {
   const angle = (i / 60) * Math.PI * 2;
   const v = 1 + Math.sin(i * 7.3 + 1.1) * 0.1;
   return {
-    x: cx + 170 * v * Math.cos(angle),
-    y: cy + 57 * v * Math.sin(angle),
-    r: 0.5 + Math.abs(Math.cos(i * 2.7 + 0.5)) * 1.4,
-    opacity: 0.07 + Math.abs(Math.sin(i * 3.1 + 0.8)) * 0.16,
+    x: r4(cx + 170 * v * Math.cos(angle)),
+    y: r4(cy + 57 * v * Math.sin(angle)),
+    r: r4(0.5 + Math.abs(Math.cos(i * 2.7 + 0.5)) * 1.4),
+    opacity: r4(0.07 + Math.abs(Math.sin(i * 3.1 + 0.8)) * 0.16),
   };
 });
 

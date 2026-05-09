@@ -506,6 +506,14 @@ export default async function AppPage({
                     </div>
                   </div>
                 )}
+
+                {/* Copyright */}
+                <div style={{ borderTop: '1px solid var(--line)', paddingTop: 24 }}>
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 1.5, color: 'var(--ink-faint)', margin: 0, lineHeight: 1.9 }}>
+                    Signature Gesture Matching Algorithm for Hand-Drawn Authentication<br />
+                    &copy; MMX Walter Mak / SpacyApps. All rights reserved.
+                  </p>
+                </div>
               </div>
             </div>
           );
