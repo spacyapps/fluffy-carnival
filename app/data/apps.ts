@@ -10,6 +10,7 @@ export interface App {
   storeUrl?: string;
   websiteUrl?: string;
   videoUrl?: string;
+  legacyVideoUrl?: string;
   screenshot?: string;
   description?: string;
   features?: {
@@ -40,6 +41,7 @@ export const APPS: App[] = [
     tagline: 'An iOS app to keep those prying eyes away.',
     icon: '/icon-secret-stuff.png',
     storeUrl: 'https://apps.apple.com/us/app/secret-stuff/id437415402',
+    legacyVideoUrl: 'https://www.youtube.com/watch?v=sJXtXjAEWOQ',
     videoUrl: '/secret-stuff-demo.mov',
     description: 'Built sometime around 2010 — my first fully deployed app, spanning multiple countries. That reach opened up opportunities throughout my life and career that I never expected. I\'m happy to bring it back as a legacy app, a reminder of where it all started.',
     features: [

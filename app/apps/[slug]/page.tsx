@@ -560,6 +560,40 @@ export default async function AppPage({
           </div>
         )}
 
+        {/* Legacy video link */}
+        {app.legacyVideoUrl && (
+          <div style={{ marginTop: 80, textAlign: 'center' }}>
+            <a
+              href={app.legacyVideoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ textDecoration: 'none', display: 'inline-block' }}
+            >
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 14,
+                border: '1px dashed rgba(236,230,214,0.2)',
+                borderRadius: 12,
+                padding: '18px 28px',
+                transition: 'border-color 0.3s ease, background 0.3s ease',
+              }}
+                className="bo-card"
+              >
+                <span style={{ fontSize: 28 }}>📼</span>
+                <div style={{ textAlign: 'left' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 3, color: 'var(--accent)', marginBottom: 4 }}>
+                    THE OG · CIRCA 2012
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 17, color: 'var(--ink)', letterSpacing: -0.3 }}>
+                    Watch the original launch video ↗
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+        )}
+
       </div>
     </div>
   );
