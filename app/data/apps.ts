@@ -18,7 +18,12 @@ export interface App {
     detail?: {
       title: string;
       images?: string[];
-      sections: { heading?: string; body: string; callout?: string }[];
+      sections: {
+        heading?: string;
+        body: string;
+        callout?: string;
+        analogy?: { body: string[]; diagram: string; caption: string; footer: string };
+      }[];
     };
   }[];
   guide?: { heading: string; steps: { title: string; body: string }[] };
@@ -56,6 +61,16 @@ export const APPS: App[] = [
             {
               heading: 'The Yo-Yo Walk',
               body: 'The comparison uses two pointers — one for the saved key, one for the attempt — that walk their respective sequences together. At each step, the algorithm checks whether the current box from the saved path overlaps the current box from the attempt. If they don\'t overlap, the match fails immediately.\n\nWhen they do overlap, the algorithm makes a greedy decision about which pointer to advance next. It measures two distances: how close the saved path\'s next point is to the attempt\'s current position, and vice versa. Whichever path\'s next point is closer to the other\'s current position gets to advance — no lookahead, no backtracking, just the locally best choice at each step. This creates a yo-yo effect — the two pointers trade advances back and forth, one pulling ahead while the other catches up, keeping the boxes in contact as they move along both paths together.\n\nThis naturally handles the fact that two drawings of the same shape won\'t have the same number of sampled points. A faster draw produces fewer points; a slower one produces more. No preprocessing of the drawing is needed.',
+              analogy: {
+                body: [
+                  'Imagine two hikers walking two different trails that run roughly parallel — one hiker on the saved path, one on the attempt path. They\'re connected by a bungee cord.',
+                  'At every step, they check: are we still close enough that our boxes overlap? If yes, whoever is behind gets pulled forward by the bungee — they take the next step to catch up. If the lead hiker is way ahead, the trailing one advances several steps in a row until they\'re level again. Then the other one surges ahead and the dynamic flips.',
+                  'The yo-yo is that rhythm of one advancing, then the other, then back — neither one marching in lockstep, but always staying tethered within the tolerance distance.',
+                ],
+                diagram: 'Saved:   ●──●──●──────●──●\n                 ↕ bungee\nAttempt: ●────────●──●──●──●',
+                caption: 'The moment the bungee stretches too far — boxes no longer touch — the match is over. They\'ve diverged.',
+                footer: 'What makes it feel like a yo-yo rather than two people walking side by side is that the speed of advancement oscillates. One path might have dense point clusters (slow careful drawing) while the other has sparse points (quick confident stroke) in the same region. The greedy step absorbs that mismatch naturally — the dense side advances many times while the sparse side waits, then the roles flip.',
+              },
             },
             {
               heading: 'Why It Works for Authentication',

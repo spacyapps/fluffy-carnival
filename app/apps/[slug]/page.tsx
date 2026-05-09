@@ -425,6 +425,25 @@ export default async function AppPage({
                             {section.callout}
                           </p>
                         )}
+                        {section.analogy && (
+                          <div style={{ marginTop: 24, background: 'rgba(232,168,124,0.04)', border: '1px solid rgba(232,168,124,0.18)', borderRadius: 12, padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+                            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 3, color: 'var(--accent)', marginBottom: 4 }}>✦ IN PLAIN ENGLISH</div>
+                            {section.analogy.body.map((p, k) => (
+                              <p key={k} style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: 0, fontStyle: 'italic' }}>
+                                {highlightTerms(p)}
+                              </p>
+                            ))}
+                            <pre style={{ fontFamily: 'var(--font-mono)', fontSize: 12, lineHeight: 1.8, color: 'var(--accent)', background: 'rgba(0,0,0,0.3)', borderRadius: 8, padding: '14px 18px', margin: '4px 0', whiteSpace: 'pre', overflowX: 'auto' }}>
+                              {section.analogy.diagram}
+                            </pre>
+                            <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, lineHeight: 1.65, color: 'var(--ink-faint)', fontWeight: 300, margin: 0, fontStyle: 'italic' }}>
+                              {section.analogy.caption}
+                            </p>
+                            <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: '4px 0 0', fontStyle: 'italic' }}>
+                              {highlightTerms(section.analogy.footer)}
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
