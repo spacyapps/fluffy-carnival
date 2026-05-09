@@ -16,7 +16,7 @@ export default function Nav() {
     >
       <div className="bo-nav-left" style={{ display: 'flex', gap: 28, fontSize: 14, color: 'var(--ink-dim)', fontWeight: 500, fontFamily: 'var(--font-body)' }}>
         <Link href="#missions" className="bo-link" style={{ color: 'inherit' }}>Missions</Link>
-        <Link href="#log" className="bo-link" style={{ color: 'inherit' }}>Log</Link>
+        <Link href="/journal" className="bo-link" style={{ color: 'inherit' }}>Journal</Link>
         <Link href="#now" className="bo-link" style={{ color: 'inherit' }}>Now</Link>
       </div>
       <Logotype size={14} />

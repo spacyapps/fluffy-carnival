@@ -28,7 +28,7 @@ const RING_PARTICLES = Array.from({ length: 60 }, (_, i) => {
   };
 });
 
-export default function BigPlanet({ size = 380 }: { size?: number }) {
+export default function BigPlanet({ size = 380, variant = 'full' }: { size?: number; variant?: 'full' | 'rings' }) {
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
@@ -88,7 +88,7 @@ export default function BigPlanet({ size = 380 }: { size?: number }) {
         {/* Outer glow */}
         <circle cx={cx} cy={cy} r="195" fill="url(#bp-glow)" />
 
-        {/* ── BACK LAYER ── rings + moons before planet */}
+        {/* ── BACK LAYER ── rings before planet */}
         <g style={{ transform: `rotate(${tilt}deg)`, transformOrigin: `${cx}px ${cy}px` }}>
           <ellipse cx={cx} cy={cy} rx={146} ry={48} fill="none" stroke="rgba(210,160,80,0.05)" strokeWidth="3" />
           <ellipse cx={cx} cy={cy} rx={155} ry={51} fill="none" stroke="rgba(220,175,100,0.10)" strokeWidth="7" />
@@ -100,30 +100,36 @@ export default function BigPlanet({ size = 380 }: { size?: number }) {
           {RING_PARTICLES.map((p, i) => (
             <circle key={i} cx={p.x} cy={p.y} r={p.r} fill="rgba(230,185,110,1)" opacity={p.opacity} />
           ))}
-          <text fill="var(--ink)" fontFamily="var(--font-display)" fontSize="13" fontWeight="600" letterSpacing="5" style={{ opacity: 0.35 }}>
-            <textPath href="#bp-ring" startOffset="0">
-              {ringFull}
-              {!reducedMotion && <animate attributeName="startOffset" from="0%" to="-100%" dur="40s" repeatCount="indefinite" />}
-            </textPath>
-          </text>
+          {variant === 'full' && (
+            <text fill="var(--ink)" fontFamily="var(--font-display)" fontSize="13" fontWeight="600" letterSpacing="5" style={{ opacity: 0.35 }}>
+              <textPath href="#bp-ring" startOffset="0">
+                {ringFull}
+                {!reducedMotion && <animate attributeName="startOffset" from="0%" to="-100%" dur="40s" repeatCount="indefinite" />}
+              </textPath>
+            </text>
+          )}
         </g>
 
         {/* Moon 1 back (retrograde) */}
-        <g style={{ transform: `rotate(${tilt}deg)`, transformOrigin: `${cx}px ${cy}px` }}>
-          <g>
-            {!reducedMotion && <animateTransform attributeName="transform" type="rotate" from={`360 ${cx} ${cy}`} to={`0 ${cx} ${cy}`} dur="22s" repeatCount="indefinite" />}
-            <circle cx={cx + 258} cy={cy} r="13" fill="url(#bp-moon1)" opacity="0.42" />
-            <circle cx={cx + 258} cy={cy} r="13" fill="none" stroke="rgba(220,185,130,0.2)" strokeWidth="0.8" />
+        {variant === 'full' && (
+          <g style={{ transform: `rotate(${tilt}deg)`, transformOrigin: `${cx}px ${cy}px` }}>
+            <g>
+              {!reducedMotion && <animateTransform attributeName="transform" type="rotate" from={`360 ${cx} ${cy}`} to={`0 ${cx} ${cy}`} dur="22s" repeatCount="indefinite" />}
+              <circle cx={cx + 258} cy={cy} r="13" fill="url(#bp-moon1)" opacity="0.42" />
+              <circle cx={cx + 258} cy={cy} r="13" fill="none" stroke="rgba(220,185,130,0.2)" strokeWidth="0.8" />
+            </g>
           </g>
-        </g>
+        )}
 
         {/* Moon 2 back */}
-        <g style={{ transform: `rotate(${tilt}deg)`, transformOrigin: `${cx}px ${cy}px` }}>
-          <g>
-            {!reducedMotion && <animateTransform attributeName="transform" type="rotate" from={`0 ${cx} ${cy}`} to={`360 ${cx} ${cy}`} dur="38s" repeatCount="indefinite" />}
-            <circle cx={cx + 308} cy={cy} r="8" fill="url(#bp-moon2)" opacity="0.42" />
+        {variant === 'full' && (
+          <g style={{ transform: `rotate(${tilt}deg)`, transformOrigin: `${cx}px ${cy}px` }}>
+            <g>
+              {!reducedMotion && <animateTransform attributeName="transform" type="rotate" from={`0 ${cx} ${cy}`} to={`360 ${cx} ${cy}`} dur="38s" repeatCount="indefinite" />}
+              <circle cx={cx + 308} cy={cy} r="8" fill="url(#bp-moon2)" opacity="0.42" />
+            </g>
           </g>
-        </g>
+        )}
 
         {/* ── PLANET ── */}
         <circle cx={cx} cy={cy} r="120" fill="url(#bp-body)" />
@@ -156,30 +162,36 @@ export default function BigPlanet({ size = 380 }: { size?: number }) {
           {RING_PARTICLES.map((p, i) => (
             <circle key={i} cx={p.x} cy={p.y} r={p.r} fill="rgba(235,195,120,1)" opacity={Math.min(p.opacity * 1.8, 0.35)} />
           ))}
-          <text fill="var(--ink)" fontFamily="var(--font-display)" fontSize="13" fontWeight="600" letterSpacing="5" style={{ opacity: 0.95 }}>
-            <textPath href="#bp-ring" startOffset="0">
-              {ringFull}
-              {!reducedMotion && <animate attributeName="startOffset" from="0%" to="-100%" dur="40s" repeatCount="indefinite" />}
-            </textPath>
-          </text>
+          {variant === 'full' && (
+            <text fill="var(--ink)" fontFamily="var(--font-display)" fontSize="13" fontWeight="600" letterSpacing="5" style={{ opacity: 0.95 }}>
+              <textPath href="#bp-ring" startOffset="0">
+                {ringFull}
+                {!reducedMotion && <animate attributeName="startOffset" from="0%" to="-100%" dur="40s" repeatCount="indefinite" />}
+              </textPath>
+            </text>
+          )}
         </g>
 
         {/* Moon 1 front */}
-        <g style={{ transform: `rotate(${tilt}deg)`, transformOrigin: `${cx}px ${cy}px` }} clipPath="url(#bp-moon-front)">
-          <g>
-            {!reducedMotion && <animateTransform attributeName="transform" type="rotate" from={`360 ${cx} ${cy}`} to={`0 ${cx} ${cy}`} dur="22s" repeatCount="indefinite" />}
-            <circle cx={cx + 258} cy={cy} r="13" fill="url(#bp-moon1)" />
-            <circle cx={cx + 258} cy={cy} r="13" fill="none" stroke="rgba(220,185,130,0.3)" strokeWidth="0.8" />
+        {variant === 'full' && (
+          <g style={{ transform: `rotate(${tilt}deg)`, transformOrigin: `${cx}px ${cy}px` }} clipPath="url(#bp-moon-front)">
+            <g>
+              {!reducedMotion && <animateTransform attributeName="transform" type="rotate" from={`360 ${cx} ${cy}`} to={`0 ${cx} ${cy}`} dur="22s" repeatCount="indefinite" />}
+              <circle cx={cx + 258} cy={cy} r="13" fill="url(#bp-moon1)" />
+              <circle cx={cx + 258} cy={cy} r="13" fill="none" stroke="rgba(220,185,130,0.3)" strokeWidth="0.8" />
+            </g>
           </g>
-        </g>
+        )}
 
         {/* Moon 2 front */}
-        <g style={{ transform: `rotate(${tilt}deg)`, transformOrigin: `${cx}px ${cy}px` }} clipPath="url(#bp-moon-front)">
-          <g>
-            {!reducedMotion && <animateTransform attributeName="transform" type="rotate" from={`0 ${cx} ${cy}`} to={`360 ${cx} ${cy}`} dur="38s" repeatCount="indefinite" />}
-            <circle cx={cx + 308} cy={cy} r="8" fill="url(#bp-moon2)" />
+        {variant === 'full' && (
+          <g style={{ transform: `rotate(${tilt}deg)`, transformOrigin: `${cx}px ${cy}px` }} clipPath="url(#bp-moon-front)">
+            <g>
+              {!reducedMotion && <animateTransform attributeName="transform" type="rotate" from={`0 ${cx} ${cy}`} to={`360 ${cx} ${cy}`} dur="38s" repeatCount="indefinite" />}
+              <circle cx={cx + 308} cy={cy} r="8" fill="url(#bp-moon2)" />
+            </g>
           </g>
-        </g>
+        )}
       </svg>
     </div>
   );

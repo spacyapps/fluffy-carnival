@@ -83,7 +83,7 @@ export default function Home() {
               Tour the missions →
             </Link>
             <Link
-              href="#log"
+              href="/journal"
               style={{
                 background: 'transparent',
                 color: 'var(--ink)',
@@ -97,7 +97,7 @@ export default function Home() {
                 display: 'inline-block',
               }}
             >
-              Read the log
+              Read the journal
             </Link>
           </div>
         </div>
@@ -240,11 +240,11 @@ export default function Home() {
       </section>
 
       {/* LOG */}
-      <section id="log" className="bo-section" style={{ padding: '96px 56px', borderTop: '1px solid var(--line)' }}>
+      <section id="journal" className="bo-section" style={{ padding: '96px 56px', borderTop: '1px solid var(--line)' }}>
         <div className="bo-flex-col" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 56 }}>
           <div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 3, color: 'var(--accent-2)', marginBottom: 14 }}>
-              III.  THE LOG
+              III.  THE JOURNAL
             </div>
             <h2
               className="bo-h-lg"
@@ -257,80 +257,53 @@ export default function Home() {
                 lineHeight: 0.95,
               }}
             >
-              Transmissions from <span style={{ fontStyle: 'italic', color: 'var(--accent-2)' }}>orbit.</span>
+              Filed from <span style={{ fontStyle: 'italic', color: 'var(--accent-2)' }}>orbit.</span>
             </h2>
           </div>
-          <Link href="#" className="bo-link" style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 17, color: 'var(--ink-dim)' }}>
+          <Link href="/journal" className="bo-link" style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 17, color: 'var(--ink-dim)' }}>
             All entries →
           </Link>
         </div>
 
-        <div className="bo-grid-2" style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 48 }}>
-          <Link
-            href={POSTS[0].link ?? '#'}
-            style={{ textDecoration: 'none', color: 'inherit' }}
+        <Link href={POSTS[0].link ?? '/journal'} style={{ textDecoration: 'none', color: 'inherit', display: 'block', maxWidth: 820 }}>
+          <article
+            className="bo-card"
+            style={{
+              padding: '44px 48px',
+              cursor: 'pointer',
+              background: 'var(--bg-panel)',
+              border: '1px solid var(--line)',
+              borderRadius: 14,
+              position: 'relative',
+              overflow: 'hidden',
+            }}
           >
-            <article
-              className="bo-card"
-              style={{
-                padding: '44px 40px',
-                cursor: 'pointer',
-                background: 'var(--bg-panel)',
-                border: '1px solid var(--line)',
-                borderRadius: 14,
-                position: 'relative',
-                overflow: 'hidden',
-                height: '100%',
-                boxSizing: 'border-box',
-              }}
-            >
-              <div style={{ position: 'absolute', top: -40, right: -40, opacity: 0.5 }}>
-                <BigPlanet size={220} />
+            <div style={{ position: 'absolute', top: -40, right: -40, opacity: 0.5 }}>
+              <BigPlanet size={220} />
+            </div>
+            <div style={{ position: 'relative' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 2, marginBottom: 18 }}>
+                ✦ FEATURED  ·  {POSTS[0].date.toUpperCase()}
               </div>
-              <div style={{ position: 'relative' }}>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 2, marginBottom: 18 }}>
-                  ✦ FEATURED  ·  {POSTS[0].date.toUpperCase()}
-                </div>
-                <h3
-                  style={{
-                    fontFamily: 'var(--font-serif)',
-                    fontSize: 44,
-                    fontWeight: 300,
-                    margin: '0 0 18px',
-                    letterSpacing: -1,
-                    lineHeight: 1.05,
-                  }}
-                >
-                  {POSTS[0].title}
-                </h3>
-                <p style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--ink-dim)', fontWeight: 300, margin: '0 0 24px', maxWidth: 480, fontFamily: 'var(--font-body)' }}>
-                  {POSTS[0].excerpt}
-                </p>
-                <span style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 16, color: 'var(--accent)' }}>Keep reading →</span>
-              </div>
-            </article>
-          </Link>
-
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {POSTS.slice(1).map((p, i) => (
-              <article
-                key={i}
-                className="bo-card"
+              <h3
                 style={{
-                  padding: '24px 4px',
-                  cursor: 'pointer',
-                  borderBottom: i < POSTS.length - 2 ? '1px solid var(--line)' : 'none',
+                  fontFamily: 'var(--font-serif)',
+                  fontSize: 44,
+                  fontWeight: 300,
+                  margin: '0 0 18px',
+                  letterSpacing: -1,
+                  lineHeight: 1.05,
                 }}
               >
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-faint)', letterSpacing: 1.5, marginBottom: 10 }}>
-                  {p.date.toUpperCase()}  ·  {p.read.toUpperCase()}
-                </div>
-                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 24, fontWeight: 400, margin: '0 0 8px', letterSpacing: -0.5, lineHeight: 1.2 }}>{p.title}</h3>
-                <p style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--ink-dim)', margin: 0, fontWeight: 300, fontFamily: 'var(--font-body)' }}>{p.excerpt}</p>
-              </article>
-            ))}
-          </div>
-        </div>
+                {POSTS[0].title}
+              </h3>
+              <p style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--ink-dim)', fontWeight: 300, margin: '0 0 24px', maxWidth: 560, fontFamily: 'var(--font-body)' }}>
+                {POSTS[0].excerpt}
+              </p>
+              <span style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 16, color: 'var(--accent)' }}>Keep reading →</span>
+            </div>
+          </article>
+        </Link>
       </section>
 
       {/* CONTACT */}
