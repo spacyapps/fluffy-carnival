@@ -64,62 +64,85 @@ export function TopicSeal({ topic, size = 88 }: { topic: Topic; size?: number })
 // ── PostBody ─────────────────────────────────────────────────────────────────
 export function PostBody({ blocks, topic }: { blocks: Post['body']; topic: Topic }) {
   const ink = 'var(--ink)';
-  const inkDim = 'var(--ink-dim)';
 
-  return (
-    <div>
-      {blocks.map((b, i) => {
-        if (b.kind === 'lede') {
-          const first = b.text![0];
-          const rest = b.text!.slice(1);
-          return (
-            <p key={i} style={{ fontFamily: 'var(--font-serif)', fontSize: 20, lineHeight: 1.75, color: ink, fontWeight: 300, margin: '0 0 28px' }}>
-              <span style={{ float: 'left', fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 88, lineHeight: 0.82, fontWeight: 400, color: topic.color, paddingRight: 14, paddingTop: 6 }}>{first}</span>
-              {rest}
-            </p>
-          );
-        }
-        if (b.kind === 'p') return (
-          <p key={i} style={{ fontFamily: 'var(--font-serif)', fontSize: 19, lineHeight: 1.75, color: ink, fontWeight: 300, margin: '0 0 28px' }}>{b.text}</p>
-        );
-        if (b.kind === 'h') return (
-          <h3 key={i} style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 28, fontWeight: 400, color: ink, letterSpacing: -0.4, margin: '52px 0 18px', lineHeight: 1.2 }}>{b.text}</h3>
-        );
-        if (b.kind === 'pull') return (
-          <blockquote key={i} style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 26, fontWeight: 300, color: topic.color, lineHeight: 1.35, margin: '40px 0', padding: '0 0 0 28px', borderLeft: `2px solid ${topic.color}`, letterSpacing: -0.3 }}>
-            &ldquo;{b.text}&rdquo;
-          </blockquote>
-        );
-        if (b.kind === 'list') return (
-          <ul key={i} style={{ margin: '0 0 28px', padding: '0 0 0 4px', listStyle: 'none' }}>
-            {b.items!.map((item, j) => (
-              <li key={j} style={{ fontFamily: 'var(--font-serif)', fontSize: 19, lineHeight: 1.7, color: ink, fontWeight: 300, margin: '0 0 12px', paddingLeft: 28, position: 'relative' }}>
-                <span style={{ position: 'absolute', left: 0, top: '0.35em', color: topic.color, fontFamily: 'var(--font-mono)', fontSize: 12 }}>✦</span>
-                {item}
-              </li>
-            ))}
-          </ul>
-        );
-        if (b.kind === 'code') return (
-          <pre key={i} style={{ fontFamily: 'var(--font-mono)', fontSize: 13, lineHeight: 1.7, color: ink, background: '#0a0c10', border: '1px solid var(--line)', borderRadius: 8, padding: '20px 22px', margin: '0 0 28px', overflowX: 'auto', whiteSpace: 'pre' }}>
-            <div style={{ fontSize: 10, letterSpacing: 2, color: 'var(--ink-faint)', marginBottom: 12 }}>── {(b.lang || 'text').toUpperCase()} ──</div>
-            {b.text}
-          </pre>
-        );
-        if (b.kind === 'flourish') return (
-          <div key={i} style={{ display: 'flex', justifyContent: 'center', margin: '40px 0' }}>
-            <Flourish glyph={b.glyph || 'dots'} color={topic.color} />
+  const elements: React.ReactNode[] = [];
+  let i = 0;
+
+  while (i < blocks.length) {
+    const b = blocks[i];
+
+    if (b.kind === 'image' && b.src) {
+      const next = blocks[i + 1];
+      if (next?.kind === 'p') {
+        elements.push(
+          <div key={i} style={{ display: 'flex', gap: 32, alignItems: 'flex-start', margin: '16px 0 36px' }}>
+            <p style={{ fontFamily: 'var(--font-serif)', fontSize: 17, lineHeight: 1.8, color: ink, fontWeight: 300, margin: 0, flex: '1 1 0' }}>{next.text}</p>
+            <div style={{ flex: '0 0 260px', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--line)', background: 'rgba(236,230,214,0.04)' }}>
+              <img src={b.src} alt="" style={{ display: 'block', width: '100%', height: 400, objectFit: 'contain' }} />
+            </div>
           </div>
         );
-        if (b.kind === 'image' && b.src) return (
-          <div key={i} style={{ margin: '8px 0 28px', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--line)' }}>
-            <img src={b.src} alt="" style={{ display: 'block', width: '100%', height: 'auto' }} />
-          </div>
-        );
-        return null;
-      })}
-    </div>
-  );
+        i += 2;
+        continue;
+      }
+      elements.push(
+        <div key={i} style={{ margin: '16px 0 36px', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--line)', background: 'rgba(236,230,214,0.04)' }}>
+          <img src={b.src} alt="" style={{ display: 'block', width: '100%', height: 400, objectFit: 'contain' }} />
+        </div>
+      );
+      i++;
+      continue;
+    }
+
+    if (b.kind === 'lede') {
+      const first = b.text![0];
+      const rest = b.text!.slice(1);
+      elements.push(
+        <p key={i} style={{ fontFamily: 'var(--font-serif)', fontSize: 20, lineHeight: 1.75, color: ink, fontWeight: 300, margin: '0 0 28px' }}>
+          <span style={{ float: 'left', fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 88, lineHeight: 0.82, fontWeight: 400, color: topic.color, paddingRight: 14, paddingTop: 6 }}>{first}</span>
+          {rest}
+        </p>
+      );
+    } else if (b.kind === 'p') {
+      elements.push(<p key={i} style={{ fontFamily: 'var(--font-serif)', fontSize: 19, lineHeight: 1.75, color: ink, fontWeight: 300, margin: '0 0 28px' }}>{b.text}</p>);
+    } else if (b.kind === 'h') {
+      elements.push(<h3 key={i} style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 28, fontWeight: 400, color: ink, letterSpacing: -0.4, margin: '52px 0 18px', lineHeight: 1.2 }}>{b.text}</h3>);
+    } else if (b.kind === 'pull') {
+      elements.push(
+        <blockquote key={i} style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 26, fontWeight: 300, color: topic.color, lineHeight: 1.35, margin: '40px 0', padding: '0 0 0 28px', borderLeft: `2px solid ${topic.color}`, letterSpacing: -0.3 }}>
+          &ldquo;{b.text}&rdquo;
+        </blockquote>
+      );
+    } else if (b.kind === 'list') {
+      elements.push(
+        <ul key={i} style={{ margin: '0 0 28px', padding: '0 0 0 4px', listStyle: 'none' }}>
+          {b.items!.map((item, j) => (
+            <li key={j} style={{ fontFamily: 'var(--font-serif)', fontSize: 19, lineHeight: 1.7, color: ink, fontWeight: 300, margin: '0 0 12px', paddingLeft: 28, position: 'relative' }}>
+              <span style={{ position: 'absolute', left: 0, top: '0.35em', color: topic.color, fontFamily: 'var(--font-mono)', fontSize: 12 }}>✦</span>
+              {item}
+            </li>
+          ))}
+        </ul>
+      );
+    } else if (b.kind === 'code') {
+      elements.push(
+        <pre key={i} style={{ fontFamily: 'var(--font-mono)', fontSize: 13, lineHeight: 1.7, color: ink, background: '#0a0c10', border: '1px solid var(--line)', borderRadius: 8, padding: '20px 22px', margin: '0 0 28px', overflowX: 'auto', whiteSpace: 'pre' }}>
+          <div style={{ fontSize: 10, letterSpacing: 2, color: 'var(--ink-faint)', marginBottom: 12 }}>── {(b.lang || 'text').toUpperCase()} ──</div>
+          {b.text}
+        </pre>
+      );
+    } else if (b.kind === 'flourish') {
+      elements.push(
+        <div key={i} style={{ display: 'flex', justifyContent: 'center', margin: '40px 0' }}>
+          <Flourish glyph={b.glyph || 'dots'} color={topic.color} />
+        </div>
+      );
+    }
+
+    i++;
+  }
+
+  return <div>{elements}</div>;
 }
 
 // ── ConstellationMap ──────────────────────────────────────────────────────────

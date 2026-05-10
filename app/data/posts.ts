@@ -9,6 +9,14 @@ export interface Post {
 
 export const POSTS: Post[] = [
   {
+    slug: 'expansion-01',
+    title: 'Mastering Human-AI Collaboration.',
+    date: 'May 9, 2026',
+    read: '6 min read',
+    excerpt: 'AI adaptation isn\'t about resistance — it\'s about thoughtful partnership. A practical guide to staying ahead by keeping your own thinking in the driver\'s seat.',
+    link: '/journal/expansion-01',
+  },
+  {
     slug: 'secret-stuff-algo-deep-dive',
     title: 'The Signature Gesture Matching Algorithm.',
     date: 'May 8, 2026',

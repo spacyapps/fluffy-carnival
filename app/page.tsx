@@ -265,45 +265,58 @@ export default function Home() {
           </Link>
         </div>
 
-        <Link href={POSTS[0].link ?? '/journal'} style={{ textDecoration: 'none', color: 'inherit', display: 'block', maxWidth: 820 }}>
-          <article
-            className="bo-card"
-            style={{
-              padding: '44px 48px',
-              cursor: 'pointer',
-              background: 'var(--bg-panel)',
-              border: '1px solid var(--line)',
-              borderRadius: 14,
-              position: 'relative',
-              overflow: 'hidden',
-            }}
-          >
-            <div style={{ position: 'absolute', top: -40, right: -40, opacity: 0.5 }}>
-              <BigPlanet size={220} />
-            </div>
-            <div style={{ position: 'relative' }}>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 2, marginBottom: 18 }}>
-                ✦ FEATURED  ·  {POSTS[0].date.toUpperCase()}
+        <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 24, alignItems: 'stretch' }}>
+          <Link href={POSTS[0].link ?? '/journal'} style={{ textDecoration: 'none', color: 'inherit' }}>
+            <article
+              className="bo-card"
+              style={{
+                padding: '44px 48px',
+                cursor: 'pointer',
+                background: 'var(--bg-panel)',
+                border: '1px solid var(--line)',
+                borderRadius: 14,
+                position: 'relative',
+                overflow: 'hidden',
+                height: '100%',
+              }}
+            >
+              <div style={{ position: 'absolute', top: -40, right: -40, opacity: 0.5 }}>
+                <BigPlanet size={220} />
               </div>
-              <h3
-                style={{
-                  fontFamily: 'var(--font-serif)',
-                  fontSize: 44,
-                  fontWeight: 300,
-                  margin: '0 0 18px',
-                  letterSpacing: -1,
-                  lineHeight: 1.05,
-                }}
-              >
-                {POSTS[0].title}
-              </h3>
-              <p style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--ink-dim)', fontWeight: 300, margin: '0 0 24px', maxWidth: 560, fontFamily: 'var(--font-body)' }}>
-                {POSTS[0].excerpt}
-              </p>
-              <span style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 16, color: 'var(--accent)' }}>Keep reading →</span>
-            </div>
-          </article>
-        </Link>
+              <div style={{ position: 'relative' }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 2, marginBottom: 18 }}>
+                  ✦ LATEST  ·  {POSTS[0].date.toUpperCase()}
+                </div>
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 44, fontWeight: 300, margin: '0 0 18px', letterSpacing: -1, lineHeight: 1.05 }}>
+                  {POSTS[0].title}
+                </h3>
+                <p style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--ink-dim)', fontWeight: 300, margin: '0 0 24px', fontFamily: 'var(--font-body)' }}>
+                  {POSTS[0].excerpt}
+                </p>
+                <span style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 16, color: 'var(--accent)' }}>Keep reading →</span>
+              </div>
+            </article>
+          </Link>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            {POSTS.slice(1).filter(p => !p.title.startsWith('Coming')).map(post => (
+              <Link key={post.slug} href={post.link ?? `/journal/${post.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <article className="bo-card" style={{ padding: '28px 32px', cursor: 'pointer', background: 'var(--bg-panel)', border: '1px solid var(--line)', borderRadius: 14 }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-faint)', letterSpacing: 2, marginBottom: 14 }}>
+                    {post.date.toUpperCase()} · {post.read.toUpperCase()}
+                  </div>
+                  <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 24, fontWeight: 300, margin: '0 0 10px', letterSpacing: -0.4, lineHeight: 1.15 }}>
+                    {post.title}
+                  </h3>
+                  <p style={{ fontSize: 14, lineHeight: 1.65, color: 'var(--ink-dim)', fontWeight: 300, margin: '0 0 18px', fontFamily: 'var(--font-body)' }}>
+                    {post.excerpt}
+                  </p>
+                  <span style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 15, color: 'var(--accent)' }}>Read →</span>
+                </article>
+              </Link>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* CONTACT */}
