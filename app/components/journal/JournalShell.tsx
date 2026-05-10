@@ -6,6 +6,8 @@ import Link from 'next/link';
 import Stars from '../boutique/Stars';
 import Logotype from '../boutique/Logotype';
 import { POSTS, TOPICS, CONSTELLATION_LINES, SKY, type Post, type Topic } from '../../data/journal';
+import RefineLoopSVG from './RefineLoopSVG';
+import HumanEdgeSVG from './HumanEdgeSVG';
 
 // ── Flourish ─────────────────────────────────────────────────────────────────
 function Flourish({ glyph, color }: { glyph: string; color: string }) {
@@ -131,6 +133,10 @@ export function PostBody({ blocks, topic }: { blocks: Post['body']; topic: Topic
           {b.text}
         </pre>
       );
+    } else if (b.kind === 'animation' && b.name === 'refine-loop') {
+      elements.push(<RefineLoopSVG key={i} />);
+    } else if (b.kind === 'animation' && b.name === 'human-edge') {
+      elements.push(<HumanEdgeSVG key={i} />);
     } else if (b.kind === 'flourish') {
       elements.push(
         <div key={i} style={{ display: 'flex', justifyContent: 'center', margin: '40px 0' }}>
@@ -316,8 +322,25 @@ function OrbitsMap({ topics, hovered, setHovered, activeTopicId }: {
 
       {/* Sun */}
       <circle cx={cx} cy={cy} r="140" fill="url(#orb-sun)" opacity="0.35" />
+      {/* Back rings */}
+      <g transform={`rotate(-14, ${cx}, ${cy})`}>
+        <ellipse cx={cx} cy={cy} rx="56" ry="18" fill="none" stroke="rgba(210,160,80,0.07)" strokeWidth="3" />
+        <ellipse cx={cx} cy={cy} rx="62" ry="20" fill="none" stroke="rgba(220,175,100,0.12)" strokeWidth="6" />
+        <ellipse cx={cx} cy={cy} rx="68" ry="22" fill="none" stroke="rgba(230,190,110,0.15)" strokeWidth="4" />
+        <ellipse cx={cx} cy={cy} rx="75" ry="25" fill="none" stroke="rgba(215,165,90,0.10)" strokeWidth="7" />
+      </g>
       <circle cx={cx} cy={cy} r="32" fill="var(--accent)" opacity="0.95" />
       <circle cx={cx} cy={cy} r="32" fill="none" stroke="#fff" strokeOpacity="0.3" strokeWidth="1" />
+      {/* Front rings (clipped to lower half) */}
+      <clipPath id="sun-ring-front">
+        <rect x={cx - 100} y={cy} width="200" height="50" />
+      </clipPath>
+      <g transform={`rotate(-14, ${cx}, ${cy})`} clipPath="url(#sun-ring-front)">
+        <ellipse cx={cx} cy={cy} rx="56" ry="18" fill="none" stroke="rgba(210,160,80,0.10)" strokeWidth="3" />
+        <ellipse cx={cx} cy={cy} rx="62" ry="20" fill="none" stroke="rgba(220,175,100,0.20)" strokeWidth="6" />
+        <ellipse cx={cx} cy={cy} rx="68" ry="22" fill="none" stroke="rgba(230,190,110,0.22)" strokeWidth="4" />
+        <ellipse cx={cx} cy={cy} rx="75" ry="25" fill="none" stroke="rgba(215,165,90,0.16)" strokeWidth="7" />
+      </g>
       <text x={cx} y={cy + 58} textAnchor="middle" fontFamily="var(--font-mono)" fontSize="11" letterSpacing="5" fill="var(--ink)" opacity="0.5">✦ SPACYAPPS ✦</text>
       <text x={cx} y={cy + 80} textAnchor="middle" fontFamily="var(--font-serif)" fontStyle="italic" fontSize="14" fill="var(--ink-faint)">the journal, in orbit</text>
 
@@ -491,8 +514,7 @@ export default function JournalShell() {
           ✦  THE JOURNAL  ·  EST. MMXXIV  ·  CHARTED  ✦
         </div>
         <h1 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 'clamp(60px, 8vw, 112px)', margin: 0, letterSpacing: -3, lineHeight: 0.95 }}>
-          A <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>chart</span> of the writing,<br />
-          not a list.
+          A <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>star chart</span> of the writing.
         </h1>
         <p style={{ maxWidth: 620, margin: '32px auto 0', fontSize: 17, lineHeight: 1.65, color: 'var(--ink-dim)', fontWeight: 300 }}>
           Posts here are organised like a sky — by <em style={{ color: 'var(--ink)' }}>constellation</em>, not by date. Each topic is its own shape; pick a star to read what&apos;s there.

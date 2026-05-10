@@ -1,4 +1,4 @@
-export type BlockKind = 'lede' | 'p' | 'h' | 'pull' | 'list' | 'code' | 'flourish' | 'image';
+export type BlockKind = 'lede' | 'p' | 'h' | 'pull' | 'list' | 'code' | 'flourish' | 'image' | 'animation';
 
 export interface Block {
   kind: BlockKind;
@@ -7,6 +7,7 @@ export interface Block {
   lang?: string;
   glyph?: 'orbit' | 'star' | 'dots';
   src?: string;
+  name?: string;
 }
 
 export interface Post {
@@ -140,30 +141,29 @@ export const POSTS: Post[] = [
       { kind: 'flourish', glyph: 'orbit' },
       { kind: 'h', text: 'How to Stay Ahead and Create Real Value' },
       { kind: 'pull', text: 'Use AI as a powerful accelerator, never as a replacement for yourself.' },
-      { kind: 'h', text: '1. Treat AI as a Highly Capable Junior Teammate' },
+      { kind: 'h', text: '1. Treat AI as a Highly Capable Teammate' },
       { kind: 'p', text: 'Fast, knowledgeable, and never tired — but one that still needs your direction, vision, and judgment.' },
       { kind: 'h', text: '2. Master the Refine-Retry Loop' },
       { kind: 'p', text: 'Give clear context, goals, constraints, and examples. Push back with specific, domain-informed feedback. Leverage your experience to give concrete guidance rather than vague requests. Review critically and iterate until the work carries your signature level of thoughtfulness and expertise.' },
       { kind: 'pull', text: 'Your first design is never your last. — Walter Mak' },
-      { kind: 'image', src: '/expansion-01-refine-loop.jpg' },
-      { kind: 'h', text: '3. Bring What AI Cannot Replicate' },
+      { kind: 'animation', name: 'refine-loop' },
+      { kind: 'h', text: '3. Leverage What AI Cannot Replicate' },
       { kind: 'list', items: [
         'Imagine solutions AI hasn\'t dreamt of yet.',
         'Connect ideas across domains in unexpected ways.',
         'Apply wisdom that comes from real-world scars and successes.',
         'Exercise taste, ethics, and strategic foresight.',
       ]},
-      { kind: 'p', text: 'These are your irreplaceable advantages. When you layer your unique human insight on top of AI\'s speed and breadth, the combination becomes exceptionally powerful.' },
-      { kind: 'h', text: '4. Protect and Amplify Your Edge' },
-      { kind: 'p', text: 'Regularly ask yourself:' },
+      { kind: 'animation', name: 'human-edge' },
+      { kind: 'p', text: 'These are your irreplaceable advantages. To activate them, regularly ask yourself:' },
       { kind: 'list', items: [
         'What is my grand vision? Holistic view.',
         'What would someone with deep experience notice that others miss?',
         'What are my future plans?',
         'How can I solve this in a way that feels fresh or contrarian?',
       ]},
-      { kind: 'p', text: 'Then use AI to execute, test, refine, and scale your original thinking. This is how you create work that stands out.' },
-      { kind: 'h', text: '5. Focus on Higher-Order Value' },
+      { kind: 'p', text: 'Then use AI to execute, test, refine, and scale your original thinking. When you layer your unique human insight on top of AI\'s speed and breadth, the combination becomes exceptionally powerful — and this is how you create work that stands out.' },
+      { kind: 'h', text: '4. Focus on Higher-Order Value' },
       { kind: 'p', text: 'Stop competing on speed or basic output. Compete on vision, originality, and outcomes. The people who thrive will be those who consistently deliver results that show human depth and creativity — even when AI did 80% of the heavy lifting.' },
       { kind: 'flourish', glyph: 'star' },
       { kind: 'h', text: 'Working Successfully with AI Long-Term' },

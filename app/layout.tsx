@@ -40,6 +40,9 @@ export const metadata: Metadata = {
   title: 'SpacyApps — Cosmic Boutique',
   description: 'An indie iOS & Safari software studio.',
   icons: { icon: '/favicon.ico' },
+  alternates: {
+    types: { 'application/rss+xml': 'https://spacyapps.com/feed.xml' },
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

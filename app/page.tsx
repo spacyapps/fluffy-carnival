@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Stars from './components/boutique/Stars';
+import ContactLink from './components/boutique/ContactLink';
 import BigPlanet from './components/boutique/BigPlanet';
 import Marquee from './components/boutique/Marquee';
 import Logotype from './components/boutique/Logotype';
@@ -320,7 +321,7 @@ export default function Home() {
       </section>
 
       {/* CONTACT */}
-      <section id="contact" className="bo-section" style={{ position: 'relative', padding: '96px 56px 64px', borderTop: '1px solid var(--line)', textAlign: 'center', overflow: 'hidden' }}>
+      <section id="contact" className="bo-section" style={{ position: 'relative', padding: '96px 56px 64px', borderTop: '1px solid var(--line)', overflow: 'hidden' }}>
         <Stars density={30} />
         <div style={{ position: 'relative' }}>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 3, color: 'var(--accent)', marginBottom: 18 }}>
@@ -337,11 +338,14 @@ export default function Home() {
               lineHeight: 0.95,
             }}
           >
-            <span style={{ fontStyle: 'italic' }}>Transmissions</span> closed.
+            <span style={{ fontStyle: 'italic' }}>Transmissions</span> open.
           </h2>
-          <p style={{ fontSize: 17, color: 'var(--ink-dim)', lineHeight: 1.6, fontWeight: 300, margin: '24px auto 0', maxWidth: 480, fontFamily: 'var(--font-body)' }}>
-            Monitoring from orbit.
+          <p style={{ fontSize: 17, color: 'var(--ink-dim)', lineHeight: 1.6, fontWeight: 300, margin: '24px 0 0', fontFamily: 'var(--font-body)' }}>
+            Questions, ideas, or just saying hello —
           </p>
+          <div style={{ marginTop: 24 }}>
+            <ContactLink />
+          </div>
         </div>
       </section>
 

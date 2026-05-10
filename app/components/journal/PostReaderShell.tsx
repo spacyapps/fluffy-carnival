@@ -119,6 +119,9 @@ export default function PostReaderShell({ post, topic, siblings }: {
         <div style={{ textAlign: 'center', marginTop: 16, fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 16, color: 'var(--ink-faint)' }}>
           fin —
         </div>
+        <div style={{ textAlign: 'center', marginTop: 10, fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2, color: 'var(--ink-faint)' }}>
+          &ldquo;Go Nutz&rdquo; — Walter Mak
+        </div>
       </article>
 
       {/* SIBLINGS */}
