@@ -62,30 +62,16 @@ export const TOPICS: Record<string, Topic> = {
 
 export const POSTS: Post[] = [
   {
-    id: 'fl-01', slug: 'first-light-01', topic: 'first_light',
-    title: 'First Light · 01', date: '', dateLabel: 'Coming soon',
-    read: '—', kind: 'essay', cx: 230, cy: 540, ring: 0, angle: 200,
-    excerpt: 'Incoming.',
-    body: [],
-  },
-  {
-    id: 'fl-02', slug: 'first-light-02', topic: 'first_light',
-    title: 'First Light · 02', date: '', dateLabel: 'Coming soon',
-    read: '—', kind: 'essay', cx: 400, cy: 360, ring: 0, angle: 245,
-    excerpt: 'Incoming.',
-    body: [],
-  },
-  {
     id: 'fl-03', slug: 'first-light-03', topic: 'first_light',
     title: 'First Light · 03', date: '', dateLabel: 'Coming soon',
-    read: '—', kind: 'essay', cx: 570, cy: 540, ring: 0, angle: 285,
+    read: '—', kind: 'essay', cx: 120, cy: 640, ring: 0, angle: 285,
     excerpt: 'Incoming.',
     body: [],
   },
   {
     id: 'fl-04', slug: 'first-light-04', topic: 'first_light',
     title: 'First Light · 04', date: '', dateLabel: 'Coming soon',
-    read: '—', kind: 'essay', cx: 740, cy: 350, ring: 0, angle: 320,
+    read: '—', kind: 'essay', cx: 360, cy: 240, ring: 0, angle: 320,
     excerpt: 'Incoming.',
     body: [],
   },
@@ -265,7 +251,7 @@ export const POSTS: Post[] = [
 ];
 
 export const CONSTELLATION_LINES: Record<string, [number, number][]> = {
-  first_light: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5]],
+  first_light: [[0, 1], [1, 2], [2, 3]],
   drift:       [[0, 1], [1, 2], [2, 3], [3, 4]],
 };
 

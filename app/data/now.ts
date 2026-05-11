@@ -11,16 +11,10 @@ export const NOW: NowEntry[] = [
     date: 'May 9',
     status: 'Live',
     statusColor: 'oklch(0.72 0.17 145)',
-    title: 'Journal — 2 posts live',
+    title: 'Journal — 3 posts live',
     tag: 'web',
   },
-  {
-    date: 'May 9',
-    status: 'Live',
-    statusColor: 'oklch(0.72 0.17 145)',
-    title: 'SpacyApps site — Active',
-    tag: 'web',
-  },
+
   {
     date: 'May 7',
     status: 'Live',
