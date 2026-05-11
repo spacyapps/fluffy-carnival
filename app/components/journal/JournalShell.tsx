@@ -30,10 +30,10 @@ function Flourish({ glyph, color }: { glyph: string; color: string }) {
     </svg>
   );
   return (
-    <svg width="120" height="20" viewBox="0 0 120 20" style={{ display: 'block' }}>
-      <circle cx="40" cy="10" r="2" fill={color} opacity="0.5" />
-      <circle cx="60" cy="10" r="2.5" fill={color} />
-      <circle cx="80" cy="10" r="2" fill={color} opacity="0.5" />
+    <svg width="200" height="20" viewBox="0 0 200 20" style={{ display: 'block' }}>
+      <line x1="0" y1="10" x2="88" y2="10" stroke={color} strokeOpacity="0.3" strokeWidth="1" />
+      <line x1="112" y1="10" x2="200" y2="10" stroke={color} strokeOpacity="0.3" strokeWidth="1" />
+      <rect x="94" y="6" width="12" height="8" rx="1" transform="rotate(45 100 10)" fill="none" stroke={color} strokeOpacity="0.7" strokeWidth="1.2" />
     </svg>
   );
 }
@@ -60,6 +60,49 @@ export function TopicSeal({ topic, size = 88 }: { topic: Topic; size?: number })
         {topic.glyph}
       </text>
     </svg>
+  );
+}
+
+// ── PanelSlider ───────────────────────────────────────────────────────────────
+function PanelSlider({ panels, color }: { panels: { heading: string; rows: { label: string; note: string }[] }[]; color: string }) {
+  const [active, setActive] = useState(0);
+  return (
+    <div style={{ margin: '32px 0 40px', border: '1px solid var(--line)', borderRadius: 10, overflow: 'hidden' }}>
+      <div style={{ display: 'flex', borderBottom: '1px solid var(--line)', background: 'var(--surface)' }}>
+        {panels.map((panel, pi) => (
+          <button key={pi} onClick={() => setActive(pi)} style={{
+            flex: 1,
+            padding: '10px 16px',
+            fontFamily: 'var(--font-mono)',
+            fontSize: 10,
+            letterSpacing: 2.5,
+            background: 'none',
+            border: 'none',
+            borderBottom: active === pi ? `2px solid ${color}` : '2px solid transparent',
+            color: active === pi ? color : 'var(--ink-faint)',
+            cursor: 'pointer',
+            transition: 'color 0.2s, border-color 0.2s',
+          }}>
+            {panel.heading.toUpperCase()}
+          </button>
+        ))}
+      </div>
+      <div style={{ overflow: 'hidden' }}>
+        {panels[active].rows.map((row, ri) => (
+          <div key={ri} style={{
+            display: 'grid',
+            gridTemplateColumns: '160px 1fr',
+            gap: 16,
+            padding: '11px 20px',
+            borderBottom: ri < panels[active].rows.length - 1 ? '1px solid var(--line)' : 'none',
+            background: ri % 2 === 0 ? 'transparent' : 'var(--surface)',
+          }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color, letterSpacing: 0.5, paddingTop: 2 }}>{row.label}</div>
+            <div style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--ink-dim)', lineHeight: 1.6, fontWeight: 300 }}>{row.note}</div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -137,6 +180,41 @@ export function PostBody({ blocks, topic }: { blocks: Post['body']; topic: Topic
       elements.push(<RefineLoopSVG key={i} />);
     } else if (b.kind === 'animation' && b.name === 'human-edge') {
       elements.push(<HumanEdgeSVG key={i} />);
+    } else if (b.kind === 'cols' && b.cols) {
+      elements.push(
+        <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, margin: '28px 0 36px' }}>
+          {b.cols.map((col, ci) => (
+            <div key={ci} style={{ border: '1px solid var(--line)', borderRadius: 10, padding: '24px 28px', background: 'var(--surface)' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2.5, color: topic.color, marginBottom: 10 }}>{col.tag.toUpperCase()}</div>
+              <div style={{ fontFamily: 'var(--font-serif)', fontSize: 20, fontWeight: 400, letterSpacing: -0.3, color: 'var(--ink)', marginBottom: 14 }}>{col.heading}</div>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: 13.5, lineHeight: 1.9, color: 'var(--ink-dim)', fontWeight: 300, margin: 0, whiteSpace: 'pre-line' }}>{col.body}</p>
+            </div>
+          ))}
+        </div>
+      );
+    } else if (b.kind === 'log2' && b.panels) {
+      elements.push(<PanelSlider key={i} panels={b.panels} color={topic.color} />);
+    } else if (b.kind === 'log' && b.rows) {
+      elements.push(
+        <div key={i} style={{ margin: '32px 0 40px', border: '1px solid var(--line)', borderRadius: 10, overflow: 'hidden' }}>
+          <div style={{ padding: '10px 20px', borderBottom: '1px solid var(--line)', fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 3, color: 'var(--accent)', background: 'var(--surface)' }}>
+            FIELD LOG
+          </div>
+          {b.rows.map((row, ri) => (
+            <div key={ri} style={{
+              display: 'grid',
+              gridTemplateColumns: '200px 1fr',
+              gap: 24,
+              padding: '12px 20px',
+              borderBottom: ri < b.rows!.length - 1 ? '1px solid var(--line)' : 'none',
+              background: ri % 2 === 0 ? 'transparent' : 'var(--surface)',
+            }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: topic.color, letterSpacing: 0.5, paddingTop: 1 }}>{row.label}</div>
+              <div style={{ fontFamily: 'var(--font-body)', fontSize: 13.5, color: 'var(--ink-dim)', lineHeight: 1.6, fontWeight: 300 }}>{row.note}</div>
+            </div>
+          ))}
+        </div>
+      );
     } else if (b.kind === 'flourish') {
       elements.push(
         <div key={i} style={{ display: 'flex', justifyContent: 'center', margin: '40px 0' }}>

@@ -1,4 +1,4 @@
-export type BlockKind = 'lede' | 'p' | 'h' | 'pull' | 'list' | 'code' | 'flourish' | 'image' | 'animation';
+export type BlockKind = 'lede' | 'p' | 'h' | 'pull' | 'list' | 'code' | 'flourish' | 'image' | 'animation' | 'log' | 'cols' | 'log2';
 
 export interface Block {
   kind: BlockKind;
@@ -8,6 +8,9 @@ export interface Block {
   glyph?: 'orbit' | 'star' | 'dots';
   src?: string;
   name?: string;
+  rows?: { label: string; note: string }[];
+  cols?: { heading: string; tag: string; body: string }[];
+  panels?: { heading: string; rows: { label: string; note: string }[] }[];
 }
 
 export interface Post {
@@ -173,10 +176,70 @@ export const POSTS: Post[] = [
   },
   {
     id: 'dr-02', slug: 'expansion-02', topic: 'drift',
-    title: 'Expansion · 02', date: '', dateLabel: 'Coming soon',
-    read: '—', kind: 'essay', cx: 1230, cy: 270, ring: 1, angle: 75,
-    excerpt: 'Incoming.',
-    body: [],
+    title: 'Pure Vibe Programming Trials',
+    date: '2026-05-10', dateLabel: 'May 10, 2026',
+    read: '4 min', kind: 'essay', cx: 1230, cy: 270, ring: 1, angle: 75,
+    excerpt: 'An ongoing experiment: can AI be the developer while I stay in the lead as product owner? Checkpoint was the first trial. Conduit is the next.',
+    body: [
+      { kind: 'lede', text: 'There\'s a mode of working with AI that gets called "vibe coding" — where you describe what you want and let the model write the code. I\'ve been running a more structured version of that experiment, and I want to log it here as it happens.' },
+      { kind: 'p', text: 'My previous work with AI — writing, research, even parts of Secret Stuff — was a partnership. I brought the code, the domain knowledge, the taste. AI brought speed and breadth. Call it 50/50.' },
+      { kind: 'pull', text: 'The question I\'m now asking: can AI be the developer, while I stay in the seat of project lead and product owner?' },
+      { kind: 'p', text: 'Not just a faster way to type. A fundamentally different division of labour.' },
+      { kind: 'flourish', glyph: 'orbit' },
+      { kind: 'h', text: 'Trial 01 — Checkpoint' },
+      { kind: 'p', text: 'Checkpoint is a Safari extension that PIN-gates websites. Small scope, well-defined problem, no novel algorithms. A good first trial.' },
+      { kind: 'p', text: 'I wrote the spec. I described the UX. I made every product decision. Claude Code wrote the extension — manifest, content script, popup, PIN hashing, session locking — top to bottom.' },
+      { kind: 'p', text: 'It worked. Shipped. The code is clean. I barely touched it.' },
+      { kind: 'pull', text: 'Verdict: at small scale, with a clear brief, AI as sole developer is not just viable — it\'s fast.' },
+      { kind: 'flourish', glyph: 'star' },
+      { kind: 'h', text: 'Active Trials · In Progress' },
+      { kind: 'p', text: 'Two experiments running in parallel. Different domains, same question.' },
+      { kind: 'cols', cols: [
+        {
+          heading: 'SpacyApps Site',
+          tag: 'Web · Next.js · Going Well',
+          body: '· Design — Claude Design\n· Programming — Claude CLI\n· Content review — Grok\n· UI tweaks from live testing — fast and clean\n· Each tool stays in its lane',
+        },
+        {
+          heading: 'Conduit',
+          tag: 'Mac · Swift · In Progress',
+          body: '· More friction than the website\n· Structure and file organisation had to be directed\n· Refactoring required explicit prompts\n· Native domain is less forgiving\n· Ventured back into the code',
+        },
+      ]},
+      { kind: 'p', text: 'The contrast is the finding. Web iteration and native app development are not the same experiment.' },
+      { kind: 'log2', panels: [
+        {
+          heading: 'SpacyApps Site',
+          rows: [
+            { label: 'Design', note: 'Claude Design — direction set visually, not in code' },
+            { label: 'Programming', note: '100% Claude CLI — no manual coding' },
+            { label: 'Content review', note: 'Grok used for review and refinement' },
+            { label: 'UI iteration', note: 'Live testing → describe fix → done. Fast.' },
+            { label: 'Developer mode', note: 'Never re-engaged — product seat held throughout' },
+          ],
+        },
+        {
+          heading: 'Conduit',
+          rows: [
+            { label: 'Project structure', note: 'Had to be defined upfront — files, folders, components, isolation' },
+            { label: 'SwiftLint', note: 'Had to be explicitly requested; not applied by default' },
+            { label: 'Restructuring', note: 'Prompted after every 2–5 new files; AI did not self-organise' },
+            { label: 'Refactoring', note: 'Required a prompt after both successful and failed features' },
+            { label: 'Developer mode', note: 'Eventually went back into the code — product seat didn\'t hold' },
+          ],
+        },
+      ]},
+      { kind: 'pull', text: 'The gap between "AI can build it" and "AI knows when to clean it up" is where the human still lives.' },
+      { kind: 'flourish', glyph: 'dots' },
+      { kind: 'h', text: 'What I\'m Watching For' },
+      { kind: 'list', items: [
+        'Where does AI get confident but wrong — and can I catch it from the product seat?',
+        'What decisions genuinely require code-level understanding vs product judgment?',
+        'Does the quality hold at larger scale, or does it degrade without a developer in the loop?',
+        'What does the final ratio actually look like — is it still 50/50, or something closer to 10/90?',
+      ]},
+      { kind: 'pull', text: 'The log continues. Go Nutz. — Walter Mak' },
+    ],
   },
   {
     id: 'dr-03', slug: 'expansion-03', topic: 'drift',
