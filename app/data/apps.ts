@@ -27,6 +27,7 @@ export interface App {
       }[];
     };
   }[];
+  noPage?: boolean;
   guide?: { heading: string; steps: { title: string; body: string; prompt?: string }[] };
 }
 
@@ -37,8 +38,8 @@ export const APPS: App[] = [
     glyph: 'S',
     color: '#7d4ad9',
     platform: 'iOS',
-    version: '10',
-    tagline: 'An iOS app to keep those prying eyes away.',
+    version: '10.3',
+    tagline: 'Implementing v10.3',
     icon: '/icon-secret-stuff.png',
     storeUrl: 'https://apps.apple.com/us/app/secret-stuff/id437415402',
     legacyVideoUrl: 'https://www.youtube.com/watch?v=sJXtXjAEWOQ',
@@ -175,5 +176,15 @@ Popup UI:
         body: 'Mission parameters under review. More to come.',
       },
     ],
+  },
+  {
+    slug: 'conduit',
+    name: 'Conduit',
+    glyph: '〜',
+    color: '#2d6a9f',
+    platform: 'Mac',
+    version: '—',
+    tagline: 'Incoming transmission...',
+    noPage: true,
   },
 ];

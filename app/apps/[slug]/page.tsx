@@ -140,7 +140,7 @@ function renderSection(section: Section) {
 }
 
 export async function generateStaticParams() {
-  return APPS.map((app) => ({ slug: app.slug }));
+  return APPS.filter((app) => !app.noPage).map((app) => ({ slug: app.slug }));
 }
 
 const FEATURES: NonNullable<App['features']> = [

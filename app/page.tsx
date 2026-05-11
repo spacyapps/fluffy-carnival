@@ -130,17 +130,13 @@ export default function Home() {
             </h2>
           </div>
           <div className="bo-hide-mobile" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink-faint)', letterSpacing: 1.5 }}>
-            02 SHIPPED · 01 INCOMING
+            03 SHIPPED · 01 INCOMING
           </div>
         </div>
 
-        <div className="bo-grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
-          {APPS.map((app, i) => (
-            <Link
-              key={app.slug}
-              href={`/apps/${app.slug}`}
-              style={{ textDecoration: 'none', color: 'inherit' }}
-            >
+        <div className="bo-grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24 }}>
+          {APPS.map((app, i) => {
+            const cardInner = (
               <div
                 className="bo-card"
                 style={{
@@ -149,7 +145,7 @@ export default function Home() {
                   background: 'var(--bg-panel)',
                   border: '1px solid var(--line)',
                   borderRadius: 14,
-                  cursor: 'pointer',
+                  cursor: app.noPage ? 'default' : 'pointer',
                   animation: `bo-fadein .55s ease-out ${i * 0.06}s both`,
                   height: '100%',
                   boxSizing: 'border-box',
@@ -170,12 +166,19 @@ export default function Home() {
                 <p style={{ fontSize: 14.5, lineHeight: 1.6, color: 'var(--ink-dim)', margin: '0 0 24px', fontWeight: 300, minHeight: 70, fontFamily: 'var(--font-body)' }}>
                   {app.tagline}
                 </p>
-                <div style={{ paddingTop: 16, borderTop: '1px solid var(--line)', fontSize: 13, fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: 'var(--accent)' }}>
-                  Open the briefing →
+                <div style={{ paddingTop: 16, borderTop: '1px solid var(--line)', fontSize: 13, fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: app.noPage ? 'var(--ink-faint)' : 'var(--accent)' }}>
+                  {app.noPage ? 'In development...' : 'Open the briefing →'}
                 </div>
               </div>
-            </Link>
-          ))}
+            );
+            return app.noPage ? (
+              <div key={app.slug}>{cardInner}</div>
+            ) : (
+              <Link key={app.slug} href={`/apps/${app.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                {cardInner}
+              </Link>
+            );
+          })}
         </div>
       </section>
 

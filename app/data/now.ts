@@ -30,9 +30,16 @@ export const NOW: NowEntry[] = [
   },
 
   {
+    date: 'May 10',
+    status: 'Prototyping',
+    statusColor: 'oklch(0.78 0.16 70)',
+    title: 'Conduit — new Mac app, early stage',
+    tag: 'Mac',
+  },
+  {
     date: 'Apr 26',
-    status: 'Building',
-    statusColor: 'oklch(0.75 0.16 70)',
+    status: 'Drafting',
+    statusColor: 'oklch(0.72 0.14 250)',
     title: 'TsukiBase — early development',
     tag: 'iOS',
   },
