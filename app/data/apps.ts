@@ -27,7 +27,7 @@ export interface App {
       }[];
     };
   }[];
-  guide?: { heading: string; steps: { title: string; body: string }[] };
+  guide?: { heading: string; steps: { title: string; body: string; prompt?: string }[] };
 }
 
 export const APPS: App[] = [
@@ -120,16 +120,32 @@ export const APPS: App[] = [
       heading: 'Build your own Checkpoint',
       steps: [
         {
-          title: 'Step 1 — coming soon',
-          body: 'Content coming soon.',
+          title: 'Install Claude Code',
+          body: 'Claude Code is Anthropic\'s CLI for Claude — an AI coding agent that runs in your terminal and builds real projects from a prompt. You\'ll need a Mac with Xcode installed. Install Claude Code with npm, then authenticate with your Anthropic account.',
         },
         {
-          title: 'Step 2 — coming soon',
-          body: 'Content coming soon.',
+          title: 'Paste this prompt',
+          body: 'Create a new folder, open it in Terminal, launch Claude Code, and paste the prompt below. Claude will build the full extension — manifest, content script, popup UI, PIN hashing, and session locking — ready to wrap in Xcode for Safari.',
+          prompt: `Build a Safari Web Extension for Mac (Manifest V3, packaged via Xcode) that PIN-gates specific websites.
+
+Core behavior:
+- On first install, prompt the user to set a 4-digit numeric passcode (confirmed twice). Store it as a SHA-256 hash in chrome.storage.local.
+- The extension has a popup where the user maintains a list of locked hostnames (e.g. twitter.com). Entries match both the bare domain and any subdomain (www.twitter.com).
+- When navigating to a locked host, inject a full-screen overlay at document_start (before page content renders) that blocks interaction with the underlying page. The overlay shows a 4-digit PIN pad.
+- The overlay must work with keyboard input (digits 0–9, backspace) as well as clicks. Trap all key events so the page underneath cannot receive them.
+- On correct PIN entry, dismiss the overlay and unlock that host for the current browser session.
+- On incorrect entry, shake the input indicator and show an error briefly, then reset.
+- Session + tab-aware re-locking: a host stays unlocked while at least one tab that unlocked it is still open. When the last such tab closes, the host re-locks. Everything resets when the browser quits.
+- Skip the overlay inside iframes.
+- Use Shadow DOM for the overlay to isolate it from page styles.
+
+Popup UI:
+- If no passcode is set yet, show the setup screen. Otherwise show the site list.
+- Site list: text input to add a hostname (strip protocol/path, validate it contains a dot), a remove button per entry, and a "Change passcode" button that returns to the setup screen.`,
         },
         {
-          title: 'Step 3 — coming soon',
-          body: 'Content coming soon.',
+          title: 'Wrap in Xcode and run',
+          body: 'Open the project folder in Xcode. Run the Safari Web Extension target on your Mac. Once built, enable the extension in Safari Settings → Extensions. Lock a site, test the PIN pad, and make it yours.',
         },
       ],
     },

@@ -37,10 +37,10 @@ export const NOW: NowEntry[] = [
     tag: 'iOS',
   },
   {
-    date: 'Apr 26',
-    status: 'Sketching',
-    statusColor: 'oklch(0.72 0.14 250)',
-    title: 'Checkpoint guide — teaching page in progress',
-    tag: 'content',
+    date: 'May 10',
+    status: 'Live',
+    statusColor: 'oklch(0.72 0.17 145)',
+    title: 'Checkpoint — build your own guide live',
+    tag: 'web',
   },
 ];

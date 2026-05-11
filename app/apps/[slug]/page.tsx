@@ -678,6 +678,24 @@ export default async function AppPage({
                     }}>
                       {step.body}
                     </p>
+                    {step.prompt && (
+                      <pre style={{
+                        marginTop: 20,
+                        padding: '20px 24px',
+                        background: 'var(--surface)',
+                        border: '1px solid var(--line)',
+                        borderRadius: 10,
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: 12,
+                        lineHeight: 1.75,
+                        color: 'var(--ink-dim)',
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word',
+                        overflowX: 'auto',
+                      }}>
+                        {step.prompt}
+                      </pre>
+                    )}
                   </div>
                 </div>
               ))}
