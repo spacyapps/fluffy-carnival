@@ -108,7 +108,7 @@ export const POSTS: Post[] = [
         'Think Different. — Apple / Steve Jobs',
         'Do or do not — there is no try. — Yoda',
       ]},
-      { kind: 'pull', text: 'What\'s your SecretStuff? Go Nutz. — SpacyApps' },
+      { kind: 'pull', text: 'What\'s your SecretStuff? Go Nutz. — Walter Mak' },
     ],
   },
   {
