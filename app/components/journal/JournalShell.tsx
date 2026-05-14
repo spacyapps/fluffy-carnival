@@ -8,6 +8,8 @@ import Logotype from '../boutique/Logotype';
 import { POSTS, TOPICS, CONSTELLATION_LINES, SKY, type Post, type Topic } from '../../data/journal';
 import RefineLoopSVG from './RefineLoopSVG';
 import HumanEdgeSVG from './HumanEdgeSVG';
+import CommentContextSVG from './CommentContextSVG';
+import SonarCommentSVG from './SonarCommentSVG';
 
 // ── Flourish ─────────────────────────────────────────────────────────────────
 function Flourish({ glyph, color }: { glyph: string; color: string }) {
@@ -131,8 +133,8 @@ export function PostBody({ blocks, topic }: { blocks: Post['body']; topic: Topic
         continue;
       }
       elements.push(
-        <div key={i} style={{ margin: '16px 0 36px', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--line)', background: 'rgba(236,230,214,0.04)' }}>
-          <img src={b.src} alt="" style={{ display: 'block', width: '100%', height: 400, objectFit: 'contain' }} />
+        <div key={i} style={{ margin: '16px 0 36px', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--line)' }}>
+          <img src={b.src} alt="" style={{ display: 'block', width: '100%', height: 'auto' }} />
         </div>
       );
       i++;
@@ -180,6 +182,10 @@ export function PostBody({ blocks, topic }: { blocks: Post['body']; topic: Topic
       elements.push(<RefineLoopSVG key={i} />);
     } else if (b.kind === 'animation' && b.name === 'human-edge') {
       elements.push(<HumanEdgeSVG key={i} />);
+    } else if (b.kind === 'animation' && b.name === 'comment-context') {
+      elements.push(<CommentContextSVG key={i} />);
+    } else if (b.kind === 'animation' && b.name === 'sonar-comment') {
+      elements.push(<SonarCommentSVG key={i} />);
     } else if (b.kind === 'cols' && b.cols) {
       elements.push(
         <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, margin: '28px 0 36px' }}>

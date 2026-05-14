@@ -229,10 +229,41 @@ export const POSTS: Post[] = [
   },
   {
     id: 'dr-03', slug: 'expansion-03', topic: 'drift',
-    title: 'Expansion · 03', date: '', dateLabel: 'Coming soon',
-    read: '—', kind: 'essay', cx: 1380, cy: 380, ring: 1, angle: 130,
-    excerpt: 'Incoming.',
-    body: [],
+    title: 'The Comments Next Door',
+    date: '2026-05-13', dateLabel: 'May 13, 2026',
+    read: '4 min', kind: 'essay', cx: 1380, cy: 380, ring: 1, angle: 130,
+    excerpt: 'The age-old debate about where to document your code — wiki, README, .md, commit message. The answer was always next to the code. AI just made it non-negotiable.',
+    body: [
+      { kind: 'lede', text: 'The debate is old. Where does context live — in the code, in a wiki, in a README, in a commit message? Every team has a different answer. I\'ve always had comments in my code (sometimes too much), but better than nothing. Now I\'m more sure than ever.' },
+      { kind: 'code', lang: 'swift', text: `// Phase 1 — Agile:        comment the code ✓
+// Phase 2 — Corporate:    wiki page (last edited 2019)
+// Phase 3 — Confluence:   page nobody reads
+// Phase 4 — Pull request: description nobody clicks
+// Phase 5 — README.md:    getting warmer...
+// Phase 6 — .md in repo:  closer, but still a separate file
+// Phase 7 — Back to §1:   comment the code ✦` },
+      { kind: 'pull', text: 'Closest to the source of truth wins.' },
+      { kind: 'p', text: 'A comment sitting right next to the function it describes can\'t drift the way a wiki page can. It moves with the code when files are renamed. It gets deleted when the code gets deleted. It ages in sync.' },
+      { kind: 'animation', name: 'comment-context' },
+      { kind: 'h', text: 'AI Makes This Non-Negotiable' },
+      { kind: 'p', text: 'When AI touches your code — fixing a bug, extending a feature, refactoring a file — it reads that file. It reads the function. It reads the comment right there at the decision point. No extra step. No separate file to fetch. No mental mapping from documentation back to code.' },
+      { kind: 'p', text: 'If the comment explains why, not just what, the AI has everything it needs. "Single commit point — everything in memory until this is called at step 4." One line. AI reads it before touching that function and immediately understands the constraint.' },
+      { kind: 'p', text: 'With tools like SonarQube checking code quality, and AI doing the bulk of implementation, keeping comments accurate becomes easier too — the AI that wrote the code can update the comment. The feedback loop is tight.' },
+      { kind: 'animation', name: 'sonar-comment' },
+      { kind: 'p', text: 'I asked Claude directly. Here\'s what it said:' },
+      { kind: 'image', src: '/expansion-03-ai-verdict.png' },
+      { kind: 'flourish', glyph: 'star' },
+      { kind: 'h', text: 'The Rule' },
+      { kind: 'p', text: 'The AI\'s answer is the right one. There\'s a clean division:' },
+      { kind: 'list', items: [
+        'Specific function or decision → comment in the code, at that line',
+        'Cross-cutting constraint that spans multiple files → .md or memory entry',
+        'Architecture overview or onboarding context → README',
+        'Everything else → probably doesn\'t need documenting at all',
+      ]},
+      { kind: 'p', text: 'This also helps with token efficiency. When AI reads a file for a change, inline comments load automatically as part of that context. Pointing AI at a separate wiki or .md file costs extra tokens and an extra step. The comment is already there.' },
+      { kind: 'pull', text: 'Ask AI yourself — or save the tokens. In more ways than one. — Walter Mak' },
+    ],
   },
   {
     id: 'dr-04', slug: 'expansion-04', topic: 'drift',
