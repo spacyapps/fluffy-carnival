@@ -258,7 +258,7 @@ export const POSTS: Post[] = [
       { kind: 'list', items: [
         'Specific function or decision → comment in the code, at that line',
         'Cross-cutting constraint that spans multiple files → .md or memory entry',
-        'Architecture overview or onboarding context → README',
+        'Architecture overview → wiki or README (corporate rules apply)',
         'Everything else → probably doesn\'t need documenting at all',
       ]},
       { kind: 'p', text: 'This also helps with token efficiency. When AI reads a file for a change, inline comments load automatically as part of that context. Pointing AI at a separate wiki or .md file costs extra tokens and an extra step. The comment is already there.' },
