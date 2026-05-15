@@ -74,7 +74,7 @@ export default function Home() {
           </p>
           <div className="bo-cta-wrap" style={{ display: 'flex', gap: 14, justifyContent: 'center', marginTop: 36 }}>
             <Link
-              href="#apps"
+              href="#missions"
               style={{
                 background: 'var(--accent)',
                 color: 'var(--bg)',
