@@ -1,3 +1,4 @@
+import type { Viewport } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -8,6 +9,12 @@ import AppIcon from '../../components/boutique/AppIcon';
 import GestureMatchAnimation from '../../components/boutique/GestureMatchAnimation';
 import AuthMatchSVG from '../../components/boutique/AuthMatchSVG';
 import FeatureSlideshow from '../../components/boutique/FeatureSlideshow';
+import ScaleWrapper from '../../components/boutique/ScaleWrapper';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
 
 function ToleranceRectSVG() {
   const accent = '#e8a87c';
@@ -169,6 +176,7 @@ export default async function AppPage({
   if (!app) notFound();
 
   return (
+    <ScaleWrapper>
     <div
       style={{
         width: '100%',
@@ -372,12 +380,9 @@ export default async function AppPage({
                 maxWidth: 380,
                 width: '100%',
               }}>
-                <Image
+                <img
                   src={app.screenshot}
                   alt={`${app.name} screenshot`}
-                  width={563}
-                  height={749}
-                  loading="eager"
                   style={{ display: 'block', width: '100%', height: 'auto' }}
                 />
               </div>
@@ -538,11 +543,9 @@ export default async function AppPage({
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                       {f.detail!.images.map((src, j) => (
                         <div key={j} style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)' }}>
-                          <Image
+                          <img
                             src={src}
                             alt=""
-                            width={2324}
-                            height={1146}
                             style={{
                               display: 'block',
                               width: '100%',
@@ -728,5 +731,6 @@ export default async function AppPage({
 
       </div>
     </div>
+    </ScaleWrapper>
   );
 }

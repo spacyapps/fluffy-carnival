@@ -1,16 +1,18 @@
 import type { Viewport } from 'next';
 import Link from 'next/link';
+import Stars from './components/boutique/Stars';
 
 export const viewport: Viewport = {
-  width: 1080,
+  width: 'device-width',
+  initialScale: 1,
 };
-import Stars from './components/boutique/Stars';
 import ContactLink from './components/boutique/ContactLink';
 import BigPlanet from './components/boutique/BigPlanet';
 import Marquee from './components/boutique/Marquee';
 import Logotype from './components/boutique/Logotype';
 import Nav from './components/boutique/Nav';
 import AppIcon from './components/boutique/AppIcon';
+import ScaleWrapper from './components/boutique/ScaleWrapper';
 import { APPS } from './data/apps';
 import { POSTS } from './data/posts';
 import { NOW } from './data/now';
@@ -33,6 +35,7 @@ function Comet() {
 
 export default function Home() {
   return (
+    <ScaleWrapper>
     <div style={{ width: '100%', background: 'var(--bg)', color: 'var(--ink)', fontFamily: 'var(--font-body)' }}>
 
       {/* HERO */}
@@ -377,5 +380,6 @@ export default function Home() {
       </footer>
 
     </div>
+    </ScaleWrapper>
   );
 }
