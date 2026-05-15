@@ -11,6 +11,19 @@ import HumanEdgeSVG from './HumanEdgeSVG';
 import CommentContextSVG from './CommentContextSVG';
 import SonarCommentSVG from './SonarCommentSVG';
 
+// ── useIsMobile ───────────────────────────────────────────────────────────────
+function useIsMobile() {
+  const [mobile, setMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    setMobile(mq.matches);
+    const h = (e: MediaQueryListEvent) => setMobile(e.matches);
+    mq.addEventListener('change', h);
+    return () => mq.removeEventListener('change', h);
+  }, []);
+  return mobile;
+}
+
 // ── Flourish ─────────────────────────────────────────────────────────────────
 function Flourish({ glyph, color }: { glyph: string; color: string }) {
   if (glyph === 'orbit') return (
@@ -507,11 +520,11 @@ function OrbitsMap({ topics, hovered, setHovered, activeTopicId }: {
 }
 
 // ── IndexView ─────────────────────────────────────────────────────────────────
-function IndexView() {
+function IndexView({ isMobile }: { isMobile: boolean }) {
   const router = useRouter();
   return (
-    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '24px 56px 64px' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 56 }}>
+    <div style={{ maxWidth: 1100, margin: '0 auto', padding: isMobile ? '16px 16px 40px' : '24px 56px 64px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? 32 : 56 }}>
         {Object.values(TOPICS).map(t => {
           const list = POSTS.filter(p => p.topic === t.id);
           return (
@@ -566,9 +579,14 @@ function HoverCard({ post }: { post: Post }) {
 
 // ── JournalShell ──────────────────────────────────────────────────────────────
 export default function JournalShell() {
+  const isMobile = useIsMobile();
   const [metaphor, setMetaphor] = useState<'orbits' | 'constellation' | 'index'>('orbits');
   const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
   const [hovered, setHovered] = useState<Post | null>(null);
+
+  useEffect(() => {
+    if (isMobile) setMetaphor('index');
+  }, [isMobile]);
 
   const visibleTopics = activeTopicId
     ? Object.fromEntries([[activeTopicId, TOPICS[activeTopicId]]])
@@ -579,38 +597,48 @@ export default function JournalShell() {
       <Stars density={100} />
 
       {/* NAV */}
-      <nav style={{ position: 'relative', zIndex: 5, display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', padding: '24px 56px 0' }}>
-        <div style={{ display: 'flex', gap: 28, fontSize: 13, color: 'var(--ink-dim)', fontFamily: 'var(--font-body)', fontWeight: 500 }}>
-          <Link href="/#missions" className="bo-link" style={{ color: 'inherit', textDecoration: 'none' }}>Missions</Link>
-          <span style={{ color: 'var(--ink)', fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 400, fontSize: 13 }}>Journal</span>
-          <Link href="/#now" className="bo-link" style={{ color: 'inherit', textDecoration: 'none' }}>Now</Link>
-        </div>
-        <Logotype size={13} />
-        <div style={{ display: 'flex', gap: 28, justifyContent: 'flex-end', fontSize: 13, color: 'var(--ink-dim)' }}>
-          <Link href="/#contact" className="bo-link" style={{ color: 'inherit', textDecoration: 'none' }}>About</Link>
-          <Link href="/#contact" className="bo-link" style={{ color: 'inherit', textDecoration: 'none' }}>Contact</Link>
-        </div>
-      </nav>
+      {isMobile ? (
+        <nav style={{ position: 'relative', zIndex: 5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 16px 0' }}>
+          <Link href="/" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 1, color: 'var(--ink-dim)', textDecoration: 'none' }}>← Home</Link>
+          <Logotype size={12} />
+          <span style={{ width: 48 }} />
+        </nav>
+      ) : (
+        <nav style={{ position: 'relative', zIndex: 5, display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', padding: '24px 56px 0' }}>
+          <div style={{ display: 'flex', gap: 28, fontSize: 13, color: 'var(--ink-dim)', fontFamily: 'var(--font-body)', fontWeight: 500 }}>
+            <Link href="/#missions" className="bo-link" style={{ color: 'inherit', textDecoration: 'none' }}>Missions</Link>
+            <span style={{ color: 'var(--ink)', fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 400, fontSize: 13 }}>Journal</span>
+            <Link href="/#now" className="bo-link" style={{ color: 'inherit', textDecoration: 'none' }}>Now</Link>
+          </div>
+          <Logotype size={13} />
+          <div style={{ display: 'flex', gap: 28, justifyContent: 'flex-end', fontSize: 13, color: 'var(--ink-dim)' }}>
+            <Link href="/#contact" className="bo-link" style={{ color: 'inherit', textDecoration: 'none' }}>About</Link>
+            <Link href="/#contact" className="bo-link" style={{ color: 'inherit', textDecoration: 'none' }}>Contact</Link>
+          </div>
+        </nav>
+      )}
 
       {/* HERO */}
-      <header style={{ position: 'relative', zIndex: 2, padding: '64px 56px 24px', textAlign: 'center' }}>
+      <header style={{ position: 'relative', zIndex: 2, padding: isMobile ? '32px 16px 16px' : '64px 56px 24px', textAlign: 'center' }}>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 4, color: 'var(--accent)', marginBottom: 22 }}>
           ✦  THE JOURNAL  ·  EST. MMXXIV  ·  CHARTED  ✦
         </div>
-        <h1 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 'clamp(60px, 8vw, 112px)', margin: 0, letterSpacing: -3, lineHeight: 0.95 }}>
+        <h1 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: isMobile ? 'clamp(36px, 10vw, 60px)' : 'clamp(60px, 8vw, 112px)', margin: 0, letterSpacing: -3, lineHeight: 0.95 }}>
           A <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>star chart</span> of the writing.
         </h1>
-        <p style={{ maxWidth: 620, margin: '32px auto 0', fontSize: 17, lineHeight: 1.65, color: 'var(--ink-dim)', fontWeight: 300 }}>
-          Posts here are organised like a sky — by <em style={{ color: 'var(--ink)' }}>constellation</em>, not by date. Each topic is its own shape; pick a star to read what&apos;s there.
-        </p>
+        {!isMobile && (
+          <p style={{ maxWidth: 620, margin: '32px auto 0', fontSize: 17, lineHeight: 1.65, color: 'var(--ink-dim)', fontWeight: 300 }}>
+            Posts here are organised like a sky — by <em style={{ color: 'var(--ink)' }}>constellation</em>, not by date. Each topic is its own shape; pick a star to read what&apos;s there.
+          </p>
+        )}
       </header>
 
       {/* CONTROLS */}
-      <div style={{ position: 'relative', zIndex: 3, maxWidth: 1320, margin: '36px auto 0', padding: '0 56px', display: 'flex', flexDirection: 'column', gap: 20, alignItems: 'center' }}>
+      <div style={{ position: 'relative', zIndex: 3, maxWidth: 1320, margin: '36px auto 0', padding: isMobile ? '0 16px' : '0 56px', display: 'flex', flexDirection: 'column', gap: 20, alignItems: 'center' }}>
         {/* Metaphor switch */}
         <div style={{ display: 'flex', padding: 4, borderRadius: 999, border: '1px solid var(--line)', background: 'rgba(0,0,0,0.18)' }}>
           {(['orbits', 'constellation', 'index'] as const).map(opt => (
-            <button key={opt} onClick={() => setMetaphor(opt)} style={{ padding: '10px 22px', borderRadius: 999, background: metaphor === opt ? 'var(--accent)' : 'transparent', color: metaphor === opt ? 'var(--bg)' : 'var(--ink-dim)', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 2, fontWeight: 600, transition: 'background .25s, color .25s' }}>
+            <button key={opt} onClick={() => setMetaphor(opt)} style={{ padding: isMobile ? '8px 14px' : '10px 22px', borderRadius: 999, background: metaphor === opt ? 'var(--accent)' : 'transparent', color: metaphor === opt ? 'var(--bg)' : 'var(--ink-dim)', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 2, fontWeight: 600, transition: 'background .25s, color .25s' }}>
               {opt.toUpperCase()}
             </button>
           ))}
@@ -618,15 +646,14 @@ export default function JournalShell() {
 
         {/* Topic legend — hidden in index view */}
         {metaphor !== 'index' && (
-          <div style={{ display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
             {Object.values(TOPICS).map(t => {
               const active = activeTopicId === t.id;
               return (
-                <button key={t.id} onClick={() => setActiveTopicId(active ? null : t.id)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 14px', background: active ? `${t.color}20` : 'transparent', border: `1px solid ${active ? t.color + '88' : 'var(--line)'}`, borderRadius: 999, color: 'var(--ink)', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 1.5, transition: 'background .25s, border-color .25s' }}>
+                <button key={t.id} onClick={() => setActiveTopicId(active ? null : t.id)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', background: active ? `${t.color}20` : 'transparent', border: `1px solid ${active ? t.color + '88' : 'var(--line)'}`, borderRadius: 999, color: 'var(--ink)', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 1.5, transition: 'background .25s, border-color .25s' }}>
                   <span style={{ width: 10, height: 10, borderRadius: '50%', background: t.color, boxShadow: `0 0 8px ${t.color}`, display: 'inline-block' }} />
                   <span style={{ fontWeight: 600 }}>{t.name.toUpperCase()}</span>
-                  <span style={{ color: 'var(--ink-faint)' }}>·</span>
-                  <span style={{ color: 'var(--ink-dim)', fontWeight: 400 }}>{t.subtitle}</span>
+                  {!isMobile && <><span style={{ color: 'var(--ink-faint)' }}>·</span><span style={{ color: 'var(--ink-dim)', fontWeight: 400 }}>{t.subtitle}</span></>}
                 </button>
               );
             })}
@@ -646,14 +673,14 @@ export default function JournalShell() {
             <ConstellationMap posts={POSTS} topics={visibleTopics} hovered={hovered} setHovered={setHovered} activeTopicId={activeTopicId} />
           </div>
         )}
-        {metaphor === 'index' && <IndexView />}
+        {metaphor === 'index' && <IndexView isMobile={isMobile} />}
       </main>
 
       {/* HOVER CARD */}
-      {hovered && <HoverCard post={hovered} />}
+      {hovered && !isMobile && <HoverCard post={hovered} />}
 
       {/* FOOTER */}
-      <footer style={{ position: 'relative', zIndex: 2, padding: '40px 56px 32px', borderTop: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+      <footer style={{ position: 'relative', zIndex: 2, padding: isMobile ? '24px 16px 20px' : '40px 56px 32px', borderTop: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
         <Logotype size={11} color="var(--ink-faint)" />
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2, color: 'var(--ink-faint)' }}>
           {POSTS.length} ENTRIES · {Object.keys(TOPICS).length} CONSTELLATIONS

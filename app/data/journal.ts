@@ -62,17 +62,12 @@ export const TOPICS: Record<string, Topic> = {
 
 export const POSTS: Post[] = [
   {
-    id: 'fl-03', slug: 'first-light-03', topic: 'first_light',
-    title: 'First Light · 03', date: '', dateLabel: 'Coming soon',
-    read: '—', kind: 'essay', cx: 120, cy: 640, ring: 0, angle: 285,
-    excerpt: 'Incoming.',
-    body: [],
-  },
-  {
-    id: 'fl-04', slug: 'first-light-04', topic: 'first_light',
-    title: 'First Light · 04', date: '', dateLabel: 'Coming soon',
-    read: '—', kind: 'essay', cx: 360, cy: 240, ring: 0, angle: 320,
-    excerpt: 'Incoming.',
+    id: 'fl-06', slug: 'signature-gesture-algorithm', topic: 'first_light',
+    title: 'Signature Gesture Matching Algorithm', date: '2026-05-08', dateLabel: 'May 8, 2026',
+    read: '8 min', kind: 'essay', pinned: true,
+    link: '/apps/secret-stuff#dive-original-signature-algorithm',
+    cx: 1060, cy: 160, ring: 0, angle: 35,
+    excerpt: 'How a greedy pointer walk and overlapping tolerance boxes turn two imperfect hand-drawn paths into a reliable authentication lock — written in Obj-C circa 2010, still running today.',
     body: [],
   },
   {
@@ -101,12 +96,17 @@ export const POSTS: Post[] = [
     ],
   },
   {
-    id: 'fl-06', slug: 'signature-gesture-algorithm', topic: 'first_light',
-    title: 'Signature Gesture Matching Algorithm', date: '2026-05-08', dateLabel: 'May 8, 2026',
-    read: '8 min', kind: 'essay', pinned: true,
-    link: '/apps/secret-stuff#dive-original-signature-algorithm',
-    cx: 1060, cy: 160, ring: 0, angle: 35,
-    excerpt: 'How a greedy pointer walk and overlapping tolerance boxes turn two imperfect hand-drawn paths into a reliable authentication lock — written in Obj-C circa 2010, still running today.',
+    id: 'fl-03', slug: 'first-light-03', topic: 'first_light',
+    title: 'First Light · 03', date: '', dateLabel: 'Coming soon',
+    read: '—', kind: 'essay', cx: 120, cy: 640, ring: 0, angle: 285,
+    excerpt: 'Incoming.',
+    body: [],
+  },
+  {
+    id: 'fl-04', slug: 'first-light-04', topic: 'first_light',
+    title: 'First Light · 04', date: '', dateLabel: 'Coming soon',
+    read: '—', kind: 'essay', cx: 360, cy: 240, ring: 0, angle: 320,
+    excerpt: 'Incoming.',
     body: [],
   },
   {

@@ -48,9 +48,9 @@ export const APPS: App[] = [
     description: 'Built sometime around 2010 — my first fully deployed app, spanning multiple countries. That reach opened up opportunities throughout my life and career that I never expected. I\'m happy to bring it back as a legacy app, a reminder of where it all started.',
     slides: [
       { src: '/ss-slide-picturekey.png', caption: 'Unique Picture Key Signature Unlock' },
-      { src: '/ss-slide-greeting.png', caption: 'Personal Greeting for Person Images' },
+      { src: '/ss-slide-greeting.png', caption: 'Personal Greeting for Person Images with Scrolling Backgrounds' },
       { src: '/ss-slide-filedetails.png', caption: 'File Details' },
-      { src: '/ss-slide-dynamicbg.mov', caption: 'Dynamic Time Backgrounds', type: 'video' },
+      { src: '/ss-slide-dynamicbg.mov', caption: 'Option: Dynamic Time Changing Scrolling Backgrounds', type: 'video' },
     ],
     features: [
       {
