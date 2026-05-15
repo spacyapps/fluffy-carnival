@@ -37,6 +37,7 @@ export default function FeatureSlideshow({ slides, color }: { slides: Slide[]; c
                 <div style={{ borderRadius: 24, overflow: 'hidden', aspectRatio: '9 / 19.5', background: '#000' }}>
                   {slide.type === 'video' ? (
                     <video src={slide.src} autoPlay muted loop playsInline
+                      ref={el => { if (el) el.playbackRate = 2; }}
                       style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
                     <img
