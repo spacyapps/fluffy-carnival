@@ -19,7 +19,7 @@ export const NOW: NowEntry[] = [
     date: 'May 7',
     status: 'Live',
     statusColor: 'oklch(0.72 0.17 145)',
-    title: 'Secret Stuff — Legacy revival at 10.2, algorithm deep dive published',
+    title: 'Secret Stuff — Implementing v10.4',
     tag: 'iOS',
   },
 

@@ -7,6 +7,7 @@ import Logotype from '../../components/boutique/Logotype';
 import AppIcon from '../../components/boutique/AppIcon';
 import GestureMatchAnimation from '../../components/boutique/GestureMatchAnimation';
 import AuthMatchSVG from '../../components/boutique/AuthMatchSVG';
+import FeatureSlideshow from '../../components/boutique/FeatureSlideshow';
 
 function ToleranceRectSVG() {
   const accent = '#e8a87c';
@@ -358,23 +359,6 @@ export default async function AppPage({
                   Visit website ↗
                 </a>
               )}
-              <a
-                href="#"
-                style={{
-                  background: 'transparent',
-                  color: 'var(--ink)',
-                  border: '1px solid var(--line)',
-                  padding: '14px 26px',
-                  borderRadius: 999,
-                  fontSize: 14,
-                  fontWeight: 500,
-                  fontFamily: 'var(--font-body)',
-                  textDecoration: 'none',
-                  display: 'inline-block',
-                }}
-              >
-                Changelog
-              </a>
             </div>
           </div>
 
@@ -451,6 +435,11 @@ export default async function AppPage({
             )}
           </div>
         </div>
+
+        {/* Feature slideshow */}
+        {app.slides && app.slides.length > 0 && (
+          <FeatureSlideshow slides={app.slides} color={app.color} />
+        )}
 
         {/* Features */}
         <div className="bo-grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>

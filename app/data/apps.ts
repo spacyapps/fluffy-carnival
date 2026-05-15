@@ -28,6 +28,7 @@ export interface App {
     };
   }[];
   noPage?: boolean;
+  slides?: { src: string; caption: string; type?: 'video' }[];
   guide?: { heading: string; steps: { title: string; body: string; prompt?: string }[] };
 }
 
@@ -38,13 +39,19 @@ export const APPS: App[] = [
     glyph: 'S',
     color: '#7d4ad9',
     platform: 'iOS',
-    version: '10.3',
-    tagline: 'Implementing v10.3',
+    version: '10.4',
+    tagline: 'Implementing v10.4',
     icon: '/icon-secret-stuff.png',
     storeUrl: 'https://apps.apple.com/us/app/secret-stuff/id437415402',
     legacyVideoUrl: 'https://www.youtube.com/watch?v=sJXtXjAEWOQ',
     videoUrl: '/secret-stuff-demo.mov',
     description: 'Built sometime around 2010 — my first fully deployed app, spanning multiple countries. That reach opened up opportunities throughout my life and career that I never expected. I\'m happy to bring it back as a legacy app, a reminder of where it all started.',
+    slides: [
+      { src: '/ss-slide-picturekey.png', caption: 'Unique Picture Key Signature Unlock' },
+      { src: '/ss-slide-greeting.png', caption: 'Personal Greeting for Person Images' },
+      { src: '/ss-slide-filedetails.png', caption: 'File Details' },
+      { src: '/ss-slide-dynamicbg.mov', caption: 'Dynamic Time Backgrounds', type: 'video' },
+    ],
     features: [
       {
         title: 'Original signature algorithm',
