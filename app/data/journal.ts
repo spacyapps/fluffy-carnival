@@ -83,7 +83,8 @@ export const POSTS: Post[] = [
       { kind: 'p', text: 'It worked better than I expected. People loved it. It made money, but more importantly, the whole experience — designing the signature-matching algorithm, polishing the UI, shipping updates — levelled up my skills and confidence in ways that helped everything else I worked on.' },
       { kind: 'image', src: '/secret-stuff-draw-key.jpg' },
       { kind: 'flourish', glyph: 'orbit' },
-      { kind: 'p', text: 'Years later, AI is prominent & helpful. So I hope this inspires you to succeed in this new AI World.' },
+      { kind: 'p', text: 'Years later, AI helped me bring it back — updating the UI while the original algorithm and core stayed exactly as I built them.' },
+      { kind: 'p', text: 'AI is prominent & helpful & will help you with your dreams. So I hope this inspires you to succeed in this new AI World.' },
       { kind: 'h', text: 'Key Takeaways' },
       { kind: 'list', items: [
         'Surround yourself with positive people that will bring you up, not down.',
