@@ -175,7 +175,7 @@ export default function Home() {
                   {app.tagline}
                 </p>
                 <div style={{ paddingTop: 16, borderTop: '1px solid var(--line)', fontSize: 13, fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: app.noPage ? 'var(--ink-faint)' : 'var(--accent)' }}>
-                  {app.noPage ? 'In development...' : 'Open the briefing →'}
+                  {app.noPage ? 'In development...' : (app.cta ?? 'Open the briefing →')}
                 </div>
               </div>
             );

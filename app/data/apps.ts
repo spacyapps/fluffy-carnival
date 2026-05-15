@@ -28,6 +28,7 @@ export interface App {
     };
   }[];
   noPage?: boolean;
+  cta?: string;
   slides?: { src: string; caption: string; type?: 'video' }[];
   guide?: { heading: string; steps: { title: string; body: string; prompt?: string }[] };
 }
@@ -165,7 +166,8 @@ Popup UI:
     color: '#c0392b',
     platform: 'Web',
     version: '1',
-    tagline: 'Visionary thinking...',
+    tagline: 'Lunar scale. Long horizon.',
+    cta: 'Scoping the mission →',
     websiteUrl: 'https://www.tsukibase.com',
     screenshot: '/tsukibase-screenshot.png',
     description: '月 (Tsuki) means Moon in Japanese. 基地 (Kichi) means Base.\nTsukiBase — 月基地 — is a lunar observation post, watching from the Sea of Tranquility.\n\nWhat will become of the Moon? What mission will this become?',
