@@ -1,4 +1,9 @@
+import type { Viewport } from 'next';
 import Link from 'next/link';
+
+export const viewport: Viewport = {
+  width: 1080,
+};
 import Stars from './components/boutique/Stars';
 import ContactLink from './components/boutique/ContactLink';
 import BigPlanet from './components/boutique/BigPlanet';
