@@ -500,6 +500,24 @@ export default async function AppPage({
                   </p>
                 ))}
               </div>
+              {f.images && f.images.length === 2 && (
+                <div style={{ marginTop: 20, display: 'flex', gap: 10 }}>
+                  {(['Before', 'After'] as const).map((label, j) => (
+                    <div key={j} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)', background: 'rgba(0,0,0,0.2)' }}>
+                        <img
+                          src={f.images![j]}
+                          alt={label}
+                          style={{ display: 'block', width: '100%', height: 'auto' }}
+                        />
+                      </div>
+                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: 2, color: 'var(--ink-faint)', textAlign: 'center' }}>
+                        {label.toUpperCase()}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
               {f.detail && (
                 <a href={`#dive-${f.title.toLowerCase().replace(/\s+/g, '-')}`} style={{ textDecoration: 'none' }}>
                   <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--line)', fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--accent)' }}>

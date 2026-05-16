@@ -16,6 +16,7 @@ export interface App {
   features?: {
     title: string;
     body: string;
+    images?: string[];
     detail?: {
       title: string;
       images?: string[];
@@ -50,8 +51,9 @@ export const APPS: App[] = [
     slides: [
       { src: '/ss-slide-picturekey.png', caption: 'Unique Picture Key Signature Unlock' },
       { src: '/ss-slide-greeting.png', caption: 'Personal Greeting for Person Images with Scrolling Backgrounds' },
-      { src: '/ss-slide-filedetails.png', caption: 'File Details' },
-      { src: '/ss-slide-dynamicbg.mov', caption: 'Option: Dynamic Time Changing Scrolling Backgrounds', type: 'video' },
+      { src: '/ss-slide-backgrounds.png', caption: 'Backgrounds for Notes, Photos, Videos' },
+      { src: '/ss-slide-filedetails.png', caption: 'File Details for your Photos and Videos' },
+      { src: '/ss-slide-dynamicbg.mov', caption: 'Dynamic Time Changing Scrolling Backgrounds', type: 'video' },
     ],
     features: [
       {
@@ -97,6 +99,7 @@ export const APPS: App[] = [
       {
         title: 'Redesigned UI',
         body: 'A fresh, modern interface built for a more pleasant experience. Same trusted app, new look. Enjoy!',
+        images: ['/ss-ui-before.png', '/ss-ui-after.png'],
       },
     ],
   },
