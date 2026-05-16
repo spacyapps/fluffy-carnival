@@ -9,6 +9,7 @@ import AppIcon from '../../components/boutique/AppIcon';
 import GestureMatchAnimation from '../../components/boutique/GestureMatchAnimation';
 import AuthMatchSVG from '../../components/boutique/AuthMatchSVG';
 import FeatureSlideshow from '../../components/boutique/FeatureSlideshow';
+import VideoWithProgress from '../../components/boutique/VideoWithProgress';
 import ScaleWrapper from '../../components/boutique/ScaleWrapper';
 
 export const viewport: Viewport = {
@@ -389,33 +390,16 @@ export default async function AppPage({
             ) : (
               <div
                 style={{
-                  width: 280,
-                  height: 580,
+                  width: 290,
+                  height: 590,
                   borderRadius: 44,
                   background: 'linear-gradient(160deg, #20242c, #0e1014)',
-                  padding: 12,
+                  padding: 10,
                   boxShadow: '0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 1.5px rgba(255,255,255,0.08)',
                 }}
               >
                 {app.videoUrl ? (
-                  <div style={{ position: 'relative', width: '100%', height: '100%', borderRadius: 32, overflow: 'hidden' }}>
-                    <video
-                      src={app.videoUrl}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        width: '105%',
-                        height: '105%',
-                        transform: 'translate(-50%, -50%)',
-                        objectFit: 'cover',
-                      }}
-                    />
-                  </div>
+                  <VideoWithProgress src={app.videoUrl} />
                 ) : (
                   <div
                     style={{
