@@ -576,6 +576,21 @@ export default async function AppPage({
                   </div>
                 )}
 
+                {/* Closing */}
+                <p style={{
+                  fontFamily: 'var(--font-serif)',
+                  fontStyle: 'italic',
+                  fontSize: 19,
+                  lineHeight: 1.5,
+                  color: 'var(--ink)',
+                  fontWeight: 300,
+                  margin: 0,
+                  paddingLeft: 16,
+                  borderLeft: '2px solid var(--accent)',
+                }}>
+                  15+ years in production. Not a line of the hand written algorithm has changed.
+                </p>
+
                 {/* Copyright */}
                 <div style={{ borderTop: '1px solid var(--line)', paddingTop: 24 }}>
                   <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 1.5, color: 'var(--ink-faint)', margin: 0, lineHeight: 1.9 }}>
