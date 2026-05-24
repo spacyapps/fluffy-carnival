@@ -106,7 +106,7 @@ export default function Home() {
                 display: 'inline-block',
               }}
             >
-              Read the journal
+              Explore the journal star map
             </Link>
           </div>
         </div>

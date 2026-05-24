@@ -9,7 +9,7 @@ import { type Post, type Topic } from '../../data/journal';
 
 function SiblingCard({ post, topic }: { post: Post; topic: Topic }) {
   return (
-    <Link href={`/journal/${post.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
+    <Link href={post.link ?? `/journal/${post.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
       <article className="bo-card" style={{
         padding: '22px 24px', cursor: 'pointer',
         border: '1px solid var(--line)', borderRadius: 12,

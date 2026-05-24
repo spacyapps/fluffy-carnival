@@ -7,6 +7,7 @@ export interface Block {
   lang?: string;
   glyph?: 'orbit' | 'star' | 'dots';
   src?: string;
+  maxWidth?: number;
   name?: string;
   rows?: { label: string; note: string }[];
   cols?: { heading: string; tag: string; body: string }[];
@@ -267,11 +268,50 @@ export const POSTS: Post[] = [
     ],
   },
   {
-    id: 'dr-04', slug: 'expansion-04', topic: 'drift',
-    title: 'Expansion · 04', date: '', dateLabel: 'Coming soon',
-    read: '—', kind: 'essay', cx: 1430, cy: 590, ring: 1, angle: 185,
-    excerpt: 'Incoming.',
-    body: [],
+    id: 'dr-04', slug: 'is-innovation-lost-now', topic: 'drift',
+    title: 'Is Innovation Lost Now?', date: '2026-05-23', dateLabel: 'May 23, 2026',
+    read: '6 min', kind: 'essay', cx: 1430, cy: 590, ring: 1, angle: 185,
+    excerpt: 'Innovation — is it from AI, or from me? The answer hasn\'t changed since Think Different. What has changed is who carries the implementation.',
+    body: [
+      { kind: 'lede', text: 'Innovation — is it from AI, or from me?' },
+      { kind: 'p', text: 'Ask AI for "something unique" and you\'ll get something that feels unique — statistically derived from everything that already exists. AI is extraordinarily good at recombining patterns it has seen. That\'s not innovation. That\'s recombination.' },
+      { kind: 'pull', text: 'Innovation isn\'t asking AI what\'s possible. It\'s knowing what you want before you open the prompt.' },
+      { kind: 'p', text: 'Apple\'s Think Different is still 100% correct. Not despite AI — because of it. The bar for execution dropped to nearly zero. Original vision is now the only bar that matters.' },
+      { kind: 'flourish', glyph: 'orbit' },
+      { kind: 'h', text: 'Who Is Actually Innovating?' },
+      { kind: 'image', src: '/humanOrAi-handsUp.jpg', maxWidth: 360 },
+      { kind: 'h', text: 'What Not to Ask' },
+      { kind: 'list', items: [
+        '"Solve this using the best known algorithm"',
+        '"What\'s the most efficient approach here?"',
+        '"Build me something innovative"',
+      ]},
+      { kind: 'h', text: 'What to Ask Instead' },
+      { kind: 'list', items: [
+        '"Step 1: point A has an area. Point B has an area."',
+        '"Step 2: does Area A intersect with Area B? If not, advance."',
+        '"Step 3: repeat until one path is exhausted — implement that."',
+      ]},
+      { kind: 'pull', text: "Don't ask 'can this be done?' Ask 'let's try this, then that, to reach my goal of...' — keep the goal yours." },
+      { kind: 'flourish', glyph: 'star' },
+      { kind: 'h', text: 'The Division of Labour Shifted' },
+      { kind: 'p', text: 'My gesture-signature algorithm was written by hand in Obj-C, circa 2010. No AI, one person, every step. If I built it today I still wouldn\'t ask AI to design it — I\'d describe it exactly as I saw it: step 1, step 2, step 3. AI would implement each step. I\'d refine. The algorithm would still be mine.' },
+      { kind: 'pull', text: 'One person used to carry both the vision and every line of code. Now the vision is still yours — AI just means you don\'t have to carry it alone.' },
+      { kind: 'h', text: 'Refinement Has Teeth' },
+      { kind: 'p', text: 'Refinement means some general knowledge of how things work in the current context. The more ideas you push, the more options you have.' },
+      { kind: 'flourish', glyph: 'dots' },
+      { kind: 'h', text: 'So How Do You Give It Step by Step?' },
+      { kind: 'p', text: 'It\'s a skill. And like any skill, it starts before you touch a keyboard.' },
+      { kind: 'p', text: 'Much like athletes who train using a mental model — the mind sees the movement, the form, the outcome, and practice trains the body to match that vision — the same applies here. See the software in your head first. Then practise breaking it down.' },
+      { kind: 'image', src: '/basketball-envisioning.jpg', maxWidth: 480 },
+      { kind: 'list', items: [
+        'Draw it. Sketch the flow, the structure, the shape of what you\'re building — on paper, in your head, anywhere.',
+        'Visualise the dream until you can see its parts.',
+        'Then practise chopping it up — smaller, smaller, smaller. One constraint. One rule. One step.',
+      ]},
+      { kind: 'p', text: 'Each little piece goes to AI. One at a time. You see what comes back, you refine, you hand it the next piece. The whole vision arrives — but on your terms, in your sequence.' },
+      { kind: 'pull', text: 'Your vision is the key. Still! — Walter Mak' },
+    ],
   },
   {
     id: 'dr-05', slug: 'expansion-05', topic: 'drift',

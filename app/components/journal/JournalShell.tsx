@@ -146,8 +146,10 @@ export function PostBody({ blocks, topic }: { blocks: Post['body']; topic: Topic
         continue;
       }
       elements.push(
-        <div key={i} style={{ margin: '16px 0 36px', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--line)' }}>
-          <img src={b.src} alt="" style={{ display: 'block', width: '100%', height: 'auto' }} />
+        <div key={i} style={{ margin: '16px 0 36px', display: 'flex', justifyContent: b.maxWidth ? 'center' : undefined }}>
+          <div style={{ borderRadius: 14, overflow: 'hidden', border: '1px solid var(--line)', maxWidth: b.maxWidth ?? '100%', width: '100%' }}>
+            <img src={b.src} alt="" style={{ display: 'block', width: '100%', height: 'auto' }} />
+          </div>
         </div>
       );
       i++;
@@ -628,7 +630,10 @@ export default function JournalShell() {
         </h1>
         {!isMobile && (
           <p style={{ maxWidth: 620, margin: '32px auto 0', fontSize: 17, lineHeight: 1.65, color: 'var(--ink-dim)', fontWeight: 300 }}>
-            Posts here are organised like a sky — by <em style={{ color: 'var(--ink)' }}>constellation</em>, not by date. Each topic is its own shape; pick a star to read what&apos;s there.
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <li>Organised by <em style={{ color: 'var(--ink)' }}>constellation</em>, not by date</li>
+              <li>Each topic is its own shape — pick a star to read</li>
+            </ul>
           </p>
         )}
       </header>
