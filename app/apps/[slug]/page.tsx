@@ -8,6 +8,7 @@ import Logotype from '../../components/boutique/Logotype';
 import AppIcon from '../../components/boutique/AppIcon';
 import GestureMatchAnimation from '../../components/boutique/GestureMatchAnimation';
 import AuthMatchSVG from '../../components/boutique/AuthMatchSVG';
+import PictureKeyConceptSVG from '../../components/boutique/PictureKeyConceptSVG';
 import FeatureSlideshow from '../../components/boutique/FeatureSlideshow';
 import VideoWithProgress from '../../components/boutique/VideoWithProgress';
 import ScaleWrapper from '../../components/boutique/ScaleWrapper';
@@ -516,8 +517,36 @@ export default async function AppPage({
         {/* Feature deep dives */}
         {(app.features ?? []).filter(f => f.detail).map((f, i) => {
           const secs = f.detail!.sections as Section[];
+          const preamble = f.detail!.preamble;
           return (
-            <div key={i} id={`dive-${f.title.toLowerCase().replace(/\s+/g, '-')}`} style={{ marginTop: 60, background: '#08090b', borderRadius: 20, border: '1px solid var(--line)', overflow: 'hidden' }}>
+            <div key={i} id={`dive-${f.title.toLowerCase().replace(/\s+/g, '-')}`}>
+              {preamble && (
+                <div style={{ marginTop: 60 }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 3 }}>◈ INSPIRATION</span>
+                  <div style={{ marginTop: 32, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 56, alignItems: 'center' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                      <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
+                        {preamble.body}
+                      </p>
+                      <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
+                        {preamble.listIntro}
+                      </p>
+                      <ul style={{ margin: 0, paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {preamble.items.map((item, j) => (
+                          <li key={j} style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.7, color: 'var(--ink-dim)', fontWeight: 300 }}>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                      <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 18, lineHeight: 1.5, color: 'var(--ink)', fontWeight: 300, margin: 0, paddingLeft: 20, borderLeft: '2px solid var(--accent)' }}>
+                        {preamble.footer}
+                      </p>
+                    </div>
+                    <PictureKeyConceptSVG />
+                  </div>
+                </div>
+              )}
+            <div style={{ marginTop: preamble ? 40 : 60, background: '#08090b', borderRadius: 20, border: '1px solid var(--line)', overflow: 'hidden' }}>
               <div style={{ padding: '20px 40px', borderBottom: '1px solid var(--line)', display: 'flex', alignItems: 'center', gap: 16 }}>
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 3 }}>
                   ◈ ALGORITHM DEEP DIVE
@@ -599,6 +628,7 @@ export default async function AppPage({
                   </p>
                 </div>
               </div>
+            </div>
             </div>
           );
         })}

@@ -19,6 +19,7 @@ export interface App {
     images?: string[];
     detail?: {
       title: string;
+      preamble?: { body: string; listIntro: string; items: string[]; footer: string };
       images?: string[];
       sections: {
         heading?: string;
@@ -62,6 +63,16 @@ export const APPS: App[] = [
         detail: {
           title: 'Signature Gesture Matching Algorithm for Hand-Drawn Authentication',
           images: ['/secret-stuff-algo-code.png'],
+          preamble: {
+            body: 'Remembering a password is hard because numbers and letters have no personal context — they\'re arbitrary, and a hint is often your last resort. The problem was simple: find an easier, more natural way to unlock.',
+            listIntro: 'Combining cognitive psychology and muscle memory — drawing a personal signature on an image you chose — the system creates three memory anchors:',
+            items: [
+              'the image you picked',
+              'the gesture you practised',
+              'whatever meaning you gave that gesture',
+            ],
+            footer: 'Together, a new kind of unlock.',
+          },
           sections: [
             {
               body: 'When a user draws their Picture Key, the app records a sequence of points — the raw coordinates of a finger moving across the screen. The saved key is one sequence; the login attempt is another.',
