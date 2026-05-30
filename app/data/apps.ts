@@ -31,6 +31,14 @@ export interface App {
   }[];
   noPage?: boolean;
   cta?: string;
+  companion?: {
+    name: string;
+    cardLabel: string;
+    kicker: string;
+    blurb: string;
+    websiteUrl: string;
+    screenshot: string;
+  };
   slides?: { src: string; caption: string; type?: 'video' }[];
   guide?: { heading: string; steps: { title: string; body: string; prompt?: string }[] };
 }
@@ -185,6 +193,14 @@ Popup UI:
     websiteUrl: 'https://www.tsukibase.com',
     screenshot: '/tsukibase-screenshot.png',
     description: '月 (Tsuki) means Moon in Japanese. 基地 (Kichi) means Base.\nTsukiBase — 月基地 — is a lunar observation post, watching from the Sea of Tranquility.\n\nWhat will become of the Moon? What mission will this become?',
+    companion: {
+      name: 'LunarArray',
+      cardLabel: 'near-side spaceport',
+      kicker: 'NEAR-SIDE SPACEPORT & RELAY',
+      blurb: 'LunarArray is our entry to the Moon — a crewed spaceport and deep-space relay pinned to the regolith that always faces Earth. Landing pads, antenna farms and ore works span a 180-kilometre octogram, several built straight onto the near side\'s richest mining claims.\n\nIt is the gateway. TsukiBase is what waits beyond it.',
+      websiteUrl: 'https://www.lunararray.com',
+      screenshot: '/lunararray-preview.png',
+    },
     features: [
       {
         title: 'Gate to the Moon',

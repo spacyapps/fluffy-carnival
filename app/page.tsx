@@ -171,9 +171,14 @@ export default function Home() {
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-faint)', letterSpacing: 1.5, marginBottom: 16 }}>
                   {app.platform.toUpperCase()}  ·  v{app.version}
                 </div>
-                <p style={{ fontSize: 14.5, lineHeight: 1.6, color: 'var(--ink-dim)', margin: '0 0 24px', fontWeight: 300, minHeight: 70, fontFamily: 'var(--font-body)' }}>
+                <p style={{ fontSize: 14.5, lineHeight: 1.6, color: 'var(--ink-dim)', margin: app.companion ? '0 0 16px' : '0 0 24px', fontWeight: 300, minHeight: 70, fontFamily: 'var(--font-body)' }}>
                   {app.tagline}
                 </p>
+                {app.companion && (
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 1, color: 'var(--ink-faint)', lineHeight: 1.6, margin: '0 0 24px' }}>
+                    ↳ <span style={{ color: 'var(--accent)' }}>{app.companion.name}</span> · {app.companion.cardLabel}
+                  </div>
+                )}
                 <div style={{ paddingTop: 16, borderTop: '1px solid var(--line)', fontSize: 13, fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: app.noPage ? 'var(--ink-faint)' : 'var(--accent)' }}>
                   {app.noPage ? 'In development...' : (app.cta ?? 'Open the briefing →')}
                 </div>

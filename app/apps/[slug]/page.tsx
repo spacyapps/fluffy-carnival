@@ -426,6 +426,72 @@ export default async function AppPage({
           </div>
         </div>
 
+        {/* Companion site showcase */}
+        {app.companion && (
+          <div style={{
+            marginBottom: 100,
+            background: '#08090b',
+            borderRadius: 20,
+            border: '1px solid var(--line)',
+            overflow: 'hidden',
+          }}>
+            <div style={{ padding: '20px 40px', borderBottom: '1px solid var(--line)', display: 'flex', alignItems: 'center', gap: 16 }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 3 }}>
+                ↳ {app.companion.kicker}
+              </span>
+            </div>
+            <div className="bo-companion-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.35fr', gap: 56, alignItems: 'center', padding: '48px 40px' }}>
+              <div>
+                <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 52, margin: '0 0 20px', letterSpacing: -1.5, lineHeight: 1 }}>
+                  {app.companion.name}
+                  <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>.</span>
+                </h2>
+                <div style={{ fontSize: 15, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, fontFamily: 'var(--font-body)', display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 32 }}>
+                  {app.companion.blurb.split('\n\n').map((para, j) => (
+                    <p key={j} style={{ margin: 0 }}>{para}</p>
+                  ))}
+                </div>
+                <a
+                  href={app.companion.websiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    background: 'var(--accent)',
+                    color: 'var(--bg)',
+                    padding: '14px 26px',
+                    borderRadius: 999,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    fontFamily: 'var(--font-body)',
+                    textDecoration: 'none',
+                    display: 'inline-block',
+                  }}
+                >
+                  Visit {app.companion.name} ↗
+                </a>
+              </div>
+              <a
+                href={app.companion.websiteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'block',
+                  borderRadius: 12,
+                  overflow: 'hidden',
+                  border: '1px solid var(--line)',
+                  boxShadow: '0 30px 80px rgba(0,0,0,0.6)',
+                }}
+              >
+                <img
+                  src={app.companion.screenshot}
+                  alt={`${app.companion.name} website preview`}
+                  style={{ display: 'block', width: '100%', height: 'auto' }}
+                />
+              </a>
+            </div>
+          </div>
+        )}
+
         {/* Feature slideshow */}
         {app.slides && app.slides.length > 0 && (
           <FeatureSlideshow slides={app.slides} color={app.color} />
