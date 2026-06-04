@@ -303,7 +303,12 @@ export default async function AppPage({
                 .split('\n\n').map((para, j) => (
                   <p key={j} style={{ margin: 0 }}>
                     {para.split('\n').map((line, k, arr) => (
-                      <span key={k}>{line}{k < arr.length - 1 && <br />}</span>
+                      <span key={k}>
+                        {line.split('**').map((seg, s) =>
+                          s % 2 === 1 ? <strong key={s} style={{ fontWeight: 600, color: 'var(--ink)' }}>{seg}</strong> : seg
+                        )}
+                        {k < arr.length - 1 && <br />}
+                      </span>
                     ))}
                   </p>
                 ))}
@@ -546,7 +551,12 @@ export default async function AppPage({
                 {f.body.split('\n\n').map((para, j) => (
                   <p key={j} style={{ margin: 0 }}>
                     {para.split('\n').map((line, k, arr) => (
-                      <span key={k}>{line}{k < arr.length - 1 && <br />}</span>
+                      <span key={k}>
+                        {line.split('**').map((seg, s) =>
+                          s % 2 === 1 ? <strong key={s} style={{ fontWeight: 600, color: 'var(--ink)' }}>{seg}</strong> : seg
+                        )}
+                        {k < arr.length - 1 && <br />}
+                      </span>
                     ))}
                   </p>
                 ))}

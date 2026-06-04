@@ -171,9 +171,21 @@ export default function Home() {
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-faint)', letterSpacing: 1.5, marginBottom: 16 }}>
                   {app.platform.toUpperCase()}  ·  v{app.version}
                 </div>
-                <p style={{ fontSize: 14.5, lineHeight: 1.6, color: 'var(--ink-dim)', margin: app.companion ? '0 0 16px' : '0 0 24px', fontWeight: 300, minHeight: 70, fontFamily: 'var(--font-body)' }}>
+                <p style={{ fontSize: 14.5, lineHeight: 1.6, color: 'var(--ink-dim)', margin: (app.companion || app.milestones) ? '0 0 16px' : '0 0 24px', fontWeight: 300, minHeight: 70, fontFamily: 'var(--font-body)' }}>
                   {app.tagline}
                 </p>
+                {app.milestones && (
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 1, color: 'var(--ink-faint)', lineHeight: 1.7, margin: '0 0 24px' }}>
+                    {app.milestones.map((m, j) => {
+                      const [year, ...rest] = m.split(':');
+                      return (
+                        <div key={j}>
+                          <span style={{ color: 'var(--accent)' }}>{year}:</span>{rest.join(':')}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
                 {app.companion && (
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 1, color: 'var(--ink-faint)', lineHeight: 1.6, margin: '0 0 24px' }}>
                     ↳ <span style={{ color: 'var(--accent)' }}>{app.companion.name}</span> · {app.companion.cardLabel}

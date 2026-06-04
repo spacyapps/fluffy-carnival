@@ -6,6 +6,7 @@ export interface App {
   platform: string;
   version: string;
   tagline: string;
+  milestones?: string[];
   icon?: string;
   storeUrl?: string;
   websiteUrl?: string;
@@ -52,11 +53,12 @@ export const APPS: App[] = [
     platform: 'iOS',
     version: '10.4',
     tagline: 'Implementing v10.4',
+    milestones: ['2010: v1 Released', '2026: v10 Huge Update Released!'],
     icon: '/icon-secret-stuff.png',
     storeUrl: 'https://apps.apple.com/us/app/secret-stuff/id437415402',
     legacyVideoUrl: 'https://www.youtube.com/watch?v=sJXtXjAEWOQ',
     videoUrl: '/secret-stuff-demo.mov',
-    description: 'Built sometime around 2010 — my first fully deployed app, spanning multiple countries. That reach opened up opportunities throughout my life and career that I never expected. I\'m happy to bring it back as a legacy app, a reminder of where it all started.',
+    description: '**First released to the Apple App Store in 2010** — my first fully deployed app, spanning multiple countries. That reach opened up opportunities throughout my life and career that I never expected. I\'m happy to bring it back as a legacy app, a reminder of where it all started.',
     slides: [
       { src: '/ss-slide-picturekey.png', caption: 'Unique Picture Key Signature Unlock' },
       { src: '/ss-slide-greeting.png', caption: 'Personal Greeting for Person Images with Scrolling Backgrounds' },
