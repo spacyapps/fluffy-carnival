@@ -1,0 +1,38 @@
+<svg width="360" height="260" viewBox="0 0 360 260" fill="none" xmlns="http://www.w3.org/2000/svg" font-family="'JetBrains Mono','SF Mono',ui-monospace,Menlo,monospace">
+  <rect width="360" height="260" fill="#0e1014"/>
+  <!-- browser window -->
+  <rect x="16" y="16" width="328" height="228" rx="12" fill="#161a20" stroke="rgba(236,230,214,0.12)"/>
+  <!-- title bar -->
+  <circle cx="34" cy="34" r="4" fill="#e0746b"/>
+  <circle cx="48" cy="34" r="4" fill="#e8c07c"/>
+  <circle cx="62" cy="34" r="4" fill="#7cbf8a"/>
+  <rect x="80" y="25" width="248" height="18" rx="9" fill="#0e1014" stroke="rgba(236,230,214,0.12)"/>
+  <text x="92" y="38" font-size="10" fill="rgba(236,230,214,0.62)">mail.google.com/inbox</text>
+  <line x1="16" y1="52" x2="344" y2="52" stroke="rgba(236,230,214,0.12)"/>
+  <!-- inbox header -->
+  <text x="34" y="76" font-size="11" letter-spacing="2" fill="rgba(236,230,214,0.62)">INBOX</text>
+  <!-- inbox rows -->
+  <g>
+    <circle cx="38" cy="100" r="3" fill="#3a8fb7"/>
+    <rect x="50" y="93" width="84" height="6" rx="3" fill="rgba(236,230,214,0.62)"/>
+    <rect x="50" y="104" width="210" height="5" rx="2.5" fill="rgba(236,230,214,0.34)"/>
+    <rect x="300" y="93" width="28" height="5" rx="2.5" fill="rgba(236,230,214,0.34)"/>
+    <line x1="34" y1="120" x2="328" y2="120" stroke="rgba(236,230,214,0.08)"/>
+
+    <circle cx="38" cy="142" r="3" fill="#3a8fb7"/>
+    <rect x="50" y="135" width="70" height="6" rx="3" fill="rgba(236,230,214,0.62)"/>
+    <rect x="50" y="146" width="232" height="5" rx="2.5" fill="rgba(236,230,214,0.34)"/>
+    <rect x="304" y="135" width="24" height="5" rx="2.5" fill="rgba(236,230,214,0.34)"/>
+    <line x1="34" y1="162" x2="328" y2="162" stroke="rgba(236,230,214,0.08)"/>
+
+    <circle cx="38" cy="184" r="3" fill="rgba(236,230,214,0.34)"/>
+    <rect x="50" y="177" width="96" height="6" rx="3" fill="rgba(236,230,214,0.48)"/>
+    <rect x="50" y="188" width="188" height="5" rx="2.5" fill="rgba(236,230,214,0.28)"/>
+    <rect x="306" y="177" width="22" height="5" rx="2.5" fill="rgba(236,230,214,0.34)"/>
+    <line x1="34" y1="204" x2="328" y2="204" stroke="rgba(236,230,214,0.08)"/>
+
+    <circle cx="38" cy="226" r="3" fill="rgba(236,230,214,0.34)"/>
+    <rect x="50" y="219" width="60" height="6" rx="3" fill="rgba(236,230,214,0.48)"/>
+    <rect x="50" y="230" width="216" height="5" rx="2.5" fill="rgba(236,230,214,0.28)"/>
+  </g>
+</svg>

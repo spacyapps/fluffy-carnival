@@ -14,6 +14,8 @@ export interface App {
   legacyVideoUrl?: string;
   screenshot?: string;
   description?: string;
+  situationImages?: string[];
+  situationSolo?: { src: string; caption: string };
   features?: {
     title: string;
     body: string;
@@ -134,7 +136,9 @@ export const APPS: App[] = [
     version: '1',
     tagline: 'A simple Safari extension to easily hide websites before showing your screen in public.',
     screenshot: '/checkpoint-screenshot-v2.png',
-    description: 'Situation:\nOut in public, around coworkers, or with kids nearby — some websites you\'d rather wait before pulling up on screen.\n\nSolution:\nCheckpoint is a lightweight Safari extension that\'s easier to manage than Parental Controls. Just add a site to your list and whenever you visit it, Checkpoint blocks it first until you enter your code.',
+    description: 'Situation:\nOut in public, around coworkers, or with kids nearby — some websites you\'d rather wait before pulling up on screen.\n\nFor example: mid-presentation you switch to the browser and the address bar auto-fills Gmail — Checkpoint blocks it first, so the room never sees your inbox.\n\nOr: your manager stops by your desk while you\'re browsing — the sites on your list stay gated behind your code until you decide to open them.\n\nSolution:\nCheckpoint is a lightweight Safari extension that\'s easier to manage than Parental Controls. Just add a site to your list and whenever you visit it, Checkpoint blocks it first until you enter your code.',
+    situationImages: ['/checkpoint-before.svg', '/checkpoint-after.svg'],
+    situationSolo: { src: '/checkpoint-manager-v2.svg', caption: 'Manager at your desk — check your surroundings' },
     features: [
       {
         title: 'An interesting experiment',

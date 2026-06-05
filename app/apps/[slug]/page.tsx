@@ -10,6 +10,7 @@ import GestureMatchAnimation from '../../components/boutique/GestureMatchAnimati
 import AuthMatchSVG from '../../components/boutique/AuthMatchSVG';
 import PictureKeyConceptSVG from '../../components/boutique/PictureKeyConceptSVG';
 import FeatureSlideshow from '../../components/boutique/FeatureSlideshow';
+import CrossfadeSlides from '../../components/boutique/CrossfadeSlides';
 import VideoWithProgress from '../../components/boutique/VideoWithProgress';
 import ScaleWrapper from '../../components/boutique/ScaleWrapper';
 
@@ -313,6 +314,24 @@ export default async function AppPage({
                   </p>
                 ))}
             </div>
+            {app.situationImages && app.situationImages.length === 2 && (
+              <div style={{ display: 'flex', gap: 10, maxWidth: 480, margin: '0 0 36px' }}>
+                {(['Before', 'After'] as const).map((label, j) => (
+                  <div key={j} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)', background: 'rgba(0,0,0,0.2)' }}>
+                      <img
+                        src={app.situationImages![j]}
+                        alt={label}
+                        style={{ display: 'block', width: '100%', height: 'auto' }}
+                      />
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: 2, color: 'var(--ink-faint)', textAlign: 'center' }}>
+                      {label.toUpperCase()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="bo-cta-wrap" style={{ display: 'flex', gap: 12 }}>
               {app.guide && (
                 <a
@@ -378,8 +397,17 @@ export default async function AppPage({
           </div>
 
           {/* Mockup */}
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
-            {app.screenshot ? (
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center', gap: 24 }}>
+            {app.situationSolo && app.screenshot ? (
+              <CrossfadeSlides
+                color={app.color}
+                aspectRatio="1070 / 1164"
+                slides={[
+                  { src: app.situationSolo.src, caption: app.situationSolo.caption },
+                  { src: app.screenshot, caption: 'The Checkpoint gate, live on a restricted site' },
+                ]}
+              />
+            ) : app.screenshot ? (
               <div style={{
                 borderRadius: 16,
                 overflow: 'hidden',

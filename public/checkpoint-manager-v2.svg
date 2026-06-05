@@ -1,0 +1,42 @@
+<svg width="360" height="260" viewBox="0 0 360 260" fill="none" xmlns="http://www.w3.org/2000/svg" font-family="'JetBrains Mono','SF Mono',ui-monospace,Menlo,monospace">
+  <rect width="360" height="260" fill="#0e1014"/>
+
+  <g stroke="rgba(236,230,214,0.72)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- desk -->
+    <line x1="150" y1="196" x2="338" y2="196"/>
+    <line x1="170" y1="196" x2="170" y2="232"/>
+    <line x1="320" y1="196" x2="320" y2="232"/>
+
+    <!-- monitor (facing us) -->
+    <rect x="244" y="120" width="84" height="60" rx="4"/>
+    <line x1="286" y1="180" x2="286" y2="192"/>
+    <line x1="270" y1="192" x2="302" y2="192"/>
+
+    <!-- chair -->
+    <line x1="150" y1="150" x2="150" y2="188"/>
+    <line x1="150" y1="188" x2="182" y2="188"/>
+
+    <!-- seated employee, side profile facing the screen -->
+    <circle cx="170" cy="140" r="13"/>
+    <path d="M170 153 C 162 164 160 176 168 186"/>
+    <line x1="168" y1="186" x2="206" y2="186"/>
+    <line x1="206" y1="186" x2="206" y2="198"/>
+    <path d="M172 162 L 204 178"/>
+
+    <!-- manager standing behind, leaning to peek over the shoulder -->
+    <circle cx="100" cy="90" r="15"/>
+    <path d="M100 105 C 108 128 116 148 120 168"/>
+    <line x1="120" y1="168" x2="111" y2="214"/>
+    <line x1="120" y1="168" x2="128" y2="214"/>
+    <path d="M104 120 C 116 130 124 144 126 158"/>
+  </g>
+
+  <!-- screen lock: what the manager actually sees -->
+  <g transform="translate(286,146)" stroke="#3a8fb7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <rect x="-13" y="0" width="26" height="20" rx="4"/>
+    <path d="M -8 0 V -6 A 8 8 0 0 1 8 -6 V 0"/>
+    <circle cx="0" cy="9" r="2" fill="#3a8fb7" stroke="none"/>
+  </g>
+
+  <text x="180" y="250" text-anchor="middle" font-size="12" letter-spacing="1" fill="#3a8fb7">Check your surroundings</text>
+</svg>

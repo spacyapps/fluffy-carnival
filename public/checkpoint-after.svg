@@ -1,0 +1,56 @@
+<svg width="360" height="260" viewBox="0 0 360 260" fill="none" xmlns="http://www.w3.org/2000/svg" font-family="'JetBrains Mono','SF Mono',ui-monospace,Menlo,monospace">
+  <rect width="360" height="260" fill="#0e1014"/>
+  <!-- browser window -->
+  <rect x="16" y="16" width="328" height="228" rx="12" fill="#161a20" stroke="rgba(236,230,214,0.12)"/>
+  <!-- title bar -->
+  <circle cx="34" cy="34" r="4" fill="#e0746b"/>
+  <circle cx="48" cy="34" r="4" fill="#e8c07c"/>
+  <circle cx="62" cy="34" r="4" fill="#7cbf8a"/>
+  <rect x="80" y="25" width="248" height="18" rx="9" fill="#0e1014" stroke="rgba(236,230,214,0.12)"/>
+  <text x="92" y="38" font-size="10" fill="rgba(236,230,214,0.62)">mail.google.com/inbox</text>
+  <line x1="16" y1="52" x2="344" y2="52" stroke="rgba(236,230,214,0.12)"/>
+
+  <!-- faint inbox behind the gate -->
+  <g opacity="0.18">
+    <rect x="50" y="93" width="84" height="6" rx="3" fill="#ece6d6"/>
+    <rect x="50" y="104" width="210" height="5" rx="2.5" fill="#ece6d6"/>
+    <rect x="50" y="135" width="70" height="6" rx="3" fill="#ece6d6"/>
+    <rect x="50" y="146" width="232" height="5" rx="2.5" fill="#ece6d6"/>
+    <rect x="50" y="177" width="96" height="6" rx="3" fill="#ece6d6"/>
+    <rect x="50" y="188" width="188" height="5" rx="2.5" fill="#ece6d6"/>
+  </g>
+
+  <!-- checkpoint gate overlay -->
+  <rect x="17" y="53" width="326" height="190" rx="10" fill="rgba(14,16,20,0.9)"/>
+
+  <!-- lock -->
+  <g transform="translate(180,118)">
+    <rect x="-22" y="0" width="44" height="34" rx="6" fill="none" stroke="#3a8fb7" stroke-width="2.5"/>
+    <path d="M -13 0 V -10 A 13 13 0 0 1 13 -10 V 0" fill="none" stroke="#3a8fb7" stroke-width="2.5"/>
+    <circle cx="0" cy="14" r="3.5" fill="#3a8fb7"/>
+    <rect x="-1.6" y="14" width="3.2" height="9" rx="1.6" fill="#3a8fb7"/>
+  </g>
+
+  <!-- PIN dots: fill one by one, then reset -->
+  <g>
+    <circle cx="150" cy="178" r="6" fill="none" stroke="#3a8fb7" stroke-width="1.5"/>
+    <circle cx="170" cy="178" r="6" fill="none" stroke="#3a8fb7" stroke-width="1.5"/>
+    <circle cx="190" cy="178" r="6" fill="none" stroke="#3a8fb7" stroke-width="1.5"/>
+    <circle cx="210" cy="178" r="6" fill="none" stroke="#3a8fb7" stroke-width="1.5"/>
+
+    <circle cx="150" cy="178" r="6" fill="#3a8fb7">
+      <animate attributeName="opacity" values="0;0;1;1;1;1;0;0" keyTimes="0;0.05;0.1;0.85;0.9;0.95;0.97;1" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="170" cy="178" r="6" fill="#3a8fb7">
+      <animate attributeName="opacity" values="0;0;1;1;1;0;0" keyTimes="0;0.18;0.23;0.85;0.92;0.95;1" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="190" cy="178" r="6" fill="#3a8fb7">
+      <animate attributeName="opacity" values="0;0;1;1;1;0;0" keyTimes="0;0.31;0.36;0.85;0.92;0.95;1" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="210" cy="178" r="6" fill="#3a8fb7">
+      <animate attributeName="opacity" values="0;0;1;1;1;0;0" keyTimes="0;0.44;0.49;0.85;0.92;0.95;1" dur="4s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <text x="180" y="216" text-anchor="middle" font-size="10" letter-spacing="3" fill="#3a8fb7">CHECKPOINT</text>
+</svg>
