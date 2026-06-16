@@ -1,7 +1,10 @@
 import type { Viewport } from 'next';
 import JournalShell from '../components/journal/JournalShell';
 
-export const metadata = { title: 'Journal — SpacyApps' };
+export const metadata = {
+  title: 'Journal — SpacyApps',
+  alternates: { canonical: '/journal' },
+};
 
 export const viewport: Viewport = {
   width: 'device-width',

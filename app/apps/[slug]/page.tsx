@@ -1,4 +1,4 @@
-import type { Viewport } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -152,6 +152,21 @@ function renderSection(section: Section) {
 
 export async function generateStaticParams() {
   return APPS.filter((app) => !app.noPage).map((app) => ({ slug: app.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const app = APPS.find((a) => a.slug === slug);
+  if (!app) return {};
+  return {
+    title: `${app.name} — SpacyApps`,
+    description: app.tagline,
+    alternates: { canonical: `/apps/${app.slug}` },
+  };
 }
 
 const FEATURES: NonNullable<App['features']> = [

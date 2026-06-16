@@ -10,7 +10,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const post = POSTS.find(p => p.slug === slug);
   if (!post) return {};
-  return { title: `${post.title} — SpacyApps Journal` };
+  // "Coming soon" placeholders have no date and an empty body — keep them out
+  // of the index until they have real content, or Google clusters them as duplicates.
+  const isPlaceholder = !post.date;
+  return {
+    title: `${post.title} — SpacyApps Journal`,
+    alternates: { canonical: `/journal/${post.slug}` },
+    ...(isPlaceholder ? { robots: { index: false, follow: true } } : {}),
+  };
 }
 
 export default async function JournalPostPage({ params }: { params: Promise<{ slug: string }> }) {

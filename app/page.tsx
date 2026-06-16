@@ -1,6 +1,10 @@
-import type { Viewport } from 'next';
+import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
 import Stars from './components/boutique/Stars';
+
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+};
 
 export const viewport: Viewport = {
   width: 'device-width',

@@ -39,6 +39,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://spacyapps.com'),
   title: 'SpacyApps — Cosmic Boutique',
   description: 'An indie iOS & Safari software studio.',
   icons: { icon: '/favicon.ico' },
