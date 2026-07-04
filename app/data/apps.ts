@@ -54,7 +54,7 @@ export const APPS: App[] = [
     color: '#7d4ad9',
     platform: 'iOS',
     version: '10.4',
-    tagline: 'Implementing v10.4',
+    tagline: 'Live again at v10.4',
     milestones: ['2010: v1 Released', '2026: v10 Huge Update Released!'],
     icon: '/icon-secret-stuff.png',
     storeUrl: 'https://apps.apple.com/us/app/secret-stuff/id437415402',

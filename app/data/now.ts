@@ -16,10 +16,10 @@ export const NOW: NowEntry[] = [
   },
 
   {
-    date: 'May 7',
+    date: 'Jul 3',
     status: 'Live',
     statusColor: 'oklch(0.72 0.17 145)',
-    title: 'Secret Stuff — Implementing v10.4',
+    title: 'Secret Stuff — v10.4 live on the App Store',
     tag: 'iOS',
   },
 
