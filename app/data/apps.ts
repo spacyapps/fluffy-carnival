@@ -286,6 +286,21 @@ ARCHITECTURE NOTES
     platform: 'Mac',
     version: '—',
     tagline: 'Incoming transmission...',
-    noPage: true,
+    screenshot: '/conduit-preview.png',
+    description: 'A Mac app, early on the workbench.\n\nThe camera watches; Conduit reads the hand — landmarks, fingers, zones — and turns motion into signal. Still decoding what it becomes.',
+    features: [
+      {
+        title: 'A hand in frame',
+        body: 'Landmarks tracked, fingers counted, zones mapped — read live from the camera.',
+      },
+      {
+        title: 'Signal forming',
+        body: 'Motion becomes data becomes intent. Tuning the channel.',
+      },
+      {
+        title: 'Transmission open',
+        body: 'Early and evolving. More to come.',
+      },
+    ],
   },
 ];
