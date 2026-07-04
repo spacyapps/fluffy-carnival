@@ -286,6 +286,7 @@ ARCHITECTURE NOTES
     platform: 'Mac',
     version: '—',
     tagline: 'Incoming transmission...',
+    icon: '/icon-conduit.png',
     screenshot: '/conduit-preview.png',
     description: 'A Mac app, early on the workbench.\n\nThe camera watches; Conduit reads the hand — landmarks, fingers, zones — and turns motion into signal. Still decoding what it becomes.',
     features: [
