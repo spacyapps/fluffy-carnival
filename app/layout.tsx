@@ -46,6 +46,18 @@ export const metadata: Metadata = {
   alternates: {
     types: { 'application/rss+xml': 'https://spacyapps.com/feed.xml' },
   },
+  openGraph: {
+    title: 'SpacyApps — Cosmic Boutique',
+    description: 'An indie iOS & Safari software studio.',
+    url: 'https://spacyapps.com',
+    siteName: 'SpacyApps',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'SpacyApps — Cosmic Boutique',
+    description: 'An indie iOS & Safari software studio.',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

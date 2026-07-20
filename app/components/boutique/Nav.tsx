@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Logotype from './Logotype';
 
 export default function Nav() {
   return (
@@ -19,7 +18,9 @@ export default function Nav() {
         <Link href="/journal" className="bo-link" style={{ color: 'inherit' }}>Journal</Link>
         <Link href="#now" className="bo-link" style={{ color: 'inherit' }}>Now</Link>
       </div>
-      <Logotype size={14} />
+      <Link href="/" style={{ justifySelf: 'center', display: 'flex', lineHeight: 0 }} aria-label="SpacyApps home">
+        <img src="/spacyapps-logo.png" alt="SpacyApps" style={{ height: 34, width: 'auto', display: 'block' }} />
+      </Link>
       <div className="bo-nav-right" style={{ display: 'flex', gap: 28, justifyContent: 'flex-end', fontSize: 14, color: 'var(--ink-dim)', fontWeight: 500, fontFamily: 'var(--font-body)' }}>
         <Link href="#contact" className="bo-link" style={{ color: 'inherit' }}>About</Link>
         <Link href="#contact" className="bo-link" style={{ color: 'inherit' }}>Contact</Link>
