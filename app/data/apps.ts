@@ -304,4 +304,29 @@ ARCHITECTURE NOTES
       },
     ],
   },
+  {
+    slug: 'ground-control',
+    name: 'Ground Control',
+    glyph: '🛰',
+    color: '#5bc0bd',
+    platform: 'Mac',
+    version: '—',
+    tagline: 'Mission control for every agent you\'re running.',
+    icon: '/icon-ground-control.png',
+    description: 'A menu-bar app for anyone running more than one AI agent at once.\n\nEach session reports in as it works — done, waiting, blocked — and Ground Control shows the one that needs you first, in red. Click through and you land on the exact terminal tab, no hunting through windows.\n\nSkinnable, WinAmp-style, because watching a status panel all day should still be fun to look at.',
+    features: [
+      {
+        title: 'Every agent, one panel',
+        body: 'A live row per session — Claude Code, Grok, whatever\'s running — with its last message and a red dot the moment it needs you.',
+      },
+      {
+        title: 'One click to the terminal',
+        body: 'Jumps straight to the tab, pane, or app that owns the session — Terminal, iTerm2, VS Code and forks.',
+      },
+      {
+        title: 'Skinnable',
+        body: 'Drop-in theme folders, WinAmp-style — swap the whole panel\'s look without touching a line of Swift.',
+      },
+    ],
+  },
 ];
