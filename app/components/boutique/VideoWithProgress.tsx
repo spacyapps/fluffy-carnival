@@ -2,7 +2,15 @@
 
 import { useRef, useState } from 'react';
 
-export default function VideoWithProgress({ src }: { src: string }) {
+export default function VideoWithProgress({
+  src,
+  fit = 'cover',
+  radius = 32,
+}: {
+  src: string;
+  fit?: 'cover' | 'contain';
+  radius?: number;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [progress, setProgress] = useState(0);
 
@@ -13,7 +21,7 @@ export default function VideoWithProgress({ src }: { src: string }) {
   }
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', borderRadius: 32, overflow: 'hidden' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%', borderRadius: radius, overflow: 'hidden' }}>
       <video
         ref={videoRef}
         src={src}
@@ -26,10 +34,10 @@ export default function VideoWithProgress({ src }: { src: string }) {
           position: 'absolute',
           top: '50%',
           left: '50%',
-          width: '105%',
-          height: '105%',
+          width: fit === 'contain' ? '100%' : '105%',
+          height: fit === 'contain' ? '100%' : '105%',
           transform: 'translate(-50%, -50%)',
-          objectFit: 'cover',
+          objectFit: fit,
         }}
       />
       <div style={{

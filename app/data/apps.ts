@@ -11,6 +11,8 @@ export interface App {
   storeUrl?: string;
   websiteUrl?: string;
   videoUrl?: string;
+  videoFrame?: 'desktop';
+  videoCaption?: string;
   legacyVideoUrl?: string;
   screenshot?: string;
   description?: string;
@@ -44,6 +46,28 @@ export interface App {
   };
   slides?: { src: string; caption: string; type?: 'video' }[];
   guide?: { heading: string; steps: { title: string; body: string; prompt?: string }[] };
+  problem?: {
+    heading: string;
+    body: string;
+    points: { label: string; body: string }[];
+    closing: string;
+    resolveLabel: string;
+    pull: string;
+  };
+  descriptionPoints?: string[];
+  featuresHeading?: string;
+  howItWorks?: { heading: string; body: string };
+  principles?: { heading: string; body: string; quote?: string }[];
+  privacy?: { heading: string; intro: string; points: { title: string; body: string }[] };
+  themes?: {
+    heading: string;
+    lead: string;
+    blocks: { heading: string; body: string }[];
+    closing: string;
+    note: string;
+  };
+  status?: string;
+  availability?: { heading: string; body: string; note: string };
 }
 
 export const APPS: App[] = [
@@ -252,21 +276,111 @@ ARCHITECTURE NOTES
     version: '—',
     tagline: 'Mission control for every agent you\'re running.',
     icon: '/icon-ground-control.png',
-    description: 'A menu-bar app for anyone running more than one AI agent at once.\n\nEach session reports in as it works — done, waiting, blocked — and Ground Control shows the one that needs you first, in red. Click through and you land on the exact terminal tab, no hunting through windows.\n\nSkinnable, WinAmp-style, because watching a status panel all day should still be fun to look at.',
+    videoUrl: '/ground-control-preview.mp4',
+    videoFrame: 'desktop',
+    videoCaption: 'The space-station theme, running live',
+    status: 'In private alpha · coming soon to macOS',
+    descriptionPoints: [
+      'A menu-bar app for anyone running more than one AI agent at once.',
+      'Every session gets a row — its name, what it\'s doing right now, and a dot that turns **red** the moment it is blocked and needs you.',
+      'Click the row and the terminal tab that owns it comes to the front. No hunting through windows.',
+      'Built for the AI coding CLIs you already run on your Mac — Claude Code and Grok CLI today.',
+      '**And it is skinnable, WinAmp-style.** Swap the entire look in seconds. A status panel you stare at all day should be a thing you actually want on screen.',
+    ],
+    featuresHeading: 'Key original features',
     features: [
       {
         title: 'Every agent, one panel',
-        body: 'A live row per session — Claude Code, Grok, whatever\'s running — with its last message and a red dot the moment it needs you.',
+        body: 'A live row per session — Claude Code and Grok CLI — with what it\'s doing right now and a red dot the moment it needs you.',
       },
       {
         title: 'One click to the terminal',
-        body: 'Jumps straight to the tab, pane, or app that owns the session — Terminal, iTerm2, VS Code and forks.',
+        body: 'Jumps straight to the exact tab or pane that owns the session — whichever terminal or editor you happen to be running it in.',
       },
       {
         title: 'Skinnable',
         body: 'Drop-in theme folders, WinAmp-style — swap the whole panel\'s look without touching a line of Swift.',
       },
     ],
+    problem: {
+      heading: 'The cost was never the waiting. It was the checking.',
+      body: 'You start an agent and go somewhere else — email, Slack, a review, a question from the desk behind you. That is the whole point of starting it. The work is supposed to happen while you are not watching.\n\nThen it goes wrong in one of two directions, and they point away from each other.',
+      points: [
+        {
+          label: 'If you forget',
+          body: 'An agent sits blocked for twenty minutes, waiting on a one-word answer you would have given instantly.',
+        },
+        {
+          label: 'If you check instead',
+          body: 'You shred the focus you switched away to protect — over and over, mostly to find nothing.',
+        },
+      ],
+      closing: 'Neither is a discipline problem. You cannot remember what you were never shown, and the only way to find out is to stop what you are doing and go look.',
+      resolveLabel: 'With the panel open',
+      pull: 'So the fix is not a faster check. It is a free one — a glance instead of a context switch.',
+    },
+    howItWorks: {
+      heading: 'How it works',
+      body: 'Your agent already announces itself as it works — starting, thinking, finishing, stuck. Nobody is usually listening.\n\nGround Control listens. It doesn\'t read your screen or poll your terminals to guess at a state; each session says where it is, and the panel shows you who needs you first.',
+    },
+    privacy: {
+      heading: 'It stays on your machine',
+      intro: 'Ground Control reads enough to tell you what a session is doing, and not one byte of it goes anywhere.',
+      points: [
+        {
+          title: 'Nothing leaves your Mac',
+          body: 'No network connections of any kind — no account, no telemetry, no crash reporting, no analytics, and no server to send anything to.',
+        },
+        {
+          title: 'It does not watch you',
+          body: 'No keystrokes recorded, no screenshots, nothing read from other applications\' windows.',
+        },
+        {
+          title: 'What it keeps is local and short-lived',
+          body: 'Just enough of a session\'s own messages for a row to say what it\'s doing. It stays on your machine, and it clears itself out.',
+        },
+        {
+          title: 'It does not act on your behalf',
+          body: 'It never types into your terminal and never answers a prompt for you. Clicking a row brings a terminal to the front — that is all it does.',
+        },
+      ],
+    },
+    themes: {
+      heading: 'Fun is a feature',
+      lead: 'Ground Control is a serious monitor for production coding agents. It is also a jewelled unicorn, if you want it to be.',
+      blocks: [
+        {
+          heading: 'It has a face',
+          body: 'Every session gets an avatar, and the avatar has moods. Nothing happening: asleep, with little z\'s. Working: working. Finished: a thumbs up.\n\nThen there is the one that means your agent is stuck and waiting on you. That one is loud, on purpose. The entire design brief for it was that you should notice it from across the room without reading anything.',
+        },
+        {
+          heading: 'It has an LED sign, and it talks',
+          body: 'Across the title strip is a little dot-matrix display — the kind that lived on the front of a 90s hi-fi. When nothing needs you, it scrolls: bad developer jokes, the house name, and words it has pinched from what your own agents are saying. File names, tool names, whatever your project happens to be full of today. It harvests the interesting nouns out of your actual work and spells them back at you.\n\nA theme can bring its own vocabulary, so a theme has a voice. The font is a pixel grid that only knows capitals, digits and a couple of punctuation marks, which means everything it says has to be short and shouty. The constraint is most of the charm.',
+        },
+        {
+          heading: 'You can make it anything',
+          body: 'Themes are plain folders — some images and a JSON file. Save the file and the panel re-skins instantly. No rebuild, no restart, no preferences dialog. Open the folder, change a colour, watch it happen.\n\nAnd the app will write the prompt for you. Answer a few questions about your mascot, your mood and your colours, and it hands you a brief to paste into any image-capable LLM, then drops the results into a folder that already works.\n\nThe theme that exists today is a jewelled unicorn with gemstone corners and a horn, framing a panel that is monitoring production coding agents. The absurdity is the point. If you want your build monitor to be an ornate magical-girl picture frame, that should simply be allowed.',
+        },
+      ],
+      closing: 'WinAmp understood in 1997 that a thing you look at all day should be yours. Somewhere between then and now, developer tools decided they should all look like a settings panel.\n\nSo this is not a bonus bolted onto a serious tool. A monitor only works if you keep it open, and you keep open what you like looking at. The skins are load-bearing.',
+      note: 'Additional themes will be available separately.',
+    },
+    principles: [
+      {
+        heading: 'An alarm outlives the click that missed',
+        body: 'Clicking a row clears its red dot — but only if the jump actually landed. If that terminal has since closed, the click goes nowhere and the alarm stays up.\n\nThe tidier version clears it on click, and quietly turns a session that is still blocked into one that looks handled. That is the one failure a monitor cannot have.',
+        quote: 'Silencing an alarm nobody attended to is the one thing a monitor must not do.',
+      },
+      {
+        heading: 'We proved we could type into your terminal. Then decided never to.',
+        body: 'macOS will let an application send keystrokes to a terminal. It was tested deliberately, to find out. It works.\n\nIt will never ship. An app that can type into your terminal is a remote execution capability wearing a friendly hat. Ground Control watches, and it points. It does not reach.\n\nFinding out you can do something is not the same as finding a reason to.',
+      },
+    ],
+    availability: {
+      heading: 'Still in the hangar',
+      body: 'Ground Control is in private alpha — built, working, and flown daily on the machine it was written on. It isn\'t public yet, so there\'s nothing to download today.\n\nWhen it ships it will be free and open source under AGPL-3.0. Themes are licensed separately from the code; the artwork isn\'t covered by the AGPL.',
+      note: 'Coming soon to macOS',
+    },
   },
   {
     slug: 'tsukibase',

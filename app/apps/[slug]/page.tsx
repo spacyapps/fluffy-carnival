@@ -13,6 +13,8 @@ import FeatureSlideshow from '../../components/boutique/FeatureSlideshow';
 import CrossfadeSlides from '../../components/boutique/CrossfadeSlides';
 import VideoWithProgress from '../../components/boutique/VideoWithProgress';
 import ScaleWrapper from '../../components/boutique/ScaleWrapper';
+import DeadGapSVG from '../../components/boutique/DeadGapSVG';
+import PanelOpenSVG from '../../components/boutique/PanelOpenSVG';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -287,6 +289,23 @@ export default async function AppPage({
             >
               {app.platform.toUpperCase()}  ·  v{app.version}
             </div>
+            {app.status && (
+              <div
+                style={{
+                  display: 'inline-block',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: 10,
+                  letterSpacing: 2,
+                  color: 'var(--accent)',
+                  border: '1px solid rgba(232,168,124,0.35)',
+                  borderRadius: 999,
+                  padding: '6px 14px',
+                  margin: '-14px 0 26px',
+                }}
+              >
+                {app.status.toUpperCase()}
+              </div>
+            )}
             <p
               style={{
                 fontFamily: 'var(--font-serif)',
@@ -315,19 +334,35 @@ export default async function AppPage({
                 gap: 12,
               }}
             >
-              {(app.description ?? `Built for one job, sharpened over a lot of late nights. ${app.name} is part of a small fleet of apps for people who'd rather their software disappear into the background than fight for attention.`)
-                .split('\n\n').map((para, j) => (
-                  <p key={j} style={{ margin: 0 }}>
-                    {para.split('\n').map((line, k, arr) => (
-                      <span key={k}>
-                        {line.split('**').map((seg, s) =>
-                          s % 2 === 1 ? <strong key={s} style={{ fontWeight: 600, color: 'var(--ink)' }}>{seg}</strong> : seg
-                        )}
-                        {k < arr.length - 1 && <br />}
-                      </span>
-                    ))}
-                  </p>
-                ))}
+              {app.descriptionPoints ? (
+                app.descriptionPoints.map((point, j) => (
+                  <div key={j} style={{ display: 'grid', gridTemplateColumns: '14px 1fr', gap: 12, alignItems: 'start' }}>
+                    <div
+                      aria-hidden
+                      style={{ height: 2, width: 14, background: 'var(--accent)', opacity: 0.8, marginTop: 11 }}
+                    />
+                    <p style={{ margin: 0 }}>
+                      {point.split('**').map((seg, s) =>
+                        s % 2 === 1 ? <strong key={s} style={{ fontWeight: 600, color: 'var(--ink)' }}>{seg}</strong> : seg
+                      )}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                (app.description ?? `Built for one job, sharpened over a lot of late nights. ${app.name} is part of a small fleet of apps for people who'd rather their software disappear into the background than fight for attention.`)
+                  .split('\n\n').map((para, j) => (
+                    <p key={j} style={{ margin: 0 }}>
+                      {para.split('\n').map((line, k, arr) => (
+                        <span key={k}>
+                          {line.split('**').map((seg, s) =>
+                            s % 2 === 1 ? <strong key={s} style={{ fontWeight: 600, color: 'var(--ink)' }}>{seg}</strong> : seg
+                          )}
+                          {k < arr.length - 1 && <br />}
+                        </span>
+                      ))}
+                    </p>
+                  ))
+              )}
             </div>
             {app.situationImages && app.situationImages.length === 2 && (
               <div style={{ display: 'flex', gap: 10, maxWidth: 480, margin: '0 0 36px' }}>
@@ -413,7 +448,32 @@ export default async function AppPage({
 
           {/* Mockup */}
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center', gap: 24 }}>
-            {app.situationSolo && app.screenshot ? (
+            {app.videoUrl && app.videoFrame === 'desktop' ? (
+              <div style={{ width: '100%' }}>
+                <div style={{
+                  borderRadius: 14,
+                  overflow: 'hidden',
+                  background: '#08090b',
+                  border: '1px solid var(--line)',
+                  boxShadow: '0 30px 80px rgba(0,0,0,0.6)',
+                }}>
+                  {/* window chrome, same three dots the briefing panel uses */}
+                  <div style={{ padding: '11px 14px', borderBottom: '1px solid var(--line)', display: 'flex', gap: 7 }}>
+                    {[0, 1, 2].map((d) => (
+                      <div key={d} style={{ width: 10, height: 10, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+                    ))}
+                  </div>
+                  <div style={{ position: 'relative', aspectRatio: '1254 / 856', background: '#000' }}>
+                    <VideoWithProgress src={app.videoUrl} fit="contain" radius={0} />
+                  </div>
+                </div>
+                {app.videoCaption && (
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2.5, color: 'var(--ink-faint)', marginTop: 16, textAlign: 'center' }}>
+                    {app.videoCaption.toUpperCase()}
+                  </div>
+                )}
+              </div>
+            ) : app.situationSolo && app.screenshot ? (
               <CrossfadeSlides
                 color={app.color}
                 aspectRatio="1070 / 1164"
@@ -540,12 +600,117 @@ export default async function AppPage({
           </div>
         )}
 
+        {/* The problem — opening argument, before the feature cards.
+            Left: the two failure modes in point form. Right: the same two as diagrams.
+            Bottom: the resolve, full width. */}
+        {app.problem && (
+          <div style={{ marginTop: 20, marginBottom: 88 }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 3 }}>◈ WHY IT EXISTS</span>
+            <h2 style={{
+              fontFamily: 'var(--font-serif)',
+              fontWeight: 300,
+              fontSize: 52,
+              margin: '28px 0 40px',
+              letterSpacing: -1.6,
+              lineHeight: 1.08,
+              maxWidth: 900,
+            }}>
+              <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>{app.problem.heading}</span>
+            </h2>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: 64, alignItems: 'flex-start' }}>
+              <div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+                  {app.problem.body.split('\n\n').map((para, j) => (
+                    <p key={j} style={{ fontFamily: 'var(--font-body)', fontSize: 16, lineHeight: 1.8, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
+                      {para}
+                    </p>
+                  ))}
+                </div>
+
+                <div style={{ margin: '30px 0 30px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+                  {app.problem.points.map((pt, j) => (
+                    <div key={j} style={{ display: 'grid', gridTemplateColumns: '18px 1fr', gap: 16, alignItems: 'start' }}>
+                      <div
+                        aria-hidden
+                        style={{ height: 2, width: 18, background: 'var(--accent)', opacity: 0.75, marginTop: 13 }}
+                      />
+                      <div>
+                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2.5, color: 'var(--accent)', opacity: 0.85, marginBottom: 8 }}>
+                          {pt.label.toUpperCase()}
+                        </div>
+                        <p style={{ fontFamily: 'var(--font-body)', fontSize: 16, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
+                          {pt.body}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: 16, lineHeight: 1.8, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
+                  {app.problem.closing}
+                </p>
+              </div>
+
+              <div style={{ paddingTop: 4 }}>
+                <DeadGapSVG />
+              </div>
+            </div>
+
+            {/* The resolve — full width under both columns */}
+            <div style={{
+              marginTop: 56,
+              paddingTop: 40,
+              borderTop: '1px solid var(--line)',
+              display: 'grid',
+              gridTemplateColumns: '0.85fr 1.15fr',
+              gap: 64,
+              alignItems: 'center',
+            }}>
+              <div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2.5, color: 'var(--accent)', opacity: 0.85, marginBottom: 18 }}>
+                  {app.problem.resolveLabel.toUpperCase()}
+                </div>
+                <PanelOpenSVG />
+              </div>
+              <p style={{
+                fontFamily: 'var(--font-serif)',
+                fontStyle: 'italic',
+                fontSize: 26,
+                lineHeight: 1.45,
+                color: 'var(--ink)',
+                fontWeight: 300,
+                margin: 0,
+                paddingLeft: 24,
+                borderLeft: '2px solid var(--accent)',
+              }}>
+                {app.problem.pull}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Feature slideshow */}
         {app.slides && app.slides.length > 0 && (
           <FeatureSlideshow slides={app.slides} color={app.color} />
         )}
 
         {/* Features */}
+        {app.featuresHeading && (
+          <div style={{ marginBottom: 36 }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 3 }}>◈ FEATURES</span>
+            <h2 style={{
+              fontFamily: 'var(--font-serif)',
+              fontWeight: 300,
+              fontSize: 44,
+              margin: '26px 0 0',
+              letterSpacing: -1.4,
+              lineHeight: 1.1,
+            }}>
+              <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>{app.featuresHeading}</span>
+            </h2>
+          </div>
+        )}
         <div className="bo-grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
           {(app.features ?? FEATURES).map((f, i) => (
             <div
@@ -632,6 +797,211 @@ export default async function AppPage({
             </div>
           ))}
         </div>
+
+        {/* How it works */}
+        {app.howItWorks && (
+          <div style={{ marginTop: 80, background: '#08090b', borderRadius: 20, border: '1px solid var(--line)', overflow: 'hidden' }}>
+            <div style={{ padding: '20px 40px', borderBottom: '1px solid var(--line)' }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 3 }}>
+                ◈ HOW IT WORKS
+              </span>
+            </div>
+            <div style={{ padding: '48px 40px', display: 'grid', gridTemplateColumns: '1fr 1.25fr', gap: 56, alignItems: 'flex-start' }}>
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 36, margin: 0, letterSpacing: -1, lineHeight: 1.15 }}>
+                <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>{app.howItWorks.heading}</span>
+              </h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {app.howItWorks.body.split('\n\n').map((para, j) => (
+                  <p key={j} style={{ fontFamily: 'var(--font-body)', fontSize: 15, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
+                    {para}
+                  </p>
+                ))}
+                {/* signal chain — conceptual only; mechanism lives in the repo, not here */}
+                <div style={{ marginTop: 12, display: 'flex', alignItems: 'stretch', gap: 10 }}>
+                  {['Your agent reports in', 'Ground Control listens', 'You see who needs you'].map((step, j, arr) => (
+                    <div key={j} style={{ display: 'contents' }}>
+                      <div style={{
+                        flex: 1,
+                        padding: '14px 16px',
+                        border: '1px solid var(--line)',
+                        borderRadius: 10,
+                        background: 'rgba(0,0,0,0.25)',
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: 10,
+                        letterSpacing: 1.2,
+                        lineHeight: 1.6,
+                        color: 'var(--ink-dim)',
+                      }}>
+                        {step}
+                      </div>
+                      {j < arr.length - 1 && (
+                        <div style={{ alignSelf: 'center', color: 'var(--accent)', fontSize: 13 }}>→</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Privacy */}
+        {app.privacy && (
+          <div style={{ marginTop: 80, background: '#08090b', borderRadius: 20, border: '1px solid var(--line)', overflow: 'hidden' }}>
+            <div style={{ padding: '20px 40px', borderBottom: '1px solid var(--line)' }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 3 }}>
+                ◈ PRIVACY
+              </span>
+            </div>
+            <div style={{ padding: '48px 40px' }}>
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 44, margin: '0 0 20px', letterSpacing: -1.4, lineHeight: 1.1 }}>
+                <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>{app.privacy.heading}</span>
+              </h2>
+              <p style={{
+                fontFamily: 'var(--font-serif)',
+                fontStyle: 'italic',
+                fontSize: 19,
+                lineHeight: 1.55,
+                color: 'var(--ink)',
+                fontWeight: 300,
+                margin: '0 0 44px',
+                paddingLeft: 18,
+                borderLeft: '2px solid var(--accent)',
+                maxWidth: 620,
+              }}>
+                {app.privacy.intro}
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '36px 48px' }}>
+                {app.privacy.points.map((p, j) => (
+                  <div key={j}>
+                    <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 21, fontWeight: 400, margin: '0 0 10px', letterSpacing: -0.3, color: 'var(--ink)' }}>
+                      {p.title}
+                    </h3>
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
+                      {p.body}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Themes / fun — the largest block on the page, by intent */}
+        {app.themes && (
+          <div style={{ marginTop: 88 }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 3 }}>◈ FUN IS A FEATURE</span>
+            <h2 style={{
+              fontFamily: 'var(--font-serif)',
+              fontWeight: 300,
+              fontSize: 52,
+              margin: '28px 0 26px',
+              letterSpacing: -1.6,
+              lineHeight: 1.08,
+            }}>
+              <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>{app.themes.heading}</span>
+            </h2>
+            <p style={{
+              fontFamily: 'var(--font-serif)',
+              fontStyle: 'italic',
+              fontSize: 24,
+              lineHeight: 1.45,
+              color: 'var(--ink)',
+              fontWeight: 300,
+              margin: '0 0 56px',
+              maxWidth: 720,
+            }}>
+              {app.themes.lead}
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 36, alignItems: 'flex-start' }}>
+              {app.themes.blocks.map((b, j) => (
+                <div key={j}>
+                  <div style={{ height: 2, width: 28, background: 'var(--accent)', opacity: 0.7, marginBottom: 20 }} />
+                  <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 24, fontWeight: 400, margin: '0 0 14px', letterSpacing: -0.4, lineHeight: 1.2 }}>
+                    {b.heading}
+                  </h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {b.body.split('\n\n').map((para, k) => (
+                      <p key={k} style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
+                        {para}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* TODO(art): theme screenshots belong here — the unicorn frame and the LED strip
+                are the two things this section describes and cannot yet show. */}
+
+            <div style={{ marginTop: 56, paddingTop: 40, borderTop: '1px solid var(--line)', display: 'grid', gridTemplateColumns: '1fr 1.25fr', gap: 56, alignItems: 'flex-start' }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-faint)', letterSpacing: 3 }}>
+                WHY THIS IS NOT DECORATION
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {app.themes.closing.split('\n\n').map((para, j) => (
+                  <p key={j} style={{ fontFamily: 'var(--font-body)', fontSize: 15, lineHeight: 1.8, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
+                    {para}
+                  </p>
+                ))}
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 1.5, color: 'var(--ink-faint)', margin: '8px 0 0' }}>
+                  {app.themes.note.toUpperCase()}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Principles — theory, deliberately naming no file, number or mechanism */}
+        {app.principles && app.principles.length > 0 && (
+          <div style={{ marginTop: 88 }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 3 }}>◈ PRINCIPLES</span>
+            <div style={{ marginTop: 8 }}>
+              {app.principles.map((p, j) => (
+                <div key={j} style={{ marginTop: 48, paddingTop: 40, borderTop: '1px solid var(--line)' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2, color: 'var(--ink-faint)', marginBottom: 18 }}>
+                    {String(j + 1).padStart(2, '0')}.
+                  </div>
+                  <h2 style={{
+                    fontFamily: 'var(--font-serif)',
+                    fontWeight: 300,
+                    fontSize: 38,
+                    margin: '0 0 26px',
+                    letterSpacing: -1.1,
+                    lineHeight: 1.15,
+                    maxWidth: 820,
+                  }}>
+                    <span style={{ fontStyle: 'italic' }}>{p.heading}</span>
+                  </h2>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 700 }}>
+                    {p.body.split('\n\n').map((para, k) => (
+                      <p key={k} style={{ fontFamily: 'var(--font-body)', fontSize: 15, lineHeight: 1.8, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
+                        {para}
+                      </p>
+                    ))}
+                  </div>
+                  {p.quote && (
+                    <p style={{
+                      fontFamily: 'var(--font-serif)',
+                      fontStyle: 'italic',
+                      fontSize: 19,
+                      lineHeight: 1.5,
+                      color: 'var(--ink)',
+                      fontWeight: 300,
+                      margin: '28px 0 0',
+                      paddingLeft: 20,
+                      borderLeft: '2px solid var(--accent)',
+                      maxWidth: 620,
+                    }}>
+                      {p.quote}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Feature deep dives */}
         {(app.features ?? []).filter(f => f.detail).map((f, i) => {
@@ -857,6 +1227,36 @@ export default async function AppPage({
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Availability
+            TODO(link): github.com/spacyapps/ground-control is private and no release exists.
+            Once the repo is public, add a source/releases link here — not before, it 404s today. */}
+        {app.availability && (
+          <div style={{ marginTop: 80, textAlign: 'center' }}>
+            <div style={{
+              display: 'inline-block',
+              maxWidth: 620,
+              border: '1px dashed rgba(236,230,214,0.2)',
+              borderRadius: 16,
+              padding: '40px 44px',
+              background: 'rgba(0,0,0,0.2)',
+            }}>
+              <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 32, margin: '0 0 16px', letterSpacing: -1, lineHeight: 1.15 }}>
+                <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>{app.availability.heading}</span>
+              </h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                {app.availability.body.split('\n\n').map((para, j) => (
+                  <p key={j} style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.7, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
+                    {para}
+                  </p>
+                ))}
+              </div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 3, color: 'var(--ink-faint)', marginTop: 26, paddingTop: 22, borderTop: '1px solid var(--line)' }}>
+                {app.availability.note.toUpperCase()}
+              </div>
             </div>
           </div>
         )}
