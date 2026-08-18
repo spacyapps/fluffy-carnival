@@ -15,6 +15,8 @@ import VideoWithProgress from '../../components/boutique/VideoWithProgress';
 import ScaleWrapper from '../../components/boutique/ScaleWrapper';
 import DeadGapSVG from '../../components/boutique/DeadGapSVG';
 import PanelOpenSVG from '../../components/boutique/PanelOpenSVG';
+import AutoVideo from '../../components/boutique/AutoVideo';
+import SameYesSVG from '../../components/boutique/SameYesSVG';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -472,6 +474,16 @@ export default async function AppPage({
                     {app.videoCaption.toUpperCase()}
                   </div>
                 )}
+                {app.videoSecondary && (
+                  <div style={{ margin: '28px 0 0', width: '100%' }}>
+                    <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid var(--line)', background: '#0b0c10' }}>
+                      <AutoVideo src={app.videoSecondary.src} ariaLabel={app.videoSecondary.alt} />
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2.5, color: 'var(--ink-faint)', marginTop: 14, textAlign: 'center' }}>
+                      {app.videoSecondary.caption.toUpperCase()}
+                    </div>
+                  </div>
+                )}
               </div>
             ) : app.situationSolo && app.screenshot ? (
               <CrossfadeSlides
@@ -798,7 +810,7 @@ export default async function AppPage({
           ))}
         </div>
 
-        {/* How it works */}
+        {/* How it works — paired with what it refuses to do */}
         {app.howItWorks && (
           <div style={{ marginTop: 80, background: '#08090b', borderRadius: 20, border: '1px solid var(--line)', overflow: 'hidden' }}>
             <div style={{ padding: '20px 40px', borderBottom: '1px solid var(--line)' }}>
@@ -806,84 +818,166 @@ export default async function AppPage({
                 ◈ HOW IT WORKS
               </span>
             </div>
-            <div style={{ padding: '48px 40px', display: 'grid', gridTemplateColumns: '1fr 1.25fr', gap: 56, alignItems: 'flex-start' }}>
-              <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 36, margin: 0, letterSpacing: -1, lineHeight: 1.15 }}>
-                <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>{app.howItWorks.heading}</span>
-              </h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {app.howItWorks.body.split('\n\n').map((para, j) => (
-                  <p key={j} style={{ fontFamily: 'var(--font-body)', fontSize: 15, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
-                    {para}
-                  </p>
-                ))}
+            <div style={{ padding: '48px 40px', display: 'grid', gridTemplateColumns: app.howItWorks.counterpoint ? '0.85fr 1.15fr' : '1fr 1.25fr', gap: 56, alignItems: 'flex-start' }}>
+              {/* left — what it does */}
+              <div>
+                <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 34, margin: '0 0 22px', letterSpacing: -1, lineHeight: 1.15 }}>
+                  <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>{app.howItWorks.heading}</span>
+                </h2>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  {app.howItWorks.body.split('\n\n').map((para, j) => (
+                    <div key={j}>
+                      <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
+                        {para.split('**').map((seg, sIdx) =>
+                          sIdx % 2 === 1
+                            ? <strong key={sIdx} style={{ fontWeight: 500, color: 'var(--ink)' }}>{seg}</strong>
+                            : seg
+                        )}
+                      </p>
+                      {app.howItWorks!.points && (app.howItWorks!.pointsAfter ?? 0) === j && (
+                        <ul style={{ listStyle: 'none', margin: '14px 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: 9 }}>
+                          {app.howItWorks!.points.map((pt, k) => (
+                            <li key={k} style={{ display: 'grid', gridTemplateColumns: '14px 1fr', gap: 12, alignItems: 'start' }}>
+                              <span aria-hidden style={{ height: 2, width: 14, background: 'var(--accent)', opacity: 0.8, marginTop: 11 }} />
+                              <span style={{ fontFamily: 'var(--font-body)', fontSize: 15, lineHeight: 1.65, color: 'var(--ink-dim)', fontWeight: 300 }}>{pt}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
+                </div>
                 {/* signal chain — conceptual only; mechanism lives in the repo, not here */}
-                <div style={{ marginTop: 12, display: 'flex', alignItems: 'stretch', gap: 10 }}>
+                <div style={{ marginTop: 26, display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {['Your agent reports in', 'Ground Control listens', 'You see who needs you'].map((step, j, arr) => (
                     <div key={j} style={{ display: 'contents' }}>
                       <div style={{
-                        flex: 1,
-                        padding: '14px 16px',
+                        padding: '12px 14px',
                         border: '1px solid var(--line)',
                         borderRadius: 10,
                         background: 'rgba(0,0,0,0.25)',
                         fontFamily: 'var(--font-mono)',
                         fontSize: 10,
                         letterSpacing: 1.2,
-                        lineHeight: 1.6,
                         color: 'var(--ink-dim)',
                       }}>
                         {step}
                       </div>
                       {j < arr.length - 1 && (
-                        <div style={{ alignSelf: 'center', color: 'var(--accent)', fontSize: 13 }}>→</div>
+                        <div style={{ color: 'var(--accent)', fontSize: 12, lineHeight: 1, paddingLeft: 14 }}>↓</div>
                       )}
                     </div>
                   ))}
                 </div>
               </div>
+
+              {/* right — what it refuses to do */}
+              {app.howItWorks.counterpoint && (
+                <div style={{ borderLeft: '1px solid var(--line)', paddingLeft: 56 }}>
+                  {app.howItWorks.counterpoint.label && (
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2.5, color: 'var(--ink-faint)', marginBottom: 16 }}>
+                      {app.howItWorks.counterpoint.label.toUpperCase()}
+                    </div>
+                  )}
+                  <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 34, margin: '0 0 22px', letterSpacing: -1, lineHeight: 1.15 }}>
+                    <span style={{ fontStyle: 'italic' }}>{app.howItWorks.counterpoint.heading}</span>
+                  </h2>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {app.howItWorks.counterpoint.body.split('\n\n').map((para, j) => (
+                      <p key={j} style={{ fontFamily: 'var(--font-body)', fontSize: 15, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
+                        {para.split('**').map((seg, sIdx) =>
+                          sIdx % 2 === 1
+                            ? <strong key={sIdx} style={{ fontWeight: 500, color: 'var(--ink)' }}>{seg}</strong>
+                            : seg
+                        )}
+                      </p>
+                    ))}
+                  </div>
+                  <div style={{ marginTop: 32, padding: '24px 26px', background: 'rgba(0,0,0,0.22)', border: '1px solid var(--line)', borderRadius: 14 }}>
+                    <SameYesSVG />
+                  </div>
+                  <p style={{
+                    fontFamily: 'var(--font-serif)',
+                    fontStyle: 'italic',
+                    fontSize: 19,
+                    lineHeight: 1.5,
+                    color: 'var(--ink)',
+                    fontWeight: 300,
+                    margin: '28px 0 0',
+                    paddingLeft: 20,
+                    borderLeft: '2px solid var(--accent)',
+                  }}>
+                    {app.howItWorks.counterpoint.quote}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
 
-        {/* Privacy */}
-        {app.privacy && (
-          <div style={{ marginTop: 80, background: '#08090b', borderRadius: 20, border: '1px solid var(--line)', overflow: 'hidden' }}>
-            <div style={{ padding: '20px 40px', borderBottom: '1px solid var(--line)' }}>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 3 }}>
-                ◈ PRIVACY
-              </span>
-            </div>
-            <div style={{ padding: '48px 40px' }}>
-              <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 44, margin: '0 0 20px', letterSpacing: -1.4, lineHeight: 1.1 }}>
-                <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>{app.privacy.heading}</span>
-              </h2>
-              <p style={{
+        {/* How it was made — the recursion */}
+        {app.challenges && (
+          <div style={{ marginTop: 88 }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 3 }}>
+              {`◈ ${app.challenges.kicker.toUpperCase()}`}
+            </span>
+            <div style={{ marginTop: 26, display: 'grid', gridTemplateColumns: '1.05fr 0.95fr', gap: 64, alignItems: 'flex-start' }}>
+              <h2 style={{
                 fontFamily: 'var(--font-serif)',
-                fontStyle: 'italic',
-                fontSize: 19,
-                lineHeight: 1.55,
-                color: 'var(--ink)',
                 fontWeight: 300,
-                margin: '0 0 44px',
-                paddingLeft: 18,
-                borderLeft: '2px solid var(--accent)',
-                maxWidth: 620,
+                fontSize: 44,
+                margin: 0,
+                letterSpacing: -1.4,
+                lineHeight: 1.1,
               }}>
-                {app.privacy.intro}
-              </p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '36px 48px' }}>
-                {app.privacy.points.map((p, j) => (
-                  <div key={j}>
-                    <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 21, fontWeight: 400, margin: '0 0 10px', letterSpacing: -0.3, color: 'var(--ink)' }}>
-                      {p.title}
-                    </h3>
-                    <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
-                      {p.body}
-                    </p>
-                  </div>
+                <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>{app.challenges.heading}</span>
+              </h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {app.challenges.body.split('\n\n').map((para, j) => (
+                  <p key={j} style={{ fontFamily: 'var(--font-body)', fontSize: 15, lineHeight: 1.8, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
+                    {para}
+                  </p>
                 ))}
+                {app.challenges.points && (
+                  <ul style={{ listStyle: 'none', margin: '2px 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: 9 }}>
+                    {app.challenges.points.map((pt, j) => (
+                      <li key={j} style={{ display: 'grid', gridTemplateColumns: '14px 1fr', gap: 12, alignItems: 'start' }}>
+                        <span aria-hidden style={{ height: 2, width: 14, background: 'var(--accent)', opacity: 0.8, marginTop: 11 }} />
+                        <span style={{ fontFamily: 'var(--font-body)', fontSize: 15, lineHeight: 1.65, color: 'var(--ink-dim)', fontWeight: 300 }}>{pt}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {app.challenges.closing && (
+                  <p style={{ fontFamily: 'var(--font-body)', fontSize: 15, lineHeight: 1.8, color: 'var(--ink-dim)', fontWeight: 300, margin: '4px 0 0' }}>
+                    {app.challenges.closing.split('**').map((seg, sIdx) =>
+                      sIdx % 2 === 1
+                        ? <strong key={sIdx} style={{ fontWeight: 500, color: 'var(--ink)' }}>{seg}</strong>
+                        : seg
+                    )}
+                  </p>
+                )}
               </div>
             </div>
+            <p style={{
+              fontFamily: 'var(--font-serif)',
+              fontStyle: 'italic',
+              fontSize: 24,
+              lineHeight: 1.45,
+              color: 'var(--ink)',
+              fontWeight: 300,
+              margin: '40px 0 0',
+              paddingLeft: 22,
+              borderLeft: '2px solid var(--accent)',
+              maxWidth: 720,
+            }}>
+              {app.challenges.pull.split('\n').map((line, j, arr) => (
+                <span key={j}>
+                  {line}
+                  {j < arr.length - 1 && <br />}
+                </span>
+              ))}
+            </p>
           </div>
         )}
 
@@ -914,11 +1008,151 @@ export default async function AppPage({
               {app.themes.lead}
             </p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 36, alignItems: 'flex-start' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(app.themes.blocks.length + 1, 3)}, 1fr)`, gap: 44, alignItems: 'flex-start' }}>
               {app.themes.blocks.map((b, j) => (
                 <div key={j}>
                   <div style={{ height: 2, width: 28, background: 'var(--accent)', opacity: 0.7, marginBottom: 20 }} />
                   <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 24, fontWeight: 400, margin: '0 0 14px', letterSpacing: -0.4, lineHeight: 1.2 }}>
+                    {b.heading}
+                  </h3>
+                  {b.image && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '0 0 16px' }}>
+                      <img
+                        src={b.image.src}
+                        alt={b.image.alt}
+                        width={72}
+                        height={72}
+                        style={{ display: 'block', width: 72, height: 72, borderRadius: 12, background: 'rgba(0,0,0,0.3)' }}
+                      />
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9.5, letterSpacing: 2, color: 'var(--ink-faint)', lineHeight: 1.6 }}>
+                        {b.image.caption.toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {b.body.split('\n\n').map((para, k) => (
+                      <p key={k} style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
+                        {para}
+                      </p>
+                    ))}
+                  </div>
+                  {b.points && (
+                    <ul style={{ listStyle: 'none', margin: '14px 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: 9 }}>
+                      {b.points.map((pt, k) => (
+                        <li key={k} style={{ display: 'grid', gridTemplateColumns: '12px 1fr', gap: 10, alignItems: 'start' }}>
+                          <span aria-hidden style={{ height: 2, width: 12, background: 'var(--accent)', opacity: 0.75, marginTop: 10 }} />
+                          <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.6, color: 'var(--ink-dim)', fontWeight: 300 }}>
+                            {pt}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {b.footer && (
+                    <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: '16px 0 0' }}>
+                      {b.footer}
+                    </p>
+                  )}
+                </div>
+              ))}
+
+              {/* third column — the argument, quieter than the two beside it */}
+              <div style={{ gridRow: 'span 2' }}>
+                <div style={{ height: 2, width: 28, background: 'var(--accent)', opacity: 0.7, marginBottom: 20 }} />
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 24, fontWeight: 400, margin: '0 0 14px', letterSpacing: -0.4, lineHeight: 1.2 }}>
+                  It has your unicorns?
+                </h3>
+                {app.themes.closingMedia && (
+                  <div style={{ margin: '0 0 16px' }}>
+                    <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)', background: '#0b0c10' }}>
+                      <AutoVideo src={app.themes.closingMedia.src} ariaLabel={app.themes.closingMedia.alt} />
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: 1.8, color: 'var(--ink-faint)', marginTop: 10 }}>
+                      {app.themes.closingMedia.caption.toUpperCase()}
+                    </div>
+                  </div>
+                )}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+                  {app.themes.closing.split('\n\n').map((para, j) => (
+                    <p key={j} style={{ fontFamily: 'var(--font-body)', fontSize: 12.5, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
+                      {para.split('**').map((seg, sIdx) =>
+                        sIdx % 2 === 1
+                          ? <strong key={sIdx} style={{ fontWeight: 500, color: 'var(--ink)' }}>{seg}</strong>
+                          : seg
+                      )}
+                    </p>
+                  ))}
+                </div>
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: 1.5, color: 'var(--ink-faint)', margin: '16px 0 0', lineHeight: 1.7 }}>
+                  {app.themes.note.toUpperCase()}
+                </p>
+              </div>
+
+              {app.themes.strip && (
+                <div style={{ gridColumn: 'span 2', alignSelf: 'start' }}>
+                  <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid var(--line)', background: '#0b0c10' }}>
+                    {app.themes.strip.src.endsWith('.mp4') ? (
+                      <AutoVideo src={app.themes.strip.src} ariaLabel={app.themes.strip.alt} />
+                    ) : (
+                      <img
+                        src={app.themes.strip.src}
+                        alt={app.themes.strip.alt}
+                        style={{ display: 'block', width: '100%', height: 'auto' }}
+                      />
+                    )}
+                  </div>
+                  <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9.5, letterSpacing: 1.5, color: 'var(--ink-faint)', lineHeight: 1.8, margin: '14px 0 0' }}>
+                    {app.themes.strip.caption.toUpperCase()}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* The theme tool */}
+        {app.themeTool && (
+          <div style={{ marginTop: 88 }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 3 }}>
+              {`◈ ${app.themeTool.kicker.toUpperCase()}`}
+            </span>
+            <h2 style={{
+              fontFamily: 'var(--font-serif)',
+              fontWeight: 300,
+              fontSize: 36,
+              margin: '24px 0 18px',
+              letterSpacing: -1.1,
+              lineHeight: 1.12,
+            }}>
+              <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>{app.themeTool.heading}</span>
+            </h2>
+            <p style={{
+              fontFamily: 'var(--font-serif)',
+              fontStyle: 'italic',
+              fontSize: 18,
+              lineHeight: 1.5,
+              color: 'var(--ink)',
+              fontWeight: 300,
+              margin: '0 0 22px',
+              maxWidth: 680,
+            }}>
+              {app.themeTool.lead}
+            </p>
+            {app.themeTool.steps && (
+              <ul style={{ listStyle: 'none', margin: '0 0 44px', padding: 0, display: 'flex', flexDirection: 'column', gap: 9, maxWidth: 680 }}>
+                {app.themeTool.steps.map((st, j) => (
+                  <li key={j} style={{ display: 'grid', gridTemplateColumns: '14px 1fr', gap: 12, alignItems: 'start' }}>
+                    <span aria-hidden style={{ height: 2, width: 14, background: 'var(--accent)', opacity: 0.8, marginTop: 10 }} />
+                    <span style={{ fontFamily: 'var(--font-body)', fontSize: 14.5, lineHeight: 1.65, color: 'var(--ink-dim)', fontWeight: 300 }}>{st}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 56, alignItems: 'flex-start' }}>
+              {app.themeTool.blocks.map((b, j) => (
+                <div key={j}>
+                  <div style={{ height: 2, width: 28, background: 'var(--accent)', opacity: 0.7, marginBottom: 20 }} />
+                  <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 21, fontWeight: 400, margin: '0 0 13px', letterSpacing: -0.35, lineHeight: 1.25 }}>
                     {b.heading}
                   </h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -928,78 +1162,56 @@ export default async function AppPage({
                       </p>
                     ))}
                   </div>
-                </div>
-              ))}
-            </div>
-
-            {/* TODO(art): theme screenshots belong here — the unicorn frame and the LED strip
-                are the two things this section describes and cannot yet show. */}
-
-            <div style={{ marginTop: 56, paddingTop: 40, borderTop: '1px solid var(--line)', display: 'grid', gridTemplateColumns: '1fr 1.25fr', gap: 56, alignItems: 'flex-start' }}>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-faint)', letterSpacing: 3 }}>
-                WHY THIS IS NOT DECORATION
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {app.themes.closing.split('\n\n').map((para, j) => (
-                  <p key={j} style={{ fontFamily: 'var(--font-body)', fontSize: 15, lineHeight: 1.8, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
-                    {para}
-                  </p>
-                ))}
-                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 1.5, color: 'var(--ink-faint)', margin: '8px 0 0' }}>
-                  {app.themes.note.toUpperCase()}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Principles — theory, deliberately naming no file, number or mechanism */}
-        {app.principles && app.principles.length > 0 && (
-          <div style={{ marginTop: 88 }}>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 3 }}>◈ PRINCIPLES</span>
-            <div style={{ marginTop: 8 }}>
-              {app.principles.map((p, j) => (
-                <div key={j} style={{ marginTop: 48, paddingTop: 40, borderTop: '1px solid var(--line)' }}>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2, color: 'var(--ink-faint)', marginBottom: 18 }}>
-                    {String(j + 1).padStart(2, '0')}.
-                  </div>
-                  <h2 style={{
-                    fontFamily: 'var(--font-serif)',
-                    fontWeight: 300,
-                    fontSize: 38,
-                    margin: '0 0 26px',
-                    letterSpacing: -1.1,
-                    lineHeight: 1.15,
-                    maxWidth: 820,
-                  }}>
-                    <span style={{ fontStyle: 'italic' }}>{p.heading}</span>
-                  </h2>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 700 }}>
-                    {p.body.split('\n\n').map((para, k) => (
-                      <p key={k} style={{ fontFamily: 'var(--font-body)', fontSize: 15, lineHeight: 1.8, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
-                        {para}
-                      </p>
-                    ))}
-                  </div>
-                  {p.quote && (
-                    <p style={{
-                      fontFamily: 'var(--font-serif)',
-                      fontStyle: 'italic',
-                      fontSize: 19,
-                      lineHeight: 1.5,
-                      color: 'var(--ink)',
-                      fontWeight: 300,
-                      margin: '28px 0 0',
-                      paddingLeft: 20,
-                      borderLeft: '2px solid var(--accent)',
-                      maxWidth: 620,
-                    }}>
-                      {p.quote}
-                    </p>
+                  {b.media && (
+                    <div style={{ marginTop: 18 }}>
+                      {b.media.heading && (
+                        <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 17, lineHeight: 1.4, color: 'var(--ink)', fontWeight: 300, margin: '0 0 14px' }}>
+                          {b.media.heading}
+                        </p>
+                      )}
+                      <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)', background: '#0b0c10' }}>
+                        {b.media.src.endsWith('.mp4') ? (
+                          <AutoVideo src={b.media.src} ariaLabel={b.media.alt} />
+                        ) : (
+                          <img
+                            src={b.media.src}
+                            alt={b.media.alt}
+                            style={{ display: 'block', width: '100%', height: 'auto' }}
+                          />
+                        )}
+                      </div>
+                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: 1.8, color: 'var(--ink-faint)', marginTop: 10 }}>
+                        {b.media.caption.toUpperCase()}
+                      </div>
+                      {b.media.attribution && (
+                        <p style={{ fontFamily: 'var(--font-body)', fontSize: 11.5, lineHeight: 1.7, color: 'var(--ink-faint)', fontWeight: 300, margin: '8px 0 0' }}>
+                          {b.media.attribution}
+                        </p>
+                      )}
+                    </div>
                   )}
                 </div>
               ))}
             </div>
+            {app.themeTool.closing && (
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: 14.5, lineHeight: 1.8, color: 'var(--ink-dim)', fontWeight: 300, margin: '40px 0 0', maxWidth: 760 }}>
+                {app.themeTool.closing}
+              </p>
+            )}
+            <p style={{
+              fontFamily: 'var(--font-serif)',
+              fontStyle: 'italic',
+              fontSize: 19,
+              lineHeight: 1.5,
+              color: 'var(--ink)',
+              fontWeight: 300,
+              margin: '32px 0 0',
+              paddingLeft: 22,
+              borderLeft: '2px solid var(--accent)',
+              maxWidth: 700,
+            }}>
+              {app.themeTool.pull}
+            </p>
           </div>
         )}
 

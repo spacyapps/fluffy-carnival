@@ -13,6 +13,7 @@ export interface App {
   videoUrl?: string;
   videoFrame?: 'desktop';
   videoCaption?: string;
+  videoSecondary?: { src: string; alt: string; caption: string };
   legacyVideoUrl?: string;
   screenshot?: string;
   description?: string;
@@ -56,14 +57,30 @@ export interface App {
   };
   descriptionPoints?: string[];
   featuresHeading?: string;
-  howItWorks?: { heading: string; body: string };
-  principles?: { heading: string; body: string; quote?: string }[];
-  privacy?: { heading: string; intro: string; points: { title: string; body: string }[] };
+  howItWorks?: {
+    heading: string;
+    body: string;
+    points?: string[];
+    pointsAfter?: number;
+    counterpoint?: { label: string; heading: string; body: string; quote: string };
+  };
+  challenges?: { kicker: string; heading: string; body: string; points?: string[]; closing?: string; pull: string };
+  themeTool?: {
+    kicker: string;
+    heading: string;
+    lead: string;
+    steps?: string[];
+    blocks: { heading: string; body: string; media?: { src: string; alt: string; caption: string; heading?: string; attribution?: string } }[];
+    closing?: string;
+    pull: string;
+  };
   themes?: {
     heading: string;
     lead: string;
-    blocks: { heading: string; body: string }[];
+    blocks: { heading: string; body: string; points?: string[]; footer?: string; image?: { src: string; alt: string; caption: string } }[];
+    strip?: { src: string; alt: string; caption: string };
     closing: string;
+    closingMedia?: { src: string; alt: string; caption: string };
     note: string;
   };
   status?: string;
@@ -274,11 +291,16 @@ ARCHITECTURE NOTES
     color: '#5bc0bd',
     platform: 'Mac',
     version: '—',
-    tagline: 'Mission control for every agent you\'re running.',
+    tagline: 'Mission control for every agent you\'re running. AND jump directly to it!',
     icon: '/icon-ground-control.png',
     videoUrl: '/ground-control-preview.mp4',
     videoFrame: 'desktop',
     videoCaption: 'The space-station theme, running live',
+    videoSecondary: {
+      src: '/gc-jump-clean.mp4',
+      alt: 'Hovering a row shows Jump; clicking brings the terminal to the front',
+      caption: 'Tap a row, land on its terminal',
+    },
     status: 'In private alpha · coming soon to macOS',
     descriptionPoints: [
       'A menu-bar app for anyone running more than one AI agent at once.',
@@ -321,64 +343,112 @@ ARCHITECTURE NOTES
     },
     howItWorks: {
       heading: 'How it works',
-      body: 'Your agent already announces itself as it works — starting, thinking, finishing, stuck. Nobody is usually listening.\n\nGround Control listens. It doesn\'t read your screen or poll your terminals to guess at a state; each session says where it is, and the panel shows you who needs you first.',
-    },
-    privacy: {
-      heading: 'It stays on your machine',
-      intro: 'Ground Control reads enough to tell you what a session is doing, and not one byte of it goes anywhere.',
+      body: 'Your agent already announces itself as it works — starting, thinking, finishing, stuck. Nobody is usually listening.\n\nGround Control listens.\n\nEach session says which tty it is speaking from — the name the system gives that one terminal — and which application owns it. The tty says which session. The application says what can be done about it.\n\nBecause a tty is a system-level fact, every session that runs in a terminal **identifies itself the same way**, editor pane or terminal window alike. What differs is **how precisely a click can land**: straight to the tab in some terminals, to the application in the rest. And working out which application owns a session was not free — editors bury their terminals inside nested helper bundles, so **the obvious answer is a helper rather than the app you can see**.\n\nSome agents never run in a terminal at all. An editor\'s own agent still reports in, and its rows still appear — but today it does not report the one moment you were waiting for, the pause where it needs your answer. That is not silence. It is an agent that **tells you everything except the thing you were watching for**.',
       points: [
-        {
-          title: 'Nothing leaves your Mac',
-          body: 'No network connections of any kind — no account, no telemetry, no crash reporting, no analytics, and no server to send anything to.',
-        },
-        {
-          title: 'It does not watch you',
-          body: 'No keystrokes recorded, no screenshots, nothing read from other applications\' windows.',
-        },
-        {
-          title: 'What it keeps is local and short-lived',
-          body: 'Just enough of a session\'s own messages for a row to say what it\'s doing. It stays on your machine, and it clears itself out.',
-        },
-        {
-          title: 'It does not act on your behalf',
-          body: 'It never types into your terminal and never answers a prompt for you. Clicking a row brings a terminal to the front — that is all it does.',
-        },
+        'It does not read your screen',
+        'It does not poll your terminals to guess at a state',
       ],
+      pointsAfter: 1,
+      counterpoint: {
+        label: '',
+        heading: 'Research note: We proved we could type into your terminal. Then decided never to.',
+        body: 'The question was whether Ground Control could answer an agent for you, from your phone. Approve or deny is the easy half — clean, no tricks needed.\n\nBut approve and deny are not what you need to send. You need words: use Postgres, not SQLite. The only route to words was scripting the terminal directly. That was tested, deliberately, to **find out whether it could be done. It can.**\n\nWhich is exactly where it stops. A yes tapped on a lock screen is not the same yes — you cannot see the working directory, or the diff, or what the last three approvals already unlocked. And approvals chain: each one clears the way for the next.\n\n**✦ No relay was ever built.** Anything that can type into your terminal is a remote execution capability, and putting a relay in that path would have turned one compromised server into every Mac connected to it. Some of that could be mitigated. **None of it belongs in an app whose whole job is to tell you something needs you.**\n\nIt would have been the easiest thing here to sell.',
+        quote: 'Finding out you can do something is not the same as finding a reason to.',
+      },
+    },
+    challenges: {
+      kicker: 'What changed',
+      heading: 'Why the notifications were never going to be enough',
+      body: 'At work there were eight terminal sessions open on a good day, often more, and not all of them running the same agent.\n\nSystem notifications helped a little, and then stopped helping.',
+      points: [
+        'They tell you something happened, not which of eight sessions it was',
+        'They do not tell you what it wants',
+        'Arrive together and they stop being information — they become a stack you clear',
+      ],
+      closing: 'Underneath that is what AI actually changed about the work. Not that it produces more. Good output comes from a loop: input, review, input, review.',
+      pull: 'The bottleneck moved to the reviewer.\nThe reviewer is you, and you are in a meeting.',
     },
     themes: {
       heading: 'Fun is a feature',
-      lead: 'Ground Control is a serious monitor for production coding agents. It is also a jewelled unicorn, if you want it to be.',
+      lead: 'Ground Control is a serious monitor for production coding agents. It can be YOUR jewelled unicorn, if you want.',
       blocks: [
         {
           heading: 'It has a face',
-          body: 'Every session gets an avatar, and the avatar has moods. Nothing happening: asleep, with little z\'s. Working: working. Finished: a thumbs up.\n\nThen there is the one that means your agent is stuck and waiting on you. That one is loud, on purpose. The entire design brief for it was that you should notice it from across the room without reading anything.',
+          body: 'Every session gets an avatar, and the avatar has moods.',
+          points: [
+            'Nothing happening — asleep, with little z\'s',
+            'Working — working',
+            'Finished — a thumbs up',
+            'Needs you! — attention seeking, on purpose',
+          ],
+          footer: 'The design brief for that last one: you should notice it from across the room without reading anything. And it stays lit until your click actually lands somewhere — silencing an alarm nobody attended to is the one thing a monitor must not do.',
+          image: {
+            src: '/gc-avatar-needs-input.gif',
+            alt: 'The needs-you avatar state, animated',
+            caption: 'That requests your presence',
+          },
         },
         {
-          heading: 'It has an LED sign, and it talks',
-          body: 'Across the title strip is a little dot-matrix display — the kind that lived on the front of a 90s hi-fi. When nothing needs you, it scrolls: bad developer jokes, the house name, and words it has pinched from what your own agents are saying. File names, tool names, whatever your project happens to be full of today. It harvests the interesting nouns out of your actual work and spells them back at you.\n\nA theme can bring its own vocabulary, so a theme has a voice. The font is a pixel grid that only knows capitals, digits and a couple of punctuation marks, which means everything it says has to be short and shouty. The constraint is most of the charm.',
-        },
-        {
-          heading: 'You can make it anything',
-          body: 'Themes are plain folders — some images and a JSON file. Save the file and the panel re-skins instantly. No rebuild, no restart, no preferences dialog. Open the folder, change a colour, watch it happen.\n\nAnd the app will write the prompt for you. Answer a few questions about your mascot, your mood and your colours, and it hands you a brief to paste into any image-capable LLM, then drops the results into a folder that already works.\n\nThe theme that exists today is a jewelled unicorn with gemstone corners and a horn, framing a panel that is monitoring production coding agents. The absurdity is the point. If you want your build monitor to be an ornate magical-girl picture frame, that should simply be allowed.',
+          heading: 'It has your billboard',
+          body: 'Across the title strip, a little dot-matrix display — the kind that lived on the front of a 90s hi-fi. When nothing needs you, it scrolls.',
+          points: [
+            'Bad developer jokes',
+            'The house name',
+            'Words pinched from your own agents — file names, tool names, whatever today is full of',
+          ],
+          footer: 'A theme brings its own vocabulary, so a theme has a voice. The font knows capitals, digits and little else, so everything it says is short and shouty. That is most of the charm.',
         },
       ],
-      closing: 'WinAmp understood in 1997 that a thing you look at all day should be yours. Somewhere between then and now, developer tools decided they should all look like a settings panel.\n\nSo this is not a bonus bolted onto a serious tool. A monitor only works if you keep it open, and you keep open what you like looking at. The skins are load-bearing.',
+      strip: {
+        src: '/gc-matrix.mp4',
+        alt: 'The panel\'s dot-matrix sign, scrolling',
+        caption: 'The sign, recorded running. Analyser either side, the house name going past in the middle.',
+      },
+      closing: 'WinAmp skins were the last time a mainstream utility assumed you would want to make it yours. Everything since has assumed you want it to look like everything else.\n\nThe retro pull is not nostalgia for its own sake. It is nostalgia for a period when software let you fiddle.\n\nSo this is not a bonus bolted onto a serious tool. A monitor only works if you keep it open, and **you keep open what you like looking at**. The skins are load-bearing.',
+      closingMedia: {
+        src: '/gc-unicorn-theme.mp4',
+        alt: 'The unicorn theme running, with the alarm state showing red',
+        caption: 'The unicorn theme, running.',
+      },
       note: 'Additional themes will be available separately.',
     },
-    principles: [
-      {
-        heading: 'An alarm outlives the click that missed',
-        body: 'Clicking a row clears its red dot — but only if the jump actually landed. If that terminal has since closed, the click goes nowhere and the alarm stays up.\n\nThe tidier version clears it on click, and quietly turns a session that is still blocked into one that looks handled. That is the one failure a monitor cannot have.',
-        quote: 'Silencing an alarm nobody attended to is the one thing a monitor must not do.',
-      },
-      {
-        heading: 'We proved we could type into your terminal. Then decided never to.',
-        body: 'macOS will let an application send keystrokes to a terminal. It was tested deliberately, to find out. It works.\n\nIt will never ship. An app that can type into your terminal is a remote execution capability wearing a friendly hat. Ground Control watches, and it points. It does not reach.\n\nFinding out you can do something is not the same as finding a reason to.',
-      },
-    ],
+    themeTool: {
+      kicker: 'The theme tool',
+      heading: 'Dynamic theme prompt for your LLM',
+      lead: 'Themes are plain folders — some images and a JSON file. Save the file and the panel re-skins instantly. Let the app write up a prompt for you...',
+      steps: [
+        'Answer a few questions — mascot, mood, colours, what the sign should say',
+        'It hands you a complete prompt for any image-capable model',
+        'It builds the folder too, already wired up and waiting for the pictures',
+      ],
+      blocks: [
+        {
+          heading: 'Two difficulty levels, and the split is the interesting part',
+          body: 'The beginner route is one picture, scaled to fit. Draw anything, at any proportions — the panel takes your picture\'s shape and the rows scroll inside it. Nothing to measure, nothing to get wrong. A whole theme in an afternoon with no idea how any of it works.\n\nAdvanced panel frames allow resizing in parts, with transparent background effects... like this.',
+          media: {
+            src: '/gc-resize.mp4',
+            alt: 'The panel being resized, its corner ornaments holding their shape while the edges stretch',
+            caption: 'Corners hold. Edges stretch.',
+          },
+        },
+        {
+          heading: 'It does not know how to draw. It knows what breaks.',
+          body: 'The brief it writes is long. Every file, every size, each state and what it has to communicate, and the drawing rules for whichever route you picked.\n\nThose rules are not style advice. One animation came back with frames varying seventeen pixels in height, which on screen read as the panel resizing while it played — so the brief now says lock the silhouette, and never draw a frame from the previous one, because that drifts. Another grew heavier as it went and then snapped back at the wrap — so it says close the loop. At avatar size an expression is invisible, so a state has to be carried by colour and shape.',
+          media: {
+            heading: 'Try this in...',
+            src: '/gc-theme-brief.png',
+            alt: 'The generated theme manifest beside dozens of avatar and frame variations returned by an image model',
+            caption: 'The brief on the left. What came back on the right.',
+            attribution: 'This one was made with Grok Imagine, a product of xAI — one of many models the brief works with. No affiliation.',
+          },
+        },
+      ],
+      closing: 'Bring your own animated GIFs — the whole panel can move, not just the faces. Shapes that are not rectangles. Themes translucent enough to blend into the desktop rather than sit on top of it. A handful exist today — imagine a thousand.',
+      pull: 'Not a wizard and not a preset library. The app hands the model a detailed list of what to generate, and why.',
+    },
     availability: {
       heading: 'Still in the hangar',
-      body: 'Ground Control is in private alpha — built, working, and flown daily on the machine it was written on. It isn\'t public yet, so there\'s nothing to download today.\n\nWhen it ships it will be free and open source under AGPL-3.0. Themes are licensed separately from the code; the artwork isn\'t covered by the AGPL.',
+      body: 'Ground Control is in private alpha — built, working, and flown daily on the machine it was written on. It isn\'t public yet, so there\'s nothing to download today.\n\nWhen it ships the app will be free and open source under AGPL-3.0. The artwork is a separate thing: themes are not derivative works of the program, so they carry their own licence. That split is what lets the app be free forever while a theme is something you can buy — and it means nothing is held back from the free version. The app is whole.\n\nCharge for the artwork. Never for the software.',
       note: 'Coming soon to macOS',
     },
   },

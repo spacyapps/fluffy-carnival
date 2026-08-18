@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function VideoWithProgress({
   src,
@@ -14,6 +14,23 @@ export default function VideoWithProgress({
   const videoRef = useRef<HTMLVideoElement>(null);
   const [progress, setProgress] = useState(0);
 
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const apply = () => {
+      if (mq.matches) {
+        v.pause();
+        v.currentTime = 0;
+      } else {
+        v.play().catch(() => {});
+      }
+    };
+    apply();
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
+  }, []);
+
   function handleTimeUpdate() {
     const v = videoRef.current;
     if (!v || !v.duration) return;
@@ -25,8 +42,8 @@ export default function VideoWithProgress({
       <video
         ref={videoRef}
         src={src}
-        autoPlay
         muted
+        preload="metadata"
         loop
         playsInline
         onTimeUpdate={handleTimeUpdate}
