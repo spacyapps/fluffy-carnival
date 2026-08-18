@@ -16,6 +16,7 @@ import ScaleWrapper from '../../components/boutique/ScaleWrapper';
 import DeadGapSVG from '../../components/boutique/DeadGapSVG';
 import PanelOpenSVG from '../../components/boutique/PanelOpenSVG';
 import AutoVideo from '../../components/boutique/AutoVideo';
+import ReportTreeSVG from '../../components/boutique/ReportTreeSVG';
 import SameYesSVG from '../../components/boutique/SameYesSVG';
 
 export const viewport: Viewport = {
@@ -382,6 +383,23 @@ export default async function AppPage({
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+            {app.heroQuote && (
+              <div style={{ maxWidth: 480, margin: '4px 0 36px' }}>
+                <div style={{ height: 2, width: 34, background: 'var(--accent)', opacity: 0.7, marginBottom: 20 }} />
+                <p style={{
+                  fontFamily: 'var(--font-serif)',
+                  fontStyle: 'italic',
+                  fontWeight: 300,
+                  fontSize: 27,
+                  lineHeight: 1.4,
+                  letterSpacing: -0.5,
+                  color: 'var(--ink)',
+                  margin: 0,
+                }}>
+                  &ldquo;{app.heroQuote}&rdquo;
+                </p>
               </div>
             )}
             <div className="bo-cta-wrap" style={{ display: 'flex', gap: 12 }}>
@@ -848,26 +866,8 @@ export default async function AppPage({
                   ))}
                 </div>
                 {/* signal chain — conceptual only; mechanism lives in the repo, not here */}
-                <div style={{ marginTop: 26, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {['Your agent reports in', 'Ground Control listens', 'You see who needs you'].map((step, j, arr) => (
-                    <div key={j} style={{ display: 'contents' }}>
-                      <div style={{
-                        padding: '12px 14px',
-                        border: '1px solid var(--line)',
-                        borderRadius: 10,
-                        background: 'rgba(0,0,0,0.25)',
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: 10,
-                        letterSpacing: 1.2,
-                        color: 'var(--ink-dim)',
-                      }}>
-                        {step}
-                      </div>
-                      {j < arr.length - 1 && (
-                        <div style={{ color: 'var(--accent)', fontSize: 12, lineHeight: 1, paddingLeft: 14 }}>↓</div>
-                      )}
-                    </div>
-                  ))}
+                <div style={{ marginTop: 28 }}>
+                  <ReportTreeSVG />
                 </div>
               </div>
 

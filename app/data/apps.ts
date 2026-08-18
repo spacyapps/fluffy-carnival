@@ -83,6 +83,7 @@ export interface App {
     closingMedia?: { src: string; alt: string; caption: string };
     note: string;
   };
+  heroQuote?: string;
   status?: string;
   availability?: { heading: string; body: string; note: string };
 }
@@ -301,6 +302,7 @@ ARCHITECTURE NOTES
       alt: 'Hovering a row shows Jump; clicking brings the terminal to the front',
       caption: 'Tap a row, land on its terminal',
     },
+    heroQuote: 'I waste time checking if my Session or Agent is done or waiting for me',
     status: 'In private alpha · coming soon to macOS',
     descriptionPoints: [
       'A menu-bar app for anyone running more than one AI agent at once.',
