@@ -1193,6 +1193,25 @@ export default async function AppPage({
                 </div>
               ))}
             </div>
+            {app.themeTool.demo && (
+              <div style={{ marginTop: 52 }}>
+                <div style={{ height: 2, width: 28, background: 'var(--accent)', opacity: 0.7, marginBottom: 20 }} />
+                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 21, fontWeight: 400, margin: '0 0 13px', letterSpacing: -0.35, lineHeight: 1.25 }}>
+                  {app.themeTool.demo.heading}
+                </h3>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: '0 0 20px', maxWidth: 680 }}>
+                  {app.themeTool.demo.body}
+                </p>
+                <div style={{ maxWidth: 460 }}>
+                  <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)', background: '#0b0c10' }}>
+                    <AutoVideo src={app.themeTool.demo.src} ariaLabel={app.themeTool.demo.alt} />
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: 1.8, color: 'var(--ink-faint)', marginTop: 10 }}>
+                    {app.themeTool.demo.caption.toUpperCase()}
+                  </div>
+                </div>
+              </div>
+            )}
             {app.themeTool.closing && (
               <p style={{ fontFamily: 'var(--font-body)', fontSize: 14.5, lineHeight: 1.8, color: 'var(--ink-dim)', fontWeight: 300, margin: '40px 0 0', maxWidth: 760 }}>
                 {app.themeTool.closing}

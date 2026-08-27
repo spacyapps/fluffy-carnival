@@ -71,6 +71,7 @@ export interface App {
     lead: string;
     steps?: string[];
     blocks: { heading: string; body: string; media?: { src: string; alt: string; caption: string; heading?: string; attribution?: string } }[];
+    demo?: { heading: string; body: string; src: string; alt: string; caption: string };
     closing?: string;
     pull: string;
   };
@@ -416,17 +417,18 @@ ARCHITECTURE NOTES
     },
     themeTool: {
       kicker: 'The theme tool',
-      heading: 'Dynamic theme prompt for your LLM',
-      lead: 'Themes are plain folders — some images and a JSON file. Save the file and the panel re-skins instantly. Let the app write up a prompt for you...',
+      heading: 'A guided brief for your image model',
+      lead: 'Themes are plain folders — some images and a JSON file. Save the file and the panel re-skins instantly. Let the app walk you through building one.',
       steps: [
-        'Answer a few questions — mascot, mood, colours, what the sign should say',
-        'It hands you a complete prompt for any image-capable model',
-        'It builds the folder too, already wired up and waiting for the pictures',
+        'Answer a handful of questions — whether you have a reference picture, the character, what each state is doing, the drawing style. Not the colours: those follow a fixed rule, so the panel always reads at a glance.',
+        'It turns that into a brief and comes back with the four avatar states drawn as stills. Expect a couple of rounds of notes — that back-and-forth is the tool working, not failing.',
+        'Only once you sign off does it price and animate. An optional pass adds decorations pinned to the panel\'s corners.',
+        'It builds the folder alongside all of this — wired up and waiting for the finished art.',
       ],
       blocks: [
         {
-          heading: 'Two difficulty levels, and the split is the interesting part',
-          body: 'The beginner route is one picture, scaled to fit. Draw anything, at any proportions — the panel takes your picture\'s shape and the rows scroll inside it. Nothing to measure, nothing to get wrong. A whole theme in an afternoon with no idea how any of it works.\n\nAdvanced panel frames allow resizing in parts, with transparent background effects... like this.',
+          heading: 'A nine-grid frame, and an easier way in',
+          body: 'A theme starts from a nine-grid frame — the picture cut into a three-by-three. The four corners hold their size, the four edges stretch one way, the middle fills the rest. It is the trick behind every resizable window chrome, and the brief walks the model through drawing to it. Most people, or the model working for them, handle the default fine — background transparency and all, like this.\n\nThe easier way, if you want it: hand over one picture and let the whole thing scale to fit. Any proportions — the panel takes your picture\'s shape and the rows scroll inside it. Nothing to measure. A whole theme in an afternoon with no idea how any of it works.',
           media: {
             src: '/gc-resize.mp4',
             alt: 'The panel being resized, its corner ornaments holding their shape while the edges stretch',
@@ -435,7 +437,7 @@ ARCHITECTURE NOTES
         },
         {
           heading: 'It does not know how to draw. It knows what breaks.',
-          body: 'The brief it writes is long. Every file, every size, each state and what it has to communicate, and the drawing rules for whichever route you picked.\n\nThose rules are not style advice. One animation came back with frames varying seventeen pixels in height, which on screen read as the panel resizing while it played — so the brief now says lock the silhouette, and never draw a frame from the previous one, because that drifts. Another grew heavier as it went and then snapped back at the wrap — so it says close the loop. At avatar size an expression is invisible, so a state has to be carried by colour and shape.',
+          body: 'The brief it writes is long. Every file, every size, each state and what it has to communicate, and the drawing rules for whichever route you picked.\n\nAnimation has two routes, and it tells you the trade. Frame-by-frame is cheap and jitters a little — right for a small detail, a blink or a glint. Full video holds the subject steady and costs tokens — right for a whole character or object. Either way, nothing animates until you have signed off on it as a still, so a wrong idea costs a picture and not a movie.\n\nThose rules are not style advice. One animation came back with frames varying seventeen pixels in height, which on screen read as the panel resizing while it played — so the brief now says lock the silhouette, and never draw a frame from the previous one, because that drifts. Another grew heavier as it went and then snapped back at the wrap — so it says close the loop. At avatar size an expression is invisible, so a state has to be carried by colour and shape.',
           media: {
             heading: 'Try this in...',
             src: '/gc-theme-brief.png',
@@ -445,7 +447,14 @@ ARCHITECTURE NOTES
           },
         },
       ],
-      closing: 'Bring your own animated GIFs — the whole panel can move, not just the faces. Shapes that are not rectangles. Themes translucent enough to blend into the desktop rather than sit on top of it. A handful exist today — imagine a thousand.',
+      demo: {
+        heading: 'Corner decorations',
+        body: 'Small pieces of art pinned to the panel\'s four corners, independent of the frame — a still, an APNG, a video. You do not have to animate anything yourself; the same brief that drew your avatars will generate these too. The one rule that makes them feel alive: a decoration only moves while one of your sessions is actually working. The rest of the time it holds on its first frame, so a busy panel looks busy from across the room before you have read a word of it.',
+        src: '/gc-corner-decoration.mp4',
+        alt: 'The space-station theme with animated art in each corner; the decorations run while a session works and hold still when the panel is quiet',
+        caption: 'Corner art, running because a session is.',
+      },
+      closing: 'Bring your own animation — APNG turned out to beat GIF for this, real colour and real transparency, and plain video works too. The whole panel can move, not just the faces, and a model can generate every frame of it. Shapes that are not rectangles. Themes translucent enough to blend into the desktop rather than sit on top of it. A handful exist today — imagine a thousand.',
       pull: 'Not a wizard and not a preset library. The app hands the model a detailed list of what to generate, and why.',
     },
     availability: {
