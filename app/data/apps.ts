@@ -71,7 +71,10 @@ export interface App {
     lead: string;
     steps?: string[];
     blocks: { heading: string; body: string; media?: { src: string; alt: string; caption: string; heading?: string; attribution?: string } }[];
-    demo?: { heading: string; body: string; src: string; alt: string; caption: string };
+    demo?: {
+      heading: string; body: string; src: string; alt: string; caption: string;
+      prompt?: { kicker: string; heading: string; intro: string; lines: string[]; notes: string[] };
+    };
     closing?: string;
     pull: string;
   };
@@ -453,6 +456,28 @@ ARCHITECTURE NOTES
         src: '/gc-corner-decoration.mp4',
         alt: 'The space-station theme with animated art in each corner; the decorations run while a session works and hold still when the panel is quiet',
         caption: 'Corner art, running because a session is.',
+        prompt: {
+          kicker: 'A great prompt saves you money',
+          heading: 'What was typed to get the Commander',
+          intro: 'Roughly the brief behind the walking figure on the left. Every vague word is a regeneration you pay for, so the ask pins the path, the framing and the format — the tool fills in the file list.',
+          lines: [
+            'Reference: the house avatar. Alpha out the background — real 8-bit transparency, no green screen.',
+            'Canvas 500 x 150, APNG.',
+            'The subject in her usual outfit, blue visor instead of red.',
+            'Starts standing at the far right of the canvas.',
+            'Walks to the left.',
+            'Motions with both hands — sending work off to the left, then directing it upward.',
+            'Floats backward to the starting point at the far right.',
+            '15 seconds, looping.',
+          ],
+          notes: [
+            'Ask for a truly transparent canvas — real alpha, not a keyed-out green or magenta screen. Soft edges, glow and haze then composite cleanly.',
+            'Compose the subject toward the corner it anchors to: a bottom-right piece sits bottom-right on its own canvas, since that is the point the panel lines up with the window.',
+            'The file draws at its exact pixel size, never scaled. Pick the size you want on screen, then double it for a sharp Retina render.',
+            'Keep motion short — 8 to 24 frames near 12fps. It plays only while a session works, and holds on frame one otherwise.',
+            'Save it as .apng or .png, never .gif. No removeBackground key needed when the alpha is already real.',
+          ],
+        },
       },
       closing: 'Bring your own animation — APNG turned out to beat GIF for this, real colour and real transparency, and plain video works too. The whole panel can move, not just the faces, and a model can generate every frame of it. Shapes that are not rectangles. Themes translucent enough to blend into the desktop rather than sit on top of it. A handful exist today — imagine a thousand.',
       pull: 'Not a wizard and not a preset library. The app hands the model a detailed list of what to generate, and why.',
