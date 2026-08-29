@@ -483,7 +483,7 @@ export default async function AppPage({
                       <div key={d} style={{ width: 10, height: 10, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
                     ))}
                   </div>
-                  <div style={{ position: 'relative', aspectRatio: '1254 / 856', background: '#000' }}>
+                  <div style={{ position: 'relative', aspectRatio: '1070 / 856', background: '#000' }}>
                     <VideoWithProgress src={app.videoUrl} fit="contain" radius={0} />
                   </div>
                 </div>
