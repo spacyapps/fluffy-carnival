@@ -471,6 +471,8 @@ export default async function AppPage({
             {app.videoUrl && app.videoFrame === 'desktop' ? (
               <div style={{ width: '100%' }}>
                 <div style={{
+                  maxWidth: '82%',
+                  margin: '0 auto',
                   borderRadius: 14,
                   overflow: 'hidden',
                   background: '#08090b',
@@ -493,7 +495,7 @@ export default async function AppPage({
                   </div>
                 )}
                 {app.videoSecondary && (
-                  <div style={{ margin: '28px auto 0', width: '80%' }}>
+                  <div style={{ margin: '28px auto 0', width: '82%' }}>
                     <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid var(--line)', background: '#0b0c10' }}>
                       <AutoVideo src={app.videoSecondary.src} ariaLabel={app.videoSecondary.alt} />
                     </div>
