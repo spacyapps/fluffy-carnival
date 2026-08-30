@@ -483,7 +483,7 @@ export default async function AppPage({
                       <div key={d} style={{ width: 10, height: 10, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
                     ))}
                   </div>
-                  <div style={{ position: 'relative', aspectRatio: '1070 / 856', background: '#000' }}>
+                  <div style={{ position: 'relative', aspectRatio: '1106 / 1016', background: '#000' }}>
                     <VideoWithProgress src={app.videoUrl} fit="contain" radius={0} />
                   </div>
                 </div>
@@ -493,7 +493,7 @@ export default async function AppPage({
                   </div>
                 )}
                 {app.videoSecondary && (
-                  <div style={{ margin: '28px 0 0', width: '100%' }}>
+                  <div style={{ margin: '28px auto 0', width: '80%' }}>
                     <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid var(--line)', background: '#0b0c10' }}>
                       <AutoVideo src={app.videoSecondary.src} ariaLabel={app.videoSecondary.alt} />
                     </div>
