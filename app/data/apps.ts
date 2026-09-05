@@ -454,7 +454,7 @@ ARCHITECTURE NOTES
         src: '/gc-corner-decoration.mp4',
         alt: 'A showcase Ground Control theme — a still decoration in one corner, animated videos in the others, and an animated frame; the art runs while a session works and holds still when the panel is quiet',
         caption: 'Showcase theme with 1 static and 5 animated videos with an animated frame.',
-        title: 'Showcase Theme',
+        title: 'Showcase Theme: Who is Nami Star?',
       },
       pull: 'All of this, all together, is your personal Ground Control. Let GC help you enjoy your journey with AI.',
     },
