@@ -1196,58 +1196,28 @@ export default async function AppPage({
               ))}
             </div>
             {app.themeTool.demo && (
-              <div style={{ marginTop: 52 }}>
-                <div style={{ height: 2, width: 28, background: 'var(--accent)', opacity: 0.7, marginBottom: 20 }} />
+              <div style={{ marginTop: 52, textAlign: 'center' }}>
+                <div style={{ height: 2, width: 28, background: 'var(--accent)', opacity: 0.7, margin: '0 auto 20px' }} />
                 <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 21, fontWeight: 400, margin: '0 0 13px', letterSpacing: -0.35, lineHeight: 1.25 }}>
                   {app.themeTool.demo.heading}
                 </h3>
-                <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: '0 0 22px', maxWidth: 680 }}>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: 14, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: '0 auto 26px', maxWidth: 680 }}>
                   {app.themeTool.demo.body}
                 </p>
-                <div style={{ display: 'grid', gridTemplateColumns: '460px 1fr', gap: 44, alignItems: 'start' }}>
-                  <div>
-                    <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)', background: '#0b0c10' }}>
-                      <AutoVideo src={app.themeTool.demo.src} ariaLabel={app.themeTool.demo.alt} />
-                    </div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: 1.8, color: 'var(--ink-faint)', marginTop: 10 }}>
-                      {app.themeTool.demo.caption.toUpperCase()}
-                    </div>
-                  </div>
-                  {app.themeTool.demo.prompt && (
-                    <div>
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2.5, color: 'var(--accent)' }}>
-                        {app.themeTool.demo.prompt.kicker.toUpperCase()}
-                      </span>
-                      <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 17, lineHeight: 1.4, color: 'var(--ink)', fontWeight: 300, margin: '12px 0 10px' }}>
-                        {app.themeTool.demo.prompt.heading}
-                      </p>
-                      <p style={{ fontFamily: 'var(--font-body)', fontSize: 13, lineHeight: 1.7, color: 'var(--ink-dim)', fontWeight: 300, margin: '0 0 16px' }}>
-                        {app.themeTool.demo.prompt.intro}
-                      </p>
-                      <div style={{ borderRadius: 10, border: '1px solid var(--line)', background: '#0b0c10', padding: '15px 17px', display: 'flex', flexDirection: 'column', gap: 7 }}>
-                        {app.themeTool.demo.prompt.lines.map((l, k) => (
-                          <p key={k} style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, lineHeight: 1.65, color: 'var(--ink-dim)', margin: 0 }}>
-                            {l}
-                          </p>
-                        ))}
-                      </div>
-                      <ul style={{ listStyle: 'none', margin: '18px 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                        {app.themeTool.demo.prompt.notes.map((n, k) => (
-                          <li key={k} style={{ display: 'grid', gridTemplateColumns: '12px 1fr', gap: 10, alignItems: 'start' }}>
-                            <span aria-hidden style={{ height: 2, width: 12, background: 'var(--accent)', opacity: 0.7, marginTop: 9 }} />
-                            <span style={{ fontFamily: 'var(--font-body)', fontSize: 13, lineHeight: 1.65, color: 'var(--ink-dim)', fontWeight: 300 }}>{n}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                <div style={{ maxWidth: 720, margin: '0 auto' }}>
+                  {app.themeTool.demo.title && (
+                    <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 17, lineHeight: 1.4, color: 'var(--ink)', fontWeight: 300, margin: '0 0 14px' }}>
+                      {app.themeTool.demo.title}
+                    </p>
                   )}
+                  <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)', background: '#0b0c10' }}>
+                    <AutoVideo src={app.themeTool.demo.src} ariaLabel={app.themeTool.demo.alt} />
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: 1.8, color: 'var(--ink-faint)', marginTop: 10 }}>
+                    {app.themeTool.demo.caption.toUpperCase()}
+                  </div>
                 </div>
               </div>
-            )}
-            {app.themeTool.closing && (
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: 14.5, lineHeight: 1.8, color: 'var(--ink-dim)', fontWeight: 300, margin: '40px 0 0', maxWidth: 760 }}>
-                {app.themeTool.closing}
-              </p>
             )}
             <p style={{
               fontFamily: 'var(--font-serif)',
@@ -1256,10 +1226,9 @@ export default async function AppPage({
               lineHeight: 1.5,
               color: 'var(--ink)',
               fontWeight: 300,
-              margin: '32px 0 0',
-              paddingLeft: 22,
-              borderLeft: '2px solid var(--accent)',
-              maxWidth: 700,
+              margin: '44px auto 0',
+              maxWidth: 640,
+              textAlign: 'center',
             }}>
               {app.themeTool.pull}
             </p>

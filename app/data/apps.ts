@@ -72,10 +72,8 @@ export interface App {
     steps?: string[];
     blocks: { heading: string; body: string; media?: { src: string; alt: string; caption: string; heading?: string; attribution?: string } }[];
     demo?: {
-      heading: string; body: string; src: string; alt: string; caption: string;
-      prompt?: { kicker: string; heading: string; intro: string; lines: string[]; notes: string[] };
+      heading: string; body: string; src: string; alt: string; caption: string; title?: string;
     };
-    closing?: string;
     pull: string;
   };
   themes?: {
@@ -452,35 +450,13 @@ ARCHITECTURE NOTES
       ],
       demo: {
         heading: 'Corner decorations',
-        body: 'Small pieces of art pinned to the panel\'s four corners, independent of the frame — a still, an APNG, a video. You do not have to animate anything yourself; the same brief that drew your avatars will generate these too. The one rule that makes them feel alive: a decoration only moves while one of your sessions is actually working. The rest of the time it holds on its first frame, so a busy panel looks busy from across the room before you have read a word of it.',
+        body: 'Beyond the frame and the avatars, the four corners are yours to fill — a still, an APNG, a short video, or a run of them in sequence. Pin something to each and Ground Control takes on a life of its own: a still in one corner, animation turning in the others. The corners run independently, so a static piece sits happily beside animated ones. Animations play when there\'s something working. The same brief that drew your avatars generates these too, and the app helps you write one for your own.',
         src: '/gc-corner-decoration.mp4',
-        alt: 'The space-station theme with animated art in each corner; the decorations run while a session works and hold still when the panel is quiet',
-        caption: 'Corner art, running because a session is.',
-        prompt: {
-          kicker: 'A great prompt saves you money',
-          heading: 'What was typed to get the Commander',
-          intro: 'Roughly the brief behind the walking figure on the left. Every vague word is a regeneration you pay for, so the ask pins the path, the framing and the format — the tool fills in the file list.',
-          lines: [
-            'Reference: the house avatar. Alpha out the background — real 8-bit transparency, no green screen.',
-            'Canvas 500 x 150, APNG.',
-            'The subject in her usual outfit, blue visor instead of red.',
-            'Starts standing at the far right of the canvas.',
-            'Walks to the left.',
-            'Motions with both hands — sending work off to the left, then directing it upward.',
-            'Floats backward to the starting point at the far right.',
-            '15 seconds, looping.',
-          ],
-          notes: [
-            'Ask for a truly transparent canvas — real alpha, not a keyed-out green or magenta screen. Soft edges, glow and haze then composite cleanly.',
-            'Compose the subject toward the corner it anchors to: a bottom-right piece sits bottom-right on its own canvas, since that is the point the panel lines up with the window.',
-            'The file draws at its exact pixel size, never scaled. Pick the size you want on screen, then double it for a sharp Retina render.',
-            'Keep motion short — 8 to 24 frames near 12fps. It plays only while a session works, and holds on frame one otherwise.',
-            'Save it as .apng or .png, never .gif. No removeBackground key needed when the alpha is already real.',
-          ],
-        },
+        alt: 'A showcase Ground Control theme — a still decoration in one corner, animated videos in the others, and an animated frame; the art runs while a session works and holds still when the panel is quiet',
+        caption: 'Showcase theme with 1 static and 5 animated videos with an animated frame.',
+        title: 'Showcase Theme',
       },
-      closing: 'Bring your own animation — APNG turned out to beat GIF for this, real colour and real transparency, and plain video works too. The whole panel can move, not just the faces, and a model can generate every frame of it. Shapes that are not rectangles. Themes translucent enough to blend into the desktop rather than sit on top of it. A handful exist today — imagine a thousand.',
-      pull: 'Not a wizard and not a preset library. The app hands the model a detailed list of what to generate, and why.',
+      pull: 'All of this, all together, is your personal Ground Control. Let GC help you enjoy your journey with AI.',
     },
     availability: {
       heading: 'Still in the hangar',
