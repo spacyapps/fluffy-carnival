@@ -460,7 +460,7 @@ ARCHITECTURE NOTES
     },
     availability: {
       heading: 'Still in the hangar',
-      body: 'Ground Control is in private alpha — built, working, and flown daily on the machine it was written on. It isn\'t public yet, so there\'s nothing to download today.\n\nWhen it ships the app will be free and open source under AGPL-3.0. The artwork is a separate thing: themes are not derivative works of the program, so they carry their own licence. That split is what lets the app be free forever while a theme is something you can buy — and it means nothing is held back from the free version. The app is whole.\n\nCharge for the artwork. Never for the software.',
+      body: 'Ground Control is in private alpha — built, working, and flown daily on the machine it was written on. It isn\'t public yet, so there\'s nothing to download today.\n\nWhen it ships the app will be free and open source under AGPL-3.0. The artwork is a separate thing: themes are not derivative works of the program, so they carry their own licence. That split is what lets the app be free forever while a theme is something you can buy — and it means nothing is held back from the free version. The app is whole.',
       note: 'Coming soon to macOS',
     },
   },
