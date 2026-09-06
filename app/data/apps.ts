@@ -79,6 +79,7 @@ export interface App {
   themes?: {
     heading: string;
     lead: string;
+    still?: { src: string; alt: string; caption: string };
     blocks: { heading: string; body: string; points?: string[]; footer?: string; image?: { src: string; alt: string; caption: string } }[];
     strip?: { src: string; alt: string; caption: string };
     closing: string;
@@ -375,6 +376,11 @@ ARCHITECTURE NOTES
     themes: {
       heading: 'Fun is a feature',
       lead: 'Ground Control is a serious monitor for production coding agents. It can be YOUR jewelled unicorn, if you want.',
+      still: {
+        src: '/gc-default.png',
+        alt: 'Ground Control with no theme applied — a plain dark panel, a green level analyser across the title strip, and simple state icons down the right',
+        caption: 'How it ships. The green analyser and the state icons are the defaults every theme is drawn over.',
+      },
       blocks: [
         {
           heading: 'It has a face',

@@ -997,6 +997,20 @@ export default async function AppPage({
             }}>
               <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>{app.themes.heading}</span>
             </h2>
+            {app.themes.still && (
+              <div style={{ maxWidth: 420, margin: '0 auto 28px', textAlign: 'center' }}>
+                <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)', background: '#0b0c10' }}>
+                  <img
+                    src={app.themes.still.src}
+                    alt={app.themes.still.alt}
+                    style={{ display: 'block', width: '100%', height: 'auto' }}
+                  />
+                </div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: 1.8, color: 'var(--ink-faint)', marginTop: 10 }}>
+                  {app.themes.still.caption.toUpperCase()}
+                </div>
+              </div>
+            )}
             <p style={{
               fontFamily: 'var(--font-serif)',
               fontStyle: 'italic',
