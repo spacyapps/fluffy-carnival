@@ -172,7 +172,7 @@ export default function Home() {
                   {app.name}
                 </h3>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-faint)', letterSpacing: 1.5, marginBottom: 16 }}>
-                  {app.platform.toUpperCase()}  ·  v{app.version}
+                  {app.platform.toUpperCase()}{app.version !== '—' && <>  ·  v{app.version}</>}
                 </div>
                 <p style={{ fontSize: 14.5, lineHeight: 1.6, color: 'var(--ink-dim)', margin: (app.companion || app.milestones) ? '0 0 16px' : '0 0 24px', fontWeight: 300, minHeight: 70, fontFamily: 'var(--font-body)' }}>
                   {app.tagline}

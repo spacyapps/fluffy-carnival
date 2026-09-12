@@ -290,7 +290,7 @@ export default async function AppPage({
                 marginBottom: 28,
               }}
             >
-              {app.platform.toUpperCase()}  ·  v{app.version}
+              {app.platform.toUpperCase()}{app.version !== '—' && <>  ·  v{app.version}</>}
             </div>
             {app.status && (
               <div
