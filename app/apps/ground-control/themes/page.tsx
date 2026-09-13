@@ -22,8 +22,16 @@ type Theme = {
   blurb: string;
   image: string;
   free?: boolean;
+  // Same character, different theme (e.g. the gopher in both Garden and Golf) —
+  // groups them in the grid and tags them once a family has more than one member.
+  family?: string;
+  // Set once the theme has a real Lemon Squeezy listing. Price and "buy" live
+  // there, not here — one place to keep current, not two.
+  lemonSqueezyUrl?: string;
 };
 
+// Ordered so a family's members sit next to each other. Add new themes near
+// their family, not just at the end.
 const THEMES: Theme[] = [
   {
     slug: 'lunar',
@@ -43,12 +51,14 @@ const THEMES: Theme[] = [
     name: 'Gopher Garden',
     blurb: 'A gopher who has taken up gardening, and the small ecosystem that puts up with it. Round, sticker-style, big expressive eyes.',
     image: '/gc-theme-gopher-garden-hero.png',
+    family: 'Gopher',
   },
   {
     slug: 'gopher-golf',
     name: 'Gopher Golf',
     blurb: 'One gopher, playing golf badly and taking it personally — the same animal in all four moods, having one very long day.',
     image: '/gc-theme-gopher-golf-hero.png',
+    family: 'Gopher',
   },
   {
     slug: 'skybird',
@@ -64,22 +74,44 @@ const THEMES: Theme[] = [
   },
 ];
 
+// Only worth labelling once a family actually has company.
+const familyCounts = THEMES.reduce<Record<string, number>>((acc, t) => {
+  if (t.family) acc[t.family] = (acc[t.family] ?? 0) + 1;
+  return acc;
+}, {});
+
 function ThemeCard({ theme }: { theme: Theme }) {
+  const showFamily = theme.family && familyCounts[theme.family] > 1;
   return (
     <div>
       <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)', background: '#0b0c10', aspectRatio: '1652 / 1240' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={theme.image} alt={`${theme.name}, running in Ground Control`} loading="lazy" style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }} />
       </div>
-      <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 21, fontWeight: 400, margin: '16px 0 6px', letterSpacing: -0.4 }}>
+      {showFamily && (
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: 1.5, color: 'var(--accent-3)' }}>
+          {theme.family!.toUpperCase()} FAMILY
+        </span>
+      )}
+      <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 21, fontWeight: 400, margin: showFamily ? '6px 0 6px' : '16px 0 6px', letterSpacing: -0.4 }}>
         {theme.name}
       </h3>
       <p style={{ fontFamily: 'var(--font-body)', fontSize: 13.5, lineHeight: 1.6, color: 'var(--ink-dim)', fontWeight: 300, margin: '0 0 14px' }}>
         {theme.blurb}
       </p>
-      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9.5, letterSpacing: 1.3, color: theme.free ? 'var(--accent-2)' : 'var(--ink-faint)' }}>
-        {theme.free ? 'INCLUDED FREE' : 'PRICE TBD'}
-      </span>
+      {theme.free ? (
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9.5, letterSpacing: 1.3, color: 'var(--accent-2)' }}>
+          INCLUDED FREE
+        </span>
+      ) : theme.lemonSqueezyUrl ? (
+        <a href={theme.lemonSqueezyUrl} style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 13, color: 'var(--accent)', textDecoration: 'none' }}>
+          Buy on Lemon Squeezy →
+        </a>
+      ) : (
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9.5, letterSpacing: 1.3, color: 'var(--ink-faint)' }}>
+          COMING TO LEMON SQUEEZY
+        </span>
+      )}
     </div>
   );
 }
