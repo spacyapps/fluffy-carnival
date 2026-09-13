@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
 import Stars from '../../../components/boutique/Stars';
 import Logotype from '../../../components/boutique/Logotype';
+import BigPlanet from '../../../components/boutique/BigPlanet';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -73,16 +74,32 @@ const familyCounts = THEMES.reduce<Record<string, number>>((acc, t) => {
   return acc;
 }, {});
 
+// The viewport's glow ring — a family gets its own tint, everything else
+// shares the default. Gopher's warm amber echoes its own palette.
+const FAMILY_TINT: Record<string, string> = {
+  Gopher: '232,168,124',
+};
+const DEFAULT_TINT = '155,181,201';
+
 function ThemeCard({ theme }: { theme: Theme }) {
   const showFamily = theme.family && familyCounts[theme.family] > 1;
+  const tint = (theme.family && FAMILY_TINT[theme.family]) || DEFAULT_TINT;
   return (
     <div>
-      <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)', background: '#0b0c10', aspectRatio: '1652 / 1240' }}>
+      <div
+        style={{
+          borderRadius: 16,
+          overflow: 'hidden',
+          background: '#0b0c10',
+          aspectRatio: '1652 / 1240',
+          boxShadow: `0 0 0 1px rgba(${tint},0.35), 0 0 32px -4px rgba(${tint},0.28)`,
+        }}
+      >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={theme.image} alt={`${theme.name}, running in Ground Control`} loading="lazy" style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }} />
       </div>
       {showFamily && (
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: 1.5, color: 'var(--accent-3)' }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: 1.5, color: `rgb(${tint})`, display: 'block', marginTop: 12 }}>
           {theme.family!.toUpperCase()} FAMILY
         </span>
       )}
@@ -151,15 +168,30 @@ export default function GroundControlThemesPage() {
 
         {/* Themes grid */}
         <div>
-          <div style={{ height: 2, width: 28, background: 'var(--accent)', opacity: 0.7, marginBottom: 20 }} />
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2.5, color: 'var(--accent)' }}>◈ THE CHARACTERS</span>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 26, margin: '14px 0 40px', letterSpacing: -0.5, maxWidth: 600 }}>
-            <span style={{ fontStyle: 'italic' }}>Five so far. More on the way.</span>
-          </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '48px 32px' }}>
-            {THEMES.map((t) => (
-              <ThemeCard key={t.slug} theme={t} />
-            ))}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 8 }}>
+            <BigPlanet variant="rings" size={130} />
+            <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 13, color: 'var(--ink-faint)', margin: '4px 0 0' }}>
+              Ground Control, orbited
+            </p>
+          </div>
+          <div style={{ height: 2, width: 28, background: 'var(--accent)', opacity: 0.7, margin: '36px auto 20px' }} />
+          <div style={{ textAlign: 'center' }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2.5, color: 'var(--accent)' }}>◈ THE CHARACTERS</span>
+            <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 26, margin: '14px auto 40px', letterSpacing: -0.5, maxWidth: 600 }}>
+              <span style={{ fontStyle: 'italic' }}>Five so far. More on the way.</span>
+            </h2>
+          </div>
+          <div style={{ position: 'relative' }}>
+            {/* Faint orbit arcs — decoration only, echoes the journal's rings */}
+            <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }} aria-hidden>
+              <div style={{ position: 'absolute', top: '-14%', left: '50%', width: 1500, height: 480, marginLeft: -750, border: '1px dashed rgba(155,181,201,0.10)', borderRadius: '50%', transform: 'rotate(-5deg)' }} />
+              <div style={{ position: 'absolute', top: '38%', left: '50%', width: 1700, height: 560, marginLeft: -850, border: '1px dashed rgba(232,168,124,0.08)', borderRadius: '50%', transform: 'rotate(4deg)' }} />
+            </div>
+            <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '48px 32px' }}>
+              {THEMES.map((t) => (
+                <ThemeCard key={t.slug} theme={t} />
+              ))}
+            </div>
           </div>
         </div>
 
