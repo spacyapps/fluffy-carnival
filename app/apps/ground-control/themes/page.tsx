@@ -163,7 +163,7 @@ export default function GroundControlThemesPage() {
 
         {/* Reassurance line */}
         <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 1, color: 'var(--ink-faint)', margin: '0 0 56px' }}>
-          Themes are art, not the app. Ground Control stays free and open source either way.
+          Themes are art, not the app. Ground Control stays free and open source.
         </p>
 
         {/* Themes grid */}
