@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
 import Stars from '../../../components/boutique/Stars';
 import Logotype from '../../../components/boutique/Logotype';
-import ThemeWaitlistForm from '../../../components/boutique/ThemeWaitlistForm';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -78,16 +77,9 @@ function ThemeCard({ theme }: { theme: Theme }) {
       <p style={{ fontFamily: 'var(--font-body)', fontSize: 13.5, lineHeight: 1.6, color: 'var(--ink-dim)', fontWeight: 300, margin: '0 0 14px' }}>
         {theme.blurb}
       </p>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9.5, letterSpacing: 1.3, color: theme.free ? 'var(--accent-2)' : 'var(--ink-faint)' }}>
-          {theme.free ? 'INCLUDED FREE' : 'PRICE TBD'}
-        </span>
-        {!theme.free && (
-          <a href="#notify" style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 13, color: 'var(--accent)', textDecoration: 'none' }}>
-            Join the list →
-          </a>
-        )}
-      </div>
+      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9.5, letterSpacing: 1.3, color: theme.free ? 'var(--accent-2)' : 'var(--ink-faint)' }}>
+        {theme.free ? 'INCLUDED FREE' : 'PRICE TBD'}
+      </span>
     </div>
   );
 }
@@ -133,7 +125,7 @@ export default function GroundControlThemesPage() {
         </p>
 
         {/* Themes grid */}
-        <div style={{ marginBottom: 80 }}>
+        <div>
           <div style={{ height: 2, width: 28, background: 'var(--accent)', opacity: 0.7, marginBottom: 20 }} />
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2.5, color: 'var(--accent)' }}>◈ THE CHARACTERS</span>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 26, margin: '14px 0 40px', letterSpacing: -0.5, maxWidth: 600 }}>
@@ -144,18 +136,6 @@ export default function GroundControlThemesPage() {
               <ThemeCard key={t.slug} theme={t} />
             ))}
           </div>
-        </div>
-
-        {/* Waitlist */}
-        <div id="notify" style={{ paddingTop: 48, borderTop: '1px solid var(--line)' }}>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2.5, color: 'var(--accent)' }}>◈ NOT OPEN YET</span>
-          <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 30, margin: '16px 0 14px', letterSpacing: -0.7 }}>
-            <span style={{ fontStyle: 'italic', color: 'var(--accent-2)' }}>Be there on day one.</span>
-          </h2>
-          <p style={{ fontFamily: 'var(--font-body)', fontSize: 14.5, lineHeight: 1.75, color: 'var(--ink-dim)', fontWeight: 300, margin: '0 0 26px', maxWidth: 520 }}>
-            No store yet — that takes a little setting up, and there is no price on any of this until it does. Leave an email and it is the first thing you hear about.
-          </p>
-          <ThemeWaitlistForm />
         </div>
 
       </div>
