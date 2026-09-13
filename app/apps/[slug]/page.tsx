@@ -1102,6 +1102,11 @@ export default async function AppPage({
                 <p style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: 1.5, color: 'var(--ink-faint)', margin: '16px 0 0', lineHeight: 1.7 }}>
                   {app.themes.note.toUpperCase()}
                 </p>
+                {app.themes.browseUrl && (
+                  <Link href={app.themes.browseUrl} style={{ display: 'inline-block', fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--accent)', textDecoration: 'none', marginTop: 10 }}>
+                    Browse the themes →
+                  </Link>
+                )}
               </div>
 
               {app.themes.strip && (

@@ -85,6 +85,7 @@ export interface App {
     closing: string;
     closingMedia?: { src: string; alt: string; caption: string };
     note: string;
+    browseUrl?: string;
   };
   heroQuote?: string;
   status?: string;
@@ -304,6 +305,7 @@ export const APPS: App[] = [
         caption: 'The unicorn theme, running.',
       },
       note: 'Additional themes will be available separately.',
+      browseUrl: '/apps/ground-control/themes',
     },
     themeTool: {
       kicker: 'The theme tool',

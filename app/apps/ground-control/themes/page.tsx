@@ -34,13 +34,6 @@ type Theme = {
 // their family, not just at the end.
 const THEMES: Theme[] = [
   {
-    slug: 'lunar',
-    name: 'Lunar Avatar',
-    blurb: 'A woman working a night shift in orbit — photoreal rather than cartoon. She barely moves; the colour of the room tells you everything.',
-    image: '/gc-theme-lunar-hero.png',
-    free: true,
-  },
-  {
     slug: 'aquarium',
     name: 'Aquarium',
     blurb: 'A lit aquarium seen side-on — four different fish playing four different moods, painted rather than drawn, real light through the water.',
@@ -161,7 +154,7 @@ export default function GroundControlThemesPage() {
           <div style={{ height: 2, width: 28, background: 'var(--accent)', opacity: 0.7, marginBottom: 20 }} />
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2.5, color: 'var(--accent)' }}>◈ THE CHARACTERS</span>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 26, margin: '14px 0 40px', letterSpacing: -0.5, maxWidth: 600 }}>
-            <span style={{ fontStyle: 'italic' }}>One free, more on the way.</span>
+            <span style={{ fontStyle: 'italic' }}>Five so far. More on the way.</span>
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '48px 32px' }}>
             {THEMES.map((t) => (
