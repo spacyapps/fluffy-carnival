@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
 import Stars from '../../../components/boutique/Stars';
 import Logotype from '../../../components/boutique/Logotype';
-import AutoVideo from '../../../components/boutique/AutoVideo';
 import ThemeWaitlistForm from '../../../components/boutique/ThemeWaitlistForm';
 
 export const viewport: Viewport = {
@@ -20,8 +19,9 @@ export const metadata: Metadata = {
 type Theme = {
   slug: string;
   name: string;
-  tagline: string;
-  video: string;
+  // Trimmed from each theme's "what you actually see" in theme-notes.md.
+  blurb: string;
+  image: string;
   free?: boolean;
 };
 
@@ -29,60 +29,61 @@ const THEMES: Theme[] = [
   {
     slug: 'lunar',
     name: 'Lunar Avatar',
-    tagline: 'A night shift on an orbital station.',
-    video: '/gc-theme-lunar-working.mp4',
+    blurb: 'A woman working a night shift in orbit — photoreal rather than cartoon. She barely moves; the colour of the room tells you everything.',
+    image: '/gc-theme-lunar-hero.png',
     free: true,
   },
   {
     slug: 'aquarium',
     name: 'Aquarium',
-    tagline: 'A real aquarium, four fish for four moods.',
-    video: '/gc-theme-aquarium-working.mp4',
+    blurb: 'A lit aquarium seen side-on — four different fish playing four different moods, painted rather than drawn, real light through the water.',
+    image: '/gc-theme-aquarium-hero.png',
   },
   {
     slug: 'gopher-garden',
     name: 'Gopher Garden',
-    tagline: 'A gopher who has taken up gardening.',
-    video: '/gc-theme-gopher-garden-working.mp4',
+    blurb: 'A gopher who has taken up gardening, and the small ecosystem that puts up with it. Round, sticker-style, big expressive eyes.',
+    image: '/gc-theme-gopher-garden-hero.png',
   },
   {
     slug: 'gopher-golf',
     name: 'Gopher Golf',
-    tagline: "One gopher, playing golf badly and taking it personally.",
-    video: '/gc-theme-gopher-golf-working.mp4',
+    blurb: 'One gopher, playing golf badly and taking it personally — the same animal in all four moods, having one very long day.',
+    image: '/gc-theme-gopher-golf-hero.png',
   },
   {
     slug: 'skybird',
     name: 'Sky Bird',
-    tagline: 'A barn swallow, and a quiet garden to live in.',
-    video: '/gc-theme-skybird-working.mp4',
+    blurb: 'One barn swallow, and a quiet garden to live in. Painted rather than cartooned — the calmest theme in the set.',
+    image: '/gc-theme-skybird-hero.png',
   },
   {
     slug: 'unicorn-overlord',
     name: 'Unicorn Overlord',
-    tagline: 'Enormous eyes, a gold horn, a jewelled frame.',
-    video: '/gc-theme-unicorn-working.mp4',
+    blurb: 'Enormous eyes, a gold spiral horn, a mane that fills most of every frame — and a jewelled frame built like a keepsake box.',
+    image: '/gc-theme-unicorn-hero.png',
   },
 ];
 
 function ThemeCard({ theme }: { theme: Theme }) {
   return (
     <div>
-      <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)', background: '#0b0c10', aspectRatio: '1 / 1' }}>
-        <AutoVideo src={theme.video} ariaLabel={`${theme.name} — its working state, looping`} />
+      <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line)', background: '#0b0c10', aspectRatio: '1652 / 1240' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={theme.image} alt={`${theme.name}, running in Ground Control`} loading="lazy" style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }} />
       </div>
-      <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 19, fontWeight: 400, margin: '14px 0 3px', letterSpacing: -0.3 }}>
+      <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 21, fontWeight: 400, margin: '16px 0 6px', letterSpacing: -0.4 }}>
         {theme.name}
       </h3>
-      <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 13.5, lineHeight: 1.4, color: 'var(--ink-dim)', fontWeight: 300, margin: '0 0 12px', minHeight: 36 }}>
-        {theme.tagline}
+      <p style={{ fontFamily: 'var(--font-body)', fontSize: 13.5, lineHeight: 1.6, color: 'var(--ink-dim)', fontWeight: 300, margin: '0 0 14px' }}>
+        {theme.blurb}
       </p>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9.5, letterSpacing: 1.3, color: theme.free ? 'var(--accent-2)' : 'var(--ink-faint)' }}>
           {theme.free ? 'INCLUDED FREE' : 'PRICE TBD'}
         </span>
         {!theme.free && (
-          <a href="#notify" style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 12.5, color: 'var(--accent)', textDecoration: 'none' }}>
+          <a href="#notify" style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 13, color: 'var(--accent)', textDecoration: 'none' }}>
             Join the list →
           </a>
         )}
@@ -136,9 +137,9 @@ export default function GroundControlThemesPage() {
           <div style={{ height: 2, width: 28, background: 'var(--accent)', opacity: 0.7, marginBottom: 20 }} />
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2.5, color: 'var(--accent)' }}>◈ THE CHARACTERS</span>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: 26, margin: '14px 0 40px', letterSpacing: -0.5, maxWidth: 600 }}>
-            <span style={{ fontStyle: 'italic' }}>One free, more on the way. Every one shown running, not posed.</span>
+            <span style={{ fontStyle: 'italic' }}>One free, more on the way.</span>
           </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '36px 28px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '48px 32px' }}>
             {THEMES.map((t) => (
               <ThemeCard key={t.slug} theme={t} />
             ))}
