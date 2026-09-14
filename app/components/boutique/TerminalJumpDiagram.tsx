@@ -12,9 +12,11 @@ import { useEffect, useState } from 'react';
  * site's video demos follow.
  */
 
+const NEEDS_YOU = '#ff2d55';
+
 const SESSIONS = [
   { label: 'Terminal 1', line: 'Bash: run full test suite', space: 1 },
-  { label: 'Terminal 2', line: 'Timer set, Master.', space: 1 },
+  { label: 'Terminal 2', line: 'Needs your approval', space: 1, needsYou: true },
   { label: 'Terminal 5', line: 'Recolor all 241 master frames', space: 2 },
 ];
 
@@ -104,6 +106,8 @@ export default function TerminalJumpDiagram() {
         {/* scattered terminal windows */}
         {TERMINALS.map((t, i) => {
           const isActive = i === active;
+          const needsYou = SESSIONS[i].needsYou;
+          const flagColor = needsYou ? NEEDS_YOU : 'var(--accent)';
           return (
             <div
               key={i}
@@ -115,8 +119,12 @@ export default function TerminalJumpDiagram() {
                 borderRadius: 10,
                 overflow: 'hidden',
                 background: '#08090b',
-                border: `1px solid ${isActive ? 'var(--accent)' : 'var(--line)'}`,
-                boxShadow: isActive ? '0 12px 40px rgba(232,168,124,0.22)' : '0 8px 24px rgba(0,0,0,0.4)',
+                border: `1px solid ${isActive ? flagColor : needsYou ? 'rgba(255,45,85,0.4)' : 'var(--line)'}`,
+                boxShadow: isActive
+                  ? `0 12px 40px ${needsYou ? 'rgba(255,45,85,0.28)' : 'rgba(232,168,124,0.22)'}`
+                  : needsYou
+                  ? '0 0 22px rgba(255,45,85,0.14)'
+                  : '0 8px 24px rgba(0,0,0,0.4)',
                 transform: `rotate(${t.rot}deg) scale(${isActive ? 1.06 : 1})`,
                 opacity: isActive ? 1 : 0.5,
                 zIndex: isActive ? 2 : 1,
@@ -132,10 +140,13 @@ export default function TerminalJumpDiagram() {
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: 7.5, letterSpacing: 1, color: 'var(--ink-faint)' }}>CLI</span>
               </div>
               <div style={{ padding: '10px 12px' }}>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: isActive ? 'var(--ink)' : 'var(--ink-faint)', marginBottom: 6 }}>
-                  {SESSIONS[i].label}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                  {needsYou && <div style={{ width: 5, height: 5, borderRadius: '50%', background: NEEDS_YOU, flexShrink: 0 }} />}
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: isActive ? 'var(--ink)' : 'var(--ink-faint)' }}>
+                    {SESSIONS[i].label}
+                  </span>
                 </div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-faint)', lineHeight: 1.6 }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: needsYou ? 'rgba(255,45,85,0.75)' : 'var(--ink-faint)', lineHeight: 1.6 }}>
                   {SESSIONS[i].line}
                 </div>
               </div>
@@ -163,20 +174,21 @@ export default function TerminalJumpDiagram() {
           </div>
           {SESSIONS.map((s, i) => {
             const isActive = i === active;
+            const dotColor = s.needsYou ? NEEDS_YOU : isActive ? 'var(--accent)' : 'var(--ink-faint)';
             return (
               <div
                 key={i}
                 style={{
                   padding: '9px 14px',
                   borderBottom: i < SESSIONS.length - 1 ? '1px solid var(--line)' : 'none',
-                  background: isActive ? 'rgba(232,168,124,0.08)' : 'transparent',
+                  background: isActive ? 'rgba(232,168,124,0.08)' : s.needsYou ? 'rgba(255,45,85,0.06)' : 'transparent',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 8,
                   transition: 'background 0.5s ease',
                 }}
               >
-                <div style={{ width: 6, height: 6, borderRadius: '50%', background: isActive ? 'var(--accent)' : 'var(--ink-faint)', flexShrink: 0 }} />
+                <div style={{ width: 6, height: 6, borderRadius: '50%', background: dotColor, flexShrink: 0 }} />
                 <div style={{ minWidth: 0 }}>
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: isActive ? 'var(--ink)' : 'var(--ink-dim)' }}>
                     {s.label}
