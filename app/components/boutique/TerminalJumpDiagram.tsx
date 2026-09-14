@@ -4,12 +4,14 @@ import { useEffect, useState } from 'react';
 
 /**
  * The problem, before the app: terminals scattered across more than one
- * macOS Space, and Ground Control pinned at the right, on every Space,
- * finding whichever one you're after. Cycles which terminal is "active" —
- * two live in Space 1, one lives in Space 2 — so the point (any row, any
- * window, any Space, one tap) reads without a real screen recording.
- * Freezes on the first frame for prefers-reduced-motion, same rule the
- * site's video demos follow.
+ * macOS Desktop (Mission Control's on-screen label for a Space — the
+ * feature is "Spaces," but "Desktop 1/2" is what you actually see when
+ * you swipe up), and Ground Control pinned at the right, on every one of
+ * them, finding whichever terminal you're after. Cycles which terminal is
+ * "active" — two live on Desktop 1, one lives on Desktop 2 — so the point
+ * (any row, any window, any Desktop, one tap) reads without a real screen
+ * recording. Freezes on the first frame for prefers-reduced-motion, same
+ * rule the site's video demos follow.
  */
 
 const NEEDS_YOU = '#ff2d55';
@@ -83,7 +85,7 @@ export default function TerminalJumpDiagram() {
                 transition: 'color 0.5s ease',
               }}
             >
-              SPACE {n}
+              DESKTOP {n}
             </span>
           </div>
         ))}
@@ -202,14 +204,14 @@ export default function TerminalJumpDiagram() {
                     {s.label}
                   </div>
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, letterSpacing: 0.5, color: 'var(--ink-faint)', marginTop: 1 }}>
-                    SPACE {s.space}
+                    DESKTOP {s.space}
                   </div>
                 </div>
               </div>
             );
           })}
           <div style={{ padding: '10px 14px', fontFamily: 'var(--font-mono)', fontSize: 8, letterSpacing: 1.2, color: 'var(--ink-faint)', textAlign: 'center' }}>
-            ON EVERY SPACE
+            ON EVERY DESKTOP
           </div>
         </div>
       </div>
