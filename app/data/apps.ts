@@ -14,6 +14,10 @@ export interface App {
   videoFrame?: 'desktop';
   videoCaption?: string;
   videoSecondary?: { src: string; alt: string; caption: string };
+  // Runs above the hero — the problem before the product. Currently only a
+  // scattered-terminals diagram (TerminalJumpDiagram); kept generic in case
+  // another app wants a different "before" diagram later.
+  useCase?: { kicker: string; body: string; diagram: 'terminal-jump' };
   legacyVideoUrl?: string;
   screenshot?: string;
   description?: string;
@@ -187,6 +191,11 @@ export const APPS: App[] = [
       src: '/gc-jump-clean.mp4',
       alt: 'Hovering a row shows Jump; clicking brings the terminal to the front',
       caption: 'Tap a row, land on its terminal',
+    },
+    useCase: {
+      kicker: 'The desktop this is actually for',
+      body: 'A handful of terminals, each running something, scattered across your screen. Ground Control is the one panel that knows where all of them are — tap a row, and that is the window you land on.',
+      diagram: 'terminal-jump',
     },
     heroQuote: 'I waste time checking if my Session or Agent is done or waiting for me',
     status: 'In private alpha · coming soon to macOS',

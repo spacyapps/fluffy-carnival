@@ -16,6 +16,7 @@ import ScaleWrapper from '../../components/boutique/ScaleWrapper';
 import DeadGapSVG from '../../components/boutique/DeadGapSVG';
 import PanelOpenSVG from '../../components/boutique/PanelOpenSVG';
 import AutoVideo from '../../components/boutique/AutoVideo';
+import TerminalJumpDiagram from '../../components/boutique/TerminalJumpDiagram';
 import ReportTreeSVG from '../../components/boutique/ReportTreeSVG';
 import SameYesSVG from '../../components/boutique/SameYesSVG';
 
@@ -253,6 +254,19 @@ export default async function AppPage({
             №{app.slug.toUpperCase()}
           </span>
         </div>
+
+        {/* The problem, before the product */}
+        {app.useCase && (
+          <div style={{ marginBottom: 88, textAlign: 'center' }}>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--accent)', letterSpacing: 3 }}>
+              {`◈ ${app.useCase.kicker.toUpperCase()}`}
+            </span>
+            <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 19, lineHeight: 1.5, color: 'var(--ink)', fontWeight: 300, margin: '18px auto 40px', maxWidth: 640 }}>
+              {app.useCase.body}
+            </p>
+            {app.useCase.diagram === 'terminal-jump' && <TerminalJumpDiagram />}
+          </div>
+        )}
 
         {/* Hero grid */}
         <div
