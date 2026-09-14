@@ -13,11 +13,12 @@ import { useEffect, useState } from 'react';
  */
 
 const NEEDS_YOU = '#ff2d55';
+const DONE = '#30d158';
 
 const SESSIONS = [
-  { label: 'Terminal 1', line: 'Bash: run full test suite', space: 1 },
+  { label: 'Terminal 1', line: 'Bash: run full test suite', space: 1, done: true },
   { label: 'Terminal 2', line: 'Needs your approval', space: 1, needsYou: true },
-  { label: 'Terminal 5', line: 'Recolor all 241 master frames', space: 2 },
+  { label: 'Terminal 5', line: 'Recolor all 241 master frames', space: 2, done: true },
 ];
 
 const TERMINALS = [
@@ -174,14 +175,21 @@ export default function TerminalJumpDiagram() {
           </div>
           {SESSIONS.map((s, i) => {
             const isActive = i === active;
-            const dotColor = s.needsYou ? NEEDS_YOU : isActive ? 'var(--accent)' : 'var(--ink-faint)';
+            const dotColor = s.needsYou ? NEEDS_YOU : s.done ? DONE : isActive ? 'var(--accent)' : 'var(--ink-faint)';
+            const rowTint = isActive
+              ? 'rgba(232,168,124,0.08)'
+              : s.needsYou
+              ? 'rgba(255,45,85,0.06)'
+              : s.done
+              ? 'rgba(48,209,88,0.05)'
+              : 'transparent';
             return (
               <div
                 key={i}
                 style={{
                   padding: '9px 14px',
                   borderBottom: i < SESSIONS.length - 1 ? '1px solid var(--line)' : 'none',
-                  background: isActive ? 'rgba(232,168,124,0.08)' : s.needsYou ? 'rgba(255,45,85,0.06)' : 'transparent',
+                  background: rowTint,
                   display: 'flex',
                   alignItems: 'center',
                   gap: 8,
