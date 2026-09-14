@@ -194,7 +194,7 @@ export const APPS: App[] = [
     },
     useCase: {
       kicker: 'The desktop this is actually for',
-      body: 'A handful of terminals, each running something, scattered across your screen. Ground Control is the one panel that knows where all of them are — tap a row, and that is the window you land on.',
+      body: 'A handful of terminals, each running something, scattered across more than one Space. Ground Control sits at the right on every one of them — tap a row, and macOS jumps you straight to that window, wherever it lives.',
       diagram: 'terminal-jump',
     },
     heroQuote: 'I waste time checking if my Session or Agent is done or waiting for me',

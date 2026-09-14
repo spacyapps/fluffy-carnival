@@ -3,37 +3,38 @@
 import { useEffect, useState } from 'react';
 
 /**
- * The problem, before the app: a desktop full of scattered terminal
- * windows, and Ground Control as the one panel that finds whichever one
- * you're after. Cycles through which terminal is "active" so the point —
- * any row, any window, one tap — reads without a real screen recording.
+ * The problem, before the app: terminals scattered across more than one
+ * macOS Space, and Ground Control pinned at the right, on every Space,
+ * finding whichever one you're after. Cycles which terminal is "active" —
+ * two live in Space 1, one lives in Space 2 — so the point (any row, any
+ * window, any Space, one tap) reads without a real screen recording.
  * Freezes on the first frame for prefers-reduced-motion, same rule the
  * site's video demos follow.
  */
 
 const SESSIONS = [
-  { name: 'avaterm', line: 'Bash: run full test suite' },
-  { name: 'secretstuff', line: 'Timer set, Master.' },
-  { name: 'GCThemes', line: 'Recolor all 241 master frames' },
-  { name: 'spacyapps', line: 'Done — the three columns now run' },
+  { label: 'Terminal 1', line: 'Bash: run full test suite', space: 1 },
+  { label: 'Terminal 2', line: 'Timer set, Master.', space: 1 },
+  { label: 'Terminal 5', line: 'Recolor all 241 master frames', space: 2 },
 ];
 
-// Scattered desktop positions — deliberately irregular, deliberately overlapping.
 const TERMINALS = [
-  { top: 8, left: 0, rot: -4, target: { x: 190, y: 63 } },
-  { top: 146, left: 42, rot: 3, target: { x: 232, y: 201 } },
-  { top: 16, left: 252, rot: 2, target: { x: 442, y: 71 } },
-  { top: 176, left: 302, rot: -3, target: { x: 492, y: 231 } },
+  { top: 56, left: 16, rot: -4, target: { x: 186, y: 106 } },
+  { top: 166, left: 166, rot: 3, target: { x: 336, y: 216 } },
+  { top: 108, left: 496, rot: -2, target: { x: 666, y: 158 } },
 ];
 
-const ROW_Y = [80, 140, 200, 260];
-const PANEL_X = 600;
+const SPACE1 = { x: 0, y: 30, w: 380, h: 254 };
+const SPACE2 = { x: 400, y: 30, w: 380, h: 254 };
+const PANEL_X = 820;
+const PANEL_W = 160;
+const ROW_Y = [66, 130, 194];
 
 function connectorPath(i: number) {
   const y0 = ROW_Y[i];
   const { x: x1, y: y1 } = TERMINALS[i].target;
-  const midX = PANEL_X - (PANEL_X - x1) * 0.35;
-  return `M ${PANEL_X},${y0} C ${midX},${y0} ${midX - 40},${y1} ${x1},${y1}`;
+  const midX = PANEL_X - (PANEL_X - x1) * 0.32;
+  return `M ${PANEL_X},${y0} C ${midX},${y0} ${midX - 50},${y1} ${x1},${y1}`;
 }
 
 export default function TerminalJumpDiagram() {
@@ -54,12 +55,36 @@ export default function TerminalJumpDiagram() {
     return () => clearInterval(id);
   }, [reducedMotion]);
 
+  const activeSpace = SESSIONS[active].space;
+
   return (
     <div style={{ display: 'flex', justifyContent: 'center' }}>
-      <div style={{ position: 'relative', width: 860, height: 320 }}>
+      <div style={{ position: 'relative', width: 980, height: 320 }}>
 
-        {/* connecting line, drawn under everything else */}
-        <svg width={860} height={320} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+        {/* Space backdrops */}
+        {[{ n: 1, r: SPACE1 }, { n: 2, r: SPACE2 }].map(({ n, r }) => (
+          <div key={n} style={{ position: 'absolute', top: r.y, left: r.x, width: r.w, height: r.h, border: '1px dashed rgba(236,230,214,0.10)', borderRadius: 14 }}>
+            <span
+              style={{
+                position: 'absolute',
+                top: -30,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                fontFamily: 'var(--font-mono)',
+                fontSize: 10,
+                letterSpacing: 2,
+                color: activeSpace === n ? 'var(--accent)' : 'var(--ink-faint)',
+                whiteSpace: 'nowrap',
+                transition: 'color 0.5s ease',
+              }}
+            >
+              SPACE {n}
+            </span>
+          </div>
+        ))}
+
+        {/* connecting line, drawn under the windows */}
+        <svg width={980} height={320} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
           {SESSIONS.map((_, i) => (
             <path
               key={i}
@@ -84,7 +109,7 @@ export default function TerminalJumpDiagram() {
                 position: 'absolute',
                 top: t.top,
                 left: t.left,
-                width: 200,
+                width: 190,
                 borderRadius: 10,
                 overflow: 'hidden',
                 background: '#08090b',
@@ -96,14 +121,17 @@ export default function TerminalJumpDiagram() {
                 transition: 'all 0.5s ease',
               }}
             >
-              <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--line)', display: 'flex', gap: 5 }}>
-                {[0, 1, 2].map((d) => (
-                  <div key={d} style={{ width: 7, height: 7, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
-                ))}
+              <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--line)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', gap: 5 }}>
+                  {[0, 1, 2].map((d) => (
+                    <div key={d} style={{ width: 7, height: 7, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+                  ))}
+                </div>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 7.5, letterSpacing: 1, color: 'var(--ink-faint)' }}>CLI</span>
               </div>
               <div style={{ padding: '10px 12px' }}>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: isActive ? 'var(--ink)' : 'var(--ink-faint)', marginBottom: 6 }}>
-                  {SESSIONS[i].name}
+                  {SESSIONS[i].label}
                 </div>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-faint)', lineHeight: 1.6 }}>
                   {SESSIONS[i].line}
@@ -113,13 +141,13 @@ export default function TerminalJumpDiagram() {
           );
         })}
 
-        {/* the panel */}
+        {/* the panel — pinned at the right, taller than either Space, on top of both */}
         <div
           style={{
             position: 'absolute',
             top: 0,
-            left: PANEL_X - 260,
-            width: 260,
+            left: PANEL_X,
+            width: PANEL_W,
             borderRadius: 12,
             overflow: 'hidden',
             background: '#0b0c10',
@@ -128,7 +156,7 @@ export default function TerminalJumpDiagram() {
             zIndex: 3,
           }}
         >
-          <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--line)', fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>
+          <div style={{ padding: '12px 14px', borderBottom: '1px solid var(--line)', fontFamily: 'var(--font-body)', fontSize: 11.5, fontWeight: 600, color: 'var(--ink)' }}>
             Ground Control
           </div>
           {SESSIONS.map((s, i) => {
@@ -137,24 +165,30 @@ export default function TerminalJumpDiagram() {
               <div
                 key={i}
                 style={{
-                  padding: '10px 16px',
+                  padding: '9px 14px',
                   borderBottom: i < SESSIONS.length - 1 ? '1px solid var(--line)' : 'none',
                   background: isActive ? 'rgba(232,168,124,0.08)' : 'transparent',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 10,
+                  gap: 8,
                   transition: 'background 0.5s ease',
                 }}
               >
                 <div style={{ width: 6, height: 6, borderRadius: '50%', background: isActive ? 'var(--accent)' : 'var(--ink-faint)', flexShrink: 0 }} />
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10.5, color: isActive ? 'var(--ink)' : 'var(--ink-dim)' }}>
-                    {s.name}
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: isActive ? 'var(--ink)' : 'var(--ink-dim)' }}>
+                    {s.label}
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 8, letterSpacing: 0.5, color: 'var(--ink-faint)', marginTop: 1 }}>
+                    SPACE {s.space}
                   </div>
                 </div>
               </div>
             );
           })}
+          <div style={{ padding: '10px 14px', fontFamily: 'var(--font-mono)', fontSize: 8, letterSpacing: 1.2, color: 'var(--ink-faint)', textAlign: 'center' }}>
+            ON EVERY SPACE
+          </div>
         </div>
       </div>
     </div>
