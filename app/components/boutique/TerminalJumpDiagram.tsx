@@ -26,18 +26,18 @@ const SESSIONS = [
 const TERMINALS = [
   { top: 56, left: 14, rot: -4, w: 170, target: { x: 184, y: 103 } },
   { top: 118, left: 110, rot: 3, w: 170, target: { x: 280, y: 165 } },
-  { top: 96, left: 340, rot: -2, w: 180, target: { x: 520, y: 146 } },
+  { top: 96, left: 390, rot: -2, w: 180, target: { x: 570, y: 146 } },
 ];
 
 // Sits over Terminal 1 by default, like any other app window would.
 // Tapping Terminal 1's row is what actually brings it to the front.
 const MAIL = { top: 34, left: 66, rot: 2, w: 150 };
 
-// Space 2 only ever holds one terminal, so it gets a smaller box —
-// no reason to give an empty Space the same footprint as a busy one.
+// Same width on purpose — a busy Desktop and a quiet one still read as
+// two equal desktops, not a big one and a leftover sliver.
 const SPACE1 = { x: 0, y: 34, w: 300, h: 186 };
-const SPACE2 = { x: 320, y: 34, w: 220, h: 186 };
-const PANEL_X = 570;
+const SPACE2 = { x: 320, y: 34, w: 300, h: 186 };
+const PANEL_X = 650;
 const PANEL_W = 150;
 const ROW_Y = [59, 111, 163];
 
@@ -70,7 +70,7 @@ export default function TerminalJumpDiagram() {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center' }}>
-      <div style={{ position: 'relative', width: 720, height: 230 }}>
+      <div style={{ position: 'relative', width: 800, height: 230 }}>
 
         {/* Space backdrops */}
         {[{ n: 1, r: SPACE1 }, { n: 2, r: SPACE2 }].map(({ n, r }) => (
@@ -95,7 +95,7 @@ export default function TerminalJumpDiagram() {
         ))}
 
         {/* connecting line, drawn under the windows */}
-        <svg width={720} height={230} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+        <svg width={800} height={230} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
           {SESSIONS.map((_, i) => (
             <path
               key={i}
