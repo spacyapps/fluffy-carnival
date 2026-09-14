@@ -194,7 +194,7 @@ export const APPS: App[] = [
     },
     useCase: {
       kicker: 'The desktop this is actually for',
-      body: 'A handful of terminals, each running something, scattered across more than one Space. Ground Control sits at the right on every one of them — tap a row, and macOS jumps you straight to that window, wherever it lives.',
+      body: 'A handful of terminals, each running something, scattered across more than one Space. Ground Control sits on top of your desktop — see an update, tap a row, jump to that agent.',
       diagram: 'terminal-jump',
     },
     heroQuote: 'I waste time checking if my Session or Agent is done or waiting for me',
