@@ -255,14 +255,9 @@ export const APPS: App[] = [
     },
     challenges: {
       kicker: 'What changed',
-      heading: 'Why the notifications were never going to be enough',
-      body: 'Eight terminal sessions open on a good day, often more, not all running the same agent. System notifications helped a little, then stopped.',
-      points: [
-        'They tell you something happened — not which of eight sessions it was, or what it wants',
-        'Arrive together and they stop being information — they become a stack you clear',
-      ],
-      closing: 'Underneath that is what AI actually changed about the work — not more output, but a loop: input, review, input, review. Every agent provider is chasing you with its own remote approval, its own multi-device relay. Ground Control does the opposite: it optimizes the desk you are already sitting at.',
-      pull: 'The bottleneck moved to the reviewer.\nThe reviewer is you, and you are in a meeting.',
+      heading: 'You miss notifications.',
+      body: 'Every agent provider is racing to build its own remote control, its own multi-device relay.',
+      pull: 'Ground Control does something narrower: it optimizes the one Mac you are already sitting at.',
     },
     themes: {
       heading: 'Fun is a feature',
