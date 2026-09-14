@@ -19,16 +19,18 @@ const SESSIONS = [
 ];
 
 const TERMINALS = [
-  { top: 56, left: 16, rot: -4, target: { x: 186, y: 106 } },
-  { top: 166, left: 166, rot: 3, target: { x: 336, y: 216 } },
-  { top: 108, left: 496, rot: -2, target: { x: 666, y: 158 } },
+  { top: 56, left: 14, rot: -4, w: 170, target: { x: 184, y: 103 } },
+  { top: 118, left: 110, rot: 3, w: 170, target: { x: 280, y: 165 } },
+  { top: 96, left: 340, rot: -2, w: 180, target: { x: 520, y: 146 } },
 ];
 
-const SPACE1 = { x: 0, y: 30, w: 380, h: 254 };
-const SPACE2 = { x: 400, y: 30, w: 380, h: 254 };
-const PANEL_X = 820;
-const PANEL_W = 160;
-const ROW_Y = [66, 130, 194];
+// Space 2 only ever holds one terminal, so it gets a smaller box —
+// no reason to give an empty Space the same footprint as a busy one.
+const SPACE1 = { x: 0, y: 34, w: 300, h: 186 };
+const SPACE2 = { x: 320, y: 34, w: 220, h: 186 };
+const PANEL_X = 570;
+const PANEL_W = 150;
+const ROW_Y = [59, 111, 163];
 
 function connectorPath(i: number) {
   const y0 = ROW_Y[i];
@@ -59,7 +61,7 @@ export default function TerminalJumpDiagram() {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center' }}>
-      <div style={{ position: 'relative', width: 980, height: 320 }}>
+      <div style={{ position: 'relative', width: 720, height: 230 }}>
 
         {/* Space backdrops */}
         {[{ n: 1, r: SPACE1 }, { n: 2, r: SPACE2 }].map(({ n, r }) => (
@@ -84,7 +86,7 @@ export default function TerminalJumpDiagram() {
         ))}
 
         {/* connecting line, drawn under the windows */}
-        <svg width={980} height={320} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+        <svg width={720} height={230} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
           {SESSIONS.map((_, i) => (
             <path
               key={i}
@@ -109,7 +111,7 @@ export default function TerminalJumpDiagram() {
                 position: 'absolute',
                 top: t.top,
                 left: t.left,
-                width: 190,
+                width: t.w,
                 borderRadius: 10,
                 overflow: 'hidden',
                 background: '#08090b',
