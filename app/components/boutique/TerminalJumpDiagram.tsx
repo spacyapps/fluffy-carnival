@@ -29,6 +29,10 @@ const TERMINALS = [
   { top: 96, left: 340, rot: -2, w: 180, target: { x: 520, y: 146 } },
 ];
 
+// Sits over Terminal 1 by default, like any other app window would.
+// Tapping Terminal 1's row is what actually brings it to the front.
+const MAIL = { top: 34, left: 66, rot: 2, w: 150 };
+
 // Space 2 only ever holds one terminal, so it gets a smaller box —
 // no reason to give an empty Space the same footprint as a busy one.
 const SPACE1 = { x: 0, y: 34, w: 300, h: 186 };
@@ -106,6 +110,38 @@ export default function TerminalJumpDiagram() {
           ))}
         </svg>
 
+        {/* a Mail window sitting over Terminal 1, same as any other app would */}
+        <div
+          style={{
+            position: 'absolute',
+            top: MAIL.top,
+            left: MAIL.left,
+            width: MAIL.w,
+            borderRadius: 10,
+            overflow: 'hidden',
+            background: '#0d0e12',
+            border: '1px solid var(--line)',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.45)',
+            transform: `rotate(${MAIL.rot}deg) scale(${active === 0 ? 0.97 : 1})`,
+            opacity: active === 0 ? 0.4 : 0.75,
+            zIndex: 2,
+            transition: 'all 0.5s ease',
+          }}
+        >
+          <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--line)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', gap: 5 }}>
+              {[0, 1, 2].map((d) => (
+                <div key={d} style={{ width: 7, height: 7, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+              ))}
+            </div>
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 7.5, letterSpacing: 1, color: 'var(--ink-faint)' }}>MAIL</span>
+          </div>
+          <div style={{ padding: '10px 12px' }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-faint)', marginBottom: 6 }}>Inbox (3)</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--ink-faint)', lineHeight: 1.6 }}>Re: Deploy checklist</div>
+          </div>
+        </div>
+
         {/* scattered terminal windows */}
         {TERMINALS.map((t, i) => {
           const isActive = i === active;
@@ -130,7 +166,7 @@ export default function TerminalJumpDiagram() {
                   : '0 8px 24px rgba(0,0,0,0.4)',
                 transform: `rotate(${t.rot}deg) scale(${isActive ? 1.06 : 1})`,
                 opacity: isActive ? 1 : 0.5,
-                zIndex: isActive ? 2 : 1,
+                zIndex: isActive ? 3 : 1,
                 transition: 'all 0.5s ease',
               }}
             >
@@ -169,7 +205,7 @@ export default function TerminalJumpDiagram() {
             background: '#0b0c10',
             border: '1px solid var(--line)',
             boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
-            zIndex: 3,
+            zIndex: 5,
           }}
         >
           <div style={{ padding: '12px 14px', borderBottom: '1px solid var(--line)', fontFamily: 'var(--font-body)', fontSize: 11.5, fontWeight: 600, color: 'var(--ink)' }}>
