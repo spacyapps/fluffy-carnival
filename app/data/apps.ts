@@ -257,7 +257,11 @@ export const APPS: App[] = [
       kicker: 'What changed',
       heading: 'You miss notifications.',
       body: 'Every agent provider is racing to build its own remote control, its own multi-device relay.',
-      pull: 'Ground Control does something narrower: it optimizes the one Mac you are already sitting at.',
+      points: [
+        'The bottleneck moved to the reviewer.',
+        'The reviewer is you, and you are in a meeting.',
+      ],
+      pull: 'Ground Control optimizes the one Mac you are already sitting at.',
     },
     themes: {
       heading: 'Fun is a feature',
