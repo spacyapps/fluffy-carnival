@@ -1260,6 +1260,25 @@ export default async function AppPage({
             }}>
               {app.themeTool.pull}
             </p>
+            {app.themes?.browseUrl && (
+              <div style={{ textAlign: 'center', marginTop: 44 }}>
+                <Link
+                  href={app.themes.browseUrl}
+                  style={{
+                    display: 'inline-block',
+                    fontFamily: 'var(--font-serif)',
+                    fontStyle: 'italic',
+                    fontSize: 22,
+                    color: 'var(--accent)',
+                    textDecoration: 'none',
+                    borderBottom: '1px solid rgba(232,168,124,0.35)',
+                    paddingBottom: 4,
+                  }}
+                >
+                  Browse the themes →
+                </Link>
+              </div>
+            )}
           </div>
         )}
 
