@@ -41,6 +41,10 @@ export interface App {
   }[];
   noPage?: boolean;
   cta?: string;
+  // A second, smaller link on the home-page card — e.g. straight to a
+  // storefront — so visitors don't have to open the briefing first just to
+  // find it.
+  secondaryCta?: { href: string; label: string };
   companion?: {
     name: string;
     cardLabel: string;
@@ -184,6 +188,7 @@ export const APPS: App[] = [
     platform: 'Mac',
     version: '—',
     tagline: 'Mission control for every agent you\'re running. AND jump directly to it!',
+    secondaryCta: { href: '/apps/ground-control/themes', label: 'Browse themes →' },
     icon: '/icon-ground-control.png',
     videoUrl: '/ground-control-preview.mp4',
     videoFrame: 'desktop',

@@ -194,12 +194,35 @@ export default function Home() {
                     ↳ <span style={{ color: 'var(--accent)' }}>{app.companion.name}</span> · {app.companion.cardLabel}
                   </div>
                 )}
-                <div style={{ paddingTop: 16, borderTop: '1px solid var(--line)', fontSize: 13, fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: app.noPage ? 'var(--ink-faint)' : 'var(--accent)' }}>
-                  {app.noPage ? 'In development...' : (app.cta ?? 'Open the briefing →')}
+                <div style={{ paddingTop: 16, borderTop: '1px solid var(--line)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                  <span style={{ fontSize: 13, fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: app.noPage ? 'var(--ink-faint)' : 'var(--accent)' }}>
+                    {app.noPage ? 'In development...' : (app.cta ?? 'Open the briefing →')}
+                  </span>
+                  {app.secondaryCta && (
+                    <Link
+                      href={app.secondaryCta.href}
+                      style={{ position: 'relative', zIndex: 1, fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--ink-faint)', textDecoration: 'none' }}
+                    >
+                      {app.secondaryCta.label}
+                    </Link>
+                  )}
                 </div>
+                {/* Full-card click target for the briefing, kept beneath secondaryCta so that link stays clickable on its own. */}
+                {app.secondaryCta && !app.noPage && (
+                  <Link
+                    href={`/apps/${app.slug}`}
+                    aria-label={`Open the ${app.name} briefing`}
+                    style={{ position: 'absolute', inset: 0, zIndex: 0 }}
+                  />
+                )}
               </div>
             );
-            return app.noPage ? (
+            if (app.noPage) {
+              return <div key={app.slug}>{cardInner}</div>;
+            }
+            // Cards with a secondaryCta lay their own full-card link inside
+            // cardInner instead (see above) — two <a> tags can't nest.
+            return app.secondaryCta ? (
               <div key={app.slug}>{cardInner}</div>
             ) : (
               <Link key={app.slug} href={`/apps/${app.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
