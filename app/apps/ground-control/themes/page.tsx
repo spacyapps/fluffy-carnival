@@ -1,14 +1,9 @@
 import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import Stars from '../../../components/boutique/Stars';
 import Logotype from '../../../components/boutique/Logotype';
 import BigPlanet from '../../../components/boutique/BigPlanet';
 import ThemeCard from '../../../components/boutique/ThemeCard';
-
-// Lazy-loaded: while every product is "Coming Soon", nothing ever imports
-// Polar's checkout script — not just doesn't run it, doesn't fetch it.
-const PolarInit = dynamic(() => import('../../../components/boutique/PolarInit'));
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -26,9 +21,9 @@ export const metadata: Metadata = {
 // so a page-side USD figure would just be a second number to keep in sync.
 const PRICE_CAD = '11.99';
 
-// Polar embedded-checkout links — one entry per theme. Polar shows the
-// buyer their own currency at checkout; the prices above are for display
-// only.
+// Polar checkout links — one entry per theme, each opening Polar's hosted
+// checkout page in a new tab. Polar shows the buyer their own currency at
+// checkout; the prices above are for display only.
 //
 // null = not selling yet: the card shows "Coming Soon" instead of a buy
 // button, and nothing is clickable. Filling in a URL here is the only
@@ -43,8 +38,6 @@ const CHECKOUT_LINKS: Record<string, string | null> = {
   skybird: null,
   'unicorn-overlord': 'https://buy.polar.sh/polar_cl_1K6xJ61qT0K54G3YV2BXbVBG78mLQ2Xq76YCr2zIxvm',
 };
-
-const hasAnyLiveLink = Object.values(CHECKOUT_LINKS).some(Boolean);
 
 type Theme = {
   slug: string;
@@ -120,7 +113,6 @@ export default function GroundControlThemesPage() {
   return (
     <div style={{ width: '100%', background: 'var(--bg)', color: 'var(--ink)', fontFamily: 'var(--font-body)', position: 'relative' }}>
       <Stars density={50} />
-      {hasAnyLiveLink && <PolarInit />}
       <div style={{ position: 'relative', padding: '28px 56px 100px', maxWidth: 1240, margin: '0 auto' }}>
 
         {/* Header */}
