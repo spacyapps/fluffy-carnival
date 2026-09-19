@@ -188,7 +188,7 @@ export const APPS: App[] = [
     platform: 'Mac',
     version: '—',
     tagline: 'Mission control for every agent you\'re running. AND jump directly to it!',
-    secondaryCta: { href: '/apps/ground-control/themes', label: 'Enhance your GC with more themes →' },
+    secondaryCta: { href: '/apps/ground-control/themes', label: 'Shop themes — from $11.99 →' },
     icon: '/icon-ground-control.png',
     videoUrl: '/ground-control-preview.mp4',
     videoFrame: 'desktop',
