@@ -33,7 +33,7 @@ const PRICE_CAD = '11.99';
 // elsewhere for this map.
 const CHECKOUT_LINKS: Record<string, string | null> = {
   aquarium: 'https://buy.polar.sh/polar_cl_osx1uLqtBRsEj2jDts3PjueqWErw4U3Ywl7b82EWJWH',
-  'gopher-garden': null,
+  'gopher-garden': 'https://buy.polar.sh/polar_cl_KJQRfZtZdi7yNuYk2oMksqpTLunDt0xBVv6VT0qLFur',
   'gopher-golf': null,
   skybird: null,
   'unicorn-overlord': 'https://buy.polar.sh/polar_cl_1K6xJ61qT0K54G3YV2BXbVBG78mLQ2Xq76YCr2zIxvm',
