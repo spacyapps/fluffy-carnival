@@ -1,5 +1,6 @@
 const PHRASES = [
   'Secret Stuff',
+  'Ground Control',
   'Checkpoint',
   'Sole Space Adventurer',
   'Made in Space?',
