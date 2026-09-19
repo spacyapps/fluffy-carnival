@@ -41,7 +41,7 @@ const CHECKOUT_LINKS: Record<string, string | null> = {
   'gopher-garden': null,
   'gopher-golf': null,
   skybird: null,
-  'unicorn-overlord': null,
+  'unicorn-overlord': 'https://buy.polar.sh/polar_cl_1K6xJ61qT0K54G3YV2BXbVBG78mLQ2Xq76YCr2zIxvm',
 };
 
 const hasAnyLiveLink = Object.values(CHECKOUT_LINKS).some(Boolean);
