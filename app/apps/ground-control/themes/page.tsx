@@ -35,7 +35,7 @@ const CHECKOUT_LINKS: Record<string, string | null> = {
   aquarium: 'https://buy.polar.sh/polar_cl_osx1uLqtBRsEj2jDts3PjueqWErw4U3Ywl7b82EWJWH',
   'gopher-garden': 'https://buy.polar.sh/polar_cl_KJQRfZtZdi7yNuYk2oMksqpTLunDt0xBVv6VT0qLFur',
   'gopher-golf': 'https://buy.polar.sh/polar_cl_5CmP49s9MPvXKJNwAEgHPMATYclXTtfgHqCXL0wFg0x',
-  skybird: null,
+  skybird: 'https://buy.polar.sh/polar_cl_U0jDrzgGQgOIbjYf28wtG0YTBcc5zzhetZHzB0Qs9l9',
   'unicorn-overlord': 'https://buy.polar.sh/polar_cl_1K6xJ61qT0K54G3YV2BXbVBG78mLQ2Xq76YCr2zIxvm',
 };
 
