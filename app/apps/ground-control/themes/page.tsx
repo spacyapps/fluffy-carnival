@@ -32,7 +32,7 @@ const PRICE_CAD = '11.99';
 // attribute which channel actually sells, so don't reuse a link from
 // elsewhere for this map.
 const CHECKOUT_LINKS: Record<string, string | null> = {
-  aquarium: null,
+  aquarium: 'https://buy.polar.sh/polar_cl_osx1uLqtBRsEj2jDts3PjueqWErw4U3Ywl7b82EWJWH',
   'gopher-garden': null,
   'gopher-golf': null,
   skybird: null,
