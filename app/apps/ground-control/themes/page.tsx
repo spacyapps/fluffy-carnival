@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import Stars from '../../../components/boutique/Stars';
 import Logotype from '../../../components/boutique/Logotype';
 import BigPlanet from '../../../components/boutique/BigPlanet';
-import PolarBuyButton from '../../../components/boutique/PolarBuyButton';
+import ThemeCard from '../../../components/boutique/ThemeCard';
 
 // Lazy-loaded: while every product is "Coming Soon", nothing ever imports
 // Polar's checkout script — not just doesn't run it, doesn't fetch it.
@@ -52,6 +52,9 @@ type Theme = {
   // Trimmed from each theme's "what you actually see" in theme-notes.md.
   blurb: string;
   image: string;
+  // Muted loop of the theme running in the actual panel — plays on hover
+  // (desktop) or tap (touch); the static image above is what loads by default.
+  loop: string;
   free?: boolean;
   // Same character, different theme (e.g. the gopher in both Garden and Golf) —
   // groups them in the grid and tags them once a family has more than one member.
@@ -66,12 +69,14 @@ const THEMES: Theme[] = [
     name: 'Aquarium',
     blurb: 'A lit aquarium seen side-on — four different fish playing four different moods, painted rather than drawn, real light through the water.',
     image: '/gc-theme-aquarium-hero.png',
+    loop: '/gc-theme-aquarium-loop.mp4',
   },
   {
     slug: 'gopher-garden',
     name: 'Gopher Garden',
     blurb: 'A gopher who has taken up gardening, and the small ecosystem that puts up with it. Round, sticker-style, big expressive eyes.',
     image: '/gc-theme-gopher-garden-hero.png',
+    loop: '/gc-theme-gopher-garden-loop.mp4',
     family: 'Gopher',
   },
   {
@@ -79,6 +84,7 @@ const THEMES: Theme[] = [
     name: 'Gopher Golf',
     blurb: 'One gopher, playing golf badly and taking it personally — the same animal in all four moods, having one very long day.',
     image: '/gc-theme-gopher-golf-hero.png',
+    loop: '/gc-theme-gopher-golf-loop.mp4',
     family: 'Gopher',
   },
   {
@@ -86,12 +92,14 @@ const THEMES: Theme[] = [
     name: 'Sky Bird',
     blurb: 'One barn swallow, and a quiet garden to live in. Painted rather than cartooned — the calmest theme in the set.',
     image: '/gc-theme-skybird-hero.png',
+    loop: '/gc-theme-skybird-loop.mp4',
   },
   {
     slug: 'unicorn-overlord',
     name: 'Unicorn Overlord',
     blurb: 'Enormous eyes, a gold spiral horn, a mane that fills most of every frame — and a jewelled frame built like a keepsake box.',
     image: '/gc-theme-unicorn-hero.png',
+    loop: '/gc-theme-unicorn-loop.mp4',
   },
 ];
 
@@ -107,50 +115,6 @@ const FAMILY_TINT: Record<string, string> = {
   Gopher: '232,168,124',
 };
 const DEFAULT_TINT = '155,181,201';
-
-function ThemeCard({ theme }: { theme: Theme }) {
-  const showFamily = theme.family && familyCounts[theme.family] > 1;
-  const tint = (theme.family && FAMILY_TINT[theme.family]) || DEFAULT_TINT;
-  return (
-    <div>
-      <div
-        style={{
-          borderRadius: 16,
-          overflow: 'hidden',
-          background: '#0b0c10',
-          aspectRatio: '1652 / 1240',
-          boxShadow: `0 0 0 1px rgba(${tint},0.35), 0 0 32px -4px rgba(${tint},0.28)`,
-        }}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={theme.image} alt={`${theme.name}, running in Ground Control`} loading="lazy" style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }} />
-      </div>
-      {showFamily && (
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, letterSpacing: 1.5, color: `rgb(${tint})`, display: 'block', marginTop: 12 }}>
-          {theme.family!.toUpperCase()} FAMILY
-        </span>
-      )}
-      <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 21, fontWeight: 400, margin: showFamily ? '6px 0 6px' : '16px 0 6px', letterSpacing: -0.4 }}>
-        {theme.name}
-      </h3>
-      <p style={{ fontFamily: 'var(--font-body)', fontSize: 13.5, lineHeight: 1.6, color: 'var(--ink-dim)', fontWeight: 300, margin: '0 0 14px' }}>
-        {theme.blurb}
-      </p>
-      {theme.free ? (
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9.5, letterSpacing: 1.3, color: 'var(--accent-2)' }}>
-          INCLUDED FREE
-        </span>
-      ) : (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10.5, letterSpacing: 0.5, color: 'var(--ink-faint)' }}>
-            ${PRICE_CAD} CAD
-          </span>
-          <PolarBuyButton url={CHECKOUT_LINKS[theme.slug]} label="Buy →" />
-        </div>
-      )}
-    </div>
-  );
-}
 
 export default function GroundControlThemesPage() {
   return (
@@ -215,9 +179,24 @@ export default function GroundControlThemesPage() {
               <div style={{ position: 'absolute', top: '38%', left: '50%', width: 1700, height: 560, marginLeft: -850, border: '1px dashed rgba(232,168,124,0.08)', borderRadius: '50%', transform: 'rotate(4deg)' }} />
             </div>
             <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '48px 32px' }}>
-              {THEMES.map((t) => (
-                <ThemeCard key={t.slug} theme={t} />
-              ))}
+              {THEMES.map((t) => {
+                const showFamily = t.family && familyCounts[t.family] > 1;
+                const tint = (t.family && FAMILY_TINT[t.family]) || DEFAULT_TINT;
+                return (
+                  <ThemeCard
+                    key={t.slug}
+                    name={t.name}
+                    blurb={t.blurb}
+                    image={t.image}
+                    loopSrc={t.loop}
+                    price={`$${PRICE_CAD} CAD`}
+                    checkoutUrl={CHECKOUT_LINKS[t.slug]}
+                    familyLabel={showFamily ? `${t.family!.toUpperCase()} FAMILY` : undefined}
+                    tint={tint}
+                    free={t.free}
+                  />
+                );
+              })}
             </div>
           </div>
         </div>
