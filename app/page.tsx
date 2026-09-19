@@ -201,7 +201,7 @@ export default function Home() {
                   {app.secondaryCta && (
                     <Link
                       href={app.secondaryCta.href}
-                      style={{ position: 'relative', zIndex: 1, fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--ink-faint)', textDecoration: 'none' }}
+                      style={{ position: 'relative', zIndex: 1, fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--accent-2)', textDecoration: 'none' }}
                     >
                       {app.secondaryCta.label}
                     </Link>
