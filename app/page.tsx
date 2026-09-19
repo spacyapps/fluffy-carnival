@@ -194,14 +194,14 @@ export default function Home() {
                     ↳ <span style={{ color: 'var(--accent)' }}>{app.companion.name}</span> · {app.companion.cardLabel}
                   </div>
                 )}
-                <div style={{ paddingTop: 16, borderTop: '1px solid var(--line)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                  <span style={{ fontSize: 13, fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: app.noPage ? 'var(--ink-faint)' : 'var(--accent)' }}>
+                <div style={{ paddingTop: 16, borderTop: '1px solid var(--line)' }}>
+                  <div style={{ fontSize: 13, fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: app.noPage ? 'var(--ink-faint)' : 'var(--accent)' }}>
                     {app.noPage ? 'In development...' : (app.cta ?? 'Open the briefing →')}
-                  </span>
+                  </div>
                   {app.secondaryCta && (
                     <Link
                       href={app.secondaryCta.href}
-                      style={{ position: 'relative', zIndex: 1, fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--accent-2)', textDecoration: 'none' }}
+                      style={{ position: 'relative', zIndex: 1, display: 'inline-block', marginTop: 8, fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--accent-2)', textDecoration: 'none' }}
                     >
                       {app.secondaryCta.label}
                     </Link>
