@@ -1,8 +1,14 @@
 import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import Stars from '../../../components/boutique/Stars';
 import Logotype from '../../../components/boutique/Logotype';
 import BigPlanet from '../../../components/boutique/BigPlanet';
+import PolarBuyButton from '../../../components/boutique/PolarBuyButton';
+
+// Lazy-loaded: while every product is "Coming Soon", nothing ever imports
+// Polar's checkout script — not just doesn't run it, doesn't fetch it.
+const PolarInit = dynamic(() => import('../../../components/boutique/PolarInit'));
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -12,9 +18,33 @@ export const viewport: Viewport = {
 // Prelim, unlinked page — keep it out of search until there's something to sell.
 export const metadata: Metadata = {
   title: 'Ground Control Themes — SpacyApps',
-  description: 'Characters for Ground Control. One ships free; five more are on the way.',
+  description: 'Characters for Ground Control. One ships free; five more are $11.99 CAD each.',
   robots: { index: false, follow: false },
 };
+
+// Settled 2026-09-18. Single CAD anchor price — Polar converts at checkout,
+// so a page-side USD figure would just be a second number to keep in sync.
+const PRICE_CAD = '11.99';
+
+// Polar embedded-checkout links — one entry per theme. Polar shows the
+// buyer their own currency at checkout; the prices above are for display
+// only.
+//
+// null = not selling yet: the card shows "Coming Soon" instead of a buy
+// button, and nothing is clickable. Filling in a URL here is the only
+// change needed to make that one product live — Walter is minting a
+// separate link per placement (site vs Instagram vs README) so Polar can
+// attribute which channel actually sells, so don't reuse a link from
+// elsewhere for this map.
+const CHECKOUT_LINKS: Record<string, string | null> = {
+  aquarium: null,
+  'gopher-garden': null,
+  'gopher-golf': null,
+  skybird: null,
+  'unicorn-overlord': null,
+};
+
+const hasAnyLiveLink = Object.values(CHECKOUT_LINKS).some(Boolean);
 
 type Theme = {
   slug: string;
@@ -26,9 +56,6 @@ type Theme = {
   // Same character, different theme (e.g. the gopher in both Garden and Golf) —
   // groups them in the grid and tags them once a family has more than one member.
   family?: string;
-  // Set once the theme has a real Lemon Squeezy listing. Price and "buy" live
-  // there, not here — one place to keep current, not two.
-  lemonSqueezyUrl?: string;
 };
 
 // Ordered so a family's members sit next to each other. Add new themes near
@@ -113,14 +140,13 @@ function ThemeCard({ theme }: { theme: Theme }) {
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9.5, letterSpacing: 1.3, color: 'var(--accent-2)' }}>
           INCLUDED FREE
         </span>
-      ) : theme.lemonSqueezyUrl ? (
-        <a href={theme.lemonSqueezyUrl} style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 13, color: 'var(--accent)', textDecoration: 'none' }}>
-          Buy on Lemon Squeezy →
-        </a>
       ) : (
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9.5, letterSpacing: 1.3, color: 'var(--ink-faint)' }}>
-          COMING TO LEMON SQUEEZY
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10.5, letterSpacing: 0.5, color: 'var(--ink-faint)' }}>
+            ${PRICE_CAD} CAD
+          </span>
+          <PolarBuyButton url={CHECKOUT_LINKS[theme.slug]} label="Buy →" />
+        </div>
       )}
     </div>
   );
@@ -130,6 +156,7 @@ export default function GroundControlThemesPage() {
   return (
     <div style={{ width: '100%', background: 'var(--bg)', color: 'var(--ink)', fontFamily: 'var(--font-body)', position: 'relative' }}>
       <Stars density={50} />
+      {hasAnyLiveLink && <PolarInit />}
       <div style={{ position: 'relative', padding: '28px 56px 100px', maxWidth: 1240, margin: '0 auto' }}>
 
         {/* Header */}
