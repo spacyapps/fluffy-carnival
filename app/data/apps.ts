@@ -97,7 +97,14 @@ export interface App {
   };
   heroQuote?: string;
   status?: string;
-  availability?: { heading: string; body: string; note: string };
+  availability?: {
+    heading: string;
+    body: string;
+    note: string;
+    downloadUrl?: string;
+    downloadLabel?: string;
+    sourceUrl?: string;
+  };
 }
 
 export const APPS: App[] = [
@@ -186,7 +193,7 @@ export const APPS: App[] = [
     glyph: '🛰',
     color: '#5bc0bd',
     platform: 'Mac',
-    version: '—',
+    version: '0.8.0',
     tagline: 'Mission control for every agent you\'re running. AND jump directly to it!',
     secondaryCta: { href: '/apps/ground-control/themes', label: 'Shop themes — from $11.99 →' },
     icon: '/icon-ground-control.png',
@@ -204,7 +211,7 @@ export const APPS: App[] = [
       diagram: 'terminal-jump',
     },
     heroQuote: 'I waste time checking if my Session or Agent is done or waiting for me',
-    status: 'In private alpha · coming soon to macOS',
+    status: 'Public · v0.8.0',
     descriptionPoints: [
       'A menu-bar app for anyone running more than one AI agent at once.',
       'Every session gets a row — its name, what it\'s doing right now, and a dot that turns **red** the moment it is blocked and needs you.',
@@ -362,9 +369,12 @@ export const APPS: App[] = [
       pull: 'All of this, all together, is your personal Ground Control. Let GC help you enjoy your journey with AI.',
     },
     availability: {
-      heading: 'Still in the hangar',
-      body: 'Ground Control is in private alpha — built, working, and flown daily on the machine it was written on. It isn\'t public yet, so there\'s nothing to download today.\n\nWhen it ships the app will be free and open source under AGPL-3.0. The artwork is a separate thing: themes are not derivative works of the program, so they carry their own licence. That split is what lets the app be free forever while a theme is something you can buy — and it means nothing is held back from the free version. The app is whole.',
-      note: 'Coming soon to macOS',
+      heading: 'Out of the hangar',
+      body: 'Ground Control is public — v0.8.0, free and open source under AGPL-3.0, no account and no telemetry. macOS 13 or later, Apple Silicon and Intel: a 17MB dmg, or a 15MB zip if you\'d rather not mount a disk image.\n\nSigned with a Developer ID and notarised, so it opens with an ordinary double-click — though macOS still asks if you\'re sure the first time, the way it does for anything downloaded.\n\nThe artwork is a separate thing: themes are not derivative works of the program, so they carry their own licence. That split is what lets the app be free forever while a theme is something you can buy — and it means nothing is held back from the free version. The app is whole.',
+      note: 'macOS 13+ · Apple Silicon & Intel',
+      downloadUrl: 'https://github.com/spacyapps/ground-control/releases/latest',
+      downloadLabel: 'Download for Mac ↓',
+      sourceUrl: 'https://github.com/spacyapps/ground-control',
     },
   },
   {

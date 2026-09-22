@@ -1510,9 +1510,7 @@ export default async function AppPage({
           </div>
         )}
 
-        {/* Availability
-            TODO(link): github.com/spacyapps/ground-control is private and no release exists.
-            Once the repo is public, add a source/releases link here — not before, it 404s today. */}
+        {/* Availability */}
         {app.availability && (
           <div style={{ marginTop: 80, textAlign: 'center' }}>
             <div style={{
@@ -1533,6 +1531,40 @@ export default async function AppPage({
                   </p>
                 ))}
               </div>
+              {(app.availability.downloadUrl || app.availability.sourceUrl) && (
+                <div style={{ display: 'flex', gap: 16, justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', marginTop: 26 }}>
+                  {app.availability.downloadUrl && (
+                    <a
+                      href={app.availability.downloadUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        background: 'var(--accent)',
+                        color: 'var(--bg)',
+                        padding: '14px 26px',
+                        borderRadius: 999,
+                        fontSize: 14,
+                        fontWeight: 600,
+                        fontFamily: 'var(--font-body)',
+                        textDecoration: 'none',
+                        display: 'inline-block',
+                      }}
+                    >
+                      {app.availability.downloadLabel ?? 'Download ↓'}
+                    </a>
+                  )}
+                  {app.availability.sourceUrl && (
+                    <a
+                      href={app.availability.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: 1, color: 'var(--ink-dim)', textDecoration: 'none' }}
+                    >
+                      Source on GitHub ↗
+                    </a>
+                  )}
+                </div>
+              )}
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 3, color: 'var(--ink-faint)', marginTop: 26, paddingTop: 22, borderTop: '1px solid var(--line)' }}>
                 {app.availability.note.toUpperCase()}
               </div>
