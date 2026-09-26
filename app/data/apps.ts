@@ -323,7 +323,7 @@ export const APPS: App[] = [
         alt: 'The unicorn theme running, with the alarm state showing red',
         caption: 'The unicorn theme, running.',
       },
-      note: 'Additional themes will be available separately.',
+      note: 'Additional themes are available now.',
       browseUrl: '/apps/ground-control/themes',
     },
     themeTool: {
