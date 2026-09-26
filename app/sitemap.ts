@@ -20,6 +20,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
+  // Sub-pages that live under an app but aren't APPS entries themselves.
+  const appSubPages: MetadataRoute.Sitemap = [
+    { url: `${BASE}/apps/ground-control/themes`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+  ];
+
   // Real journal posts only — skip link-only entries and "Coming soon" placeholders.
   const journalPages: MetadataRoute.Sitemap = POSTS.filter((p) => !p.link && p.date).map((p) => ({
     url: `${BASE}/journal/${p.slug}`,
@@ -28,5 +33,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...staticPages, ...appPages, ...journalPages];
+  return [...staticPages, ...appPages, ...appSubPages, ...journalPages];
 }

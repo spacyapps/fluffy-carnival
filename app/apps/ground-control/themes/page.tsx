@@ -10,11 +10,9 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-// Prelim, unlinked page — keep it out of search until there's something to sell.
 export const metadata: Metadata = {
   title: 'Ground Control Themes — SpacyApps',
   description: 'Characters for Ground Control. One ships free; five more are $11.99 CAD each.',
-  robots: { index: false, follow: false },
 };
 
 // Settled 2026-09-18. Single CAD anchor price — Polar converts at checkout,
@@ -124,9 +122,8 @@ export default function GroundControlThemesPage() {
             ← Back to Ground Control
           </Link>
           <Logotype size={12} />
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-faint)', letterSpacing: 1.5, justifySelf: 'flex-end' }}>
-            PRELIM · NOT LIVE
-          </span>
+          {/* Empty third column keeps the logotype centred */}
+          <span />
         </div>
 
         {/* Hero */}
