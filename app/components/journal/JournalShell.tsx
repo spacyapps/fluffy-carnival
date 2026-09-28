@@ -628,12 +628,12 @@ export default function JournalShell() {
           A <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>star chart</span> of the writing.
         </h1>
         {!isMobile && (
-          <p style={{ maxWidth: 620, margin: '32px auto 0', fontSize: 17, lineHeight: 1.65, color: 'var(--ink-dim)', fontWeight: 300 }}>
+          <div style={{ maxWidth: 620, margin: '32px auto 0', fontSize: 17, lineHeight: 1.65, color: 'var(--ink-dim)', fontWeight: 300 }}>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
               <li>Organised by <em style={{ color: 'var(--ink)' }}>constellation</em>, not by date</li>
               <li>Each topic is its own shape — pick a star to read</li>
             </ul>
-          </p>
+          </div>
         )}
       </header>
 
