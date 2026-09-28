@@ -376,3 +376,42 @@ void main() {
   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 }
 `;
+
+// Construction scaffold around an in-play world: a geodesic lattice that is
+// only built up to uFront (a height from -1 to 1). Struts just placed glow
+// like fresh welds; some are still missing; above the front, a faint dashed
+// blueprint of what's planned.
+export const SCAFFOLD_VERT = /* glsl */ `
+attribute float aRand;
+attribute float aH;
+attribute float aT;
+varying float vRand;
+varying float vH;
+varying float vT;
+void main() {
+  vRand = aRand;
+  vH = aH;
+  vT = aT;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+`;
+
+export const SCAFFOLD_FRAG = /* glsl */ `
+uniform float uFront;
+uniform float uTime;
+uniform vec3 uColor;
+uniform vec3 uWeld;
+varying float vRand;
+varying float vH;
+varying float vT;
+void main() {
+  if (vRand < 0.14) discard;
+  float built = step(vH, uFront);
+  float fresh = built * smoothstep(0.16, 0.0, uFront - vH);
+  float blueprint = (1.0 - built) * step(0.45, vRand) * step(0.5, fract(vT * 6.0)) * 0.22;
+  float shimmer = 0.75 + 0.25 * sin(uTime * 2.0 + vRand * 40.0);
+  vec3 col = uColor * (built * 0.55 * shimmer + blueprint) + uWeld * fresh * 2.4;
+  if (dot(col, vec3(1.0)) < 0.002) discard;
+  gl_FragColor = vec4(col, 1.0);
+}
+`;

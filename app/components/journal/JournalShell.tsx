@@ -610,7 +610,6 @@ export default function JournalShell() {
           <div style={{ display: 'flex', gap: 28, fontSize: 13, color: 'var(--ink-dim)', fontFamily: 'var(--font-body)', fontWeight: 500 }}>
             <Link href="/#missions" className="bo-link" style={{ color: 'inherit', textDecoration: 'none' }}>Missions</Link>
             <span style={{ color: 'var(--ink)', fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 400, fontSize: 13 }}>Journal</span>
-            <Link href="/#now" className="bo-link" style={{ color: 'inherit', textDecoration: 'none' }}>Now</Link>
           </div>
           <Logotype size={13} />
           <div style={{ display: 'flex', gap: 28, justifyContent: 'flex-end', fontSize: 13, color: 'var(--ink-dim)' }}>

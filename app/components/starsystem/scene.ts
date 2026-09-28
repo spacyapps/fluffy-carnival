@@ -9,6 +9,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import * as GLSL from './shaders';
+import { buildRelayCraft } from './relay';
 
 export type Surface = 'gas' | 'ocean' | 'molten';
 
@@ -35,6 +36,10 @@ export interface ScreenPoint {
 export interface StarSystem {
   resize(width: number, height: number): void;
   setFocus(id: string | null): void;
+  // Rush the camera in at a body, for the moment before its page loads.
+  dive(id: string): void;
+  // 0 at the top of the page, 1 once the hero has scrolled away.
+  setScroll(progress: number): void;
   setPointer(nx: number, ny: number): void;
   pick(x: number, y: number): string | null;
   start(): void;
@@ -129,6 +134,7 @@ export function createStarSystem(
 
   scene.add(new THREE.PointLight(0xffe2c4, 2.4, 0, 0));
   scene.add(new THREE.AmbientLight(0x9bb5c9, 0.05));
+  scene.add(new THREE.HemisphereLight(0x9bb5c9, 0x1a1410, 0.12));
 
   // ── Bodies ─────────────────────────────────────────────────────────────
   const tracked: Tracked[] = [];
@@ -239,11 +245,15 @@ export function createStarSystem(
       pivot.add(moonPivot);
     }
 
-    // A forming world still sits in its own disc of rubble.
+    // A forming world still sits in its own disc of rubble, inside a
+    // half-built lattice.
     let debris: THREE.Points | null = null;
+    let scaffold: ReturnType<typeof makeScaffold> | null = null;
     if (!live) {
       debris = debrisDisc(R, colorA);
       tilt.add(debris);
+      scaffold = makeScaffold(R, index * 1.7);
+      tilt.add(scaffold.group);
     }
 
     addHit(pivot, spec.id, Math.max(R * 1.8, 1.1));
@@ -257,6 +267,7 @@ export function createStarSystem(
         globe.rotation.y = t * spin;
         if (moonPivot) moonPivot.rotation.y = t * 0.35;
         if (debris) debris.rotation.y = t * 0.12;
+        if (scaffold) scaffold.update(t);
         if (ringUniforms) pivot.getWorldPosition(planetWorld);
       },
     };
@@ -329,30 +340,11 @@ export function createStarSystem(
     const pivot = new THREE.Group();
     scene.add(pivot);
     const craft = new THREE.Group();
-    craft.scale.setScalar(0.85);
+    craft.scale.setScalar(0.52);
     pivot.add(craft);
 
-    const foil = new THREE.MeshStandardMaterial({ color: '#b8955a', metalness: 0.55, roughness: 0.35, emissive: '#3a2812' });
-    const cells = new THREE.MeshStandardMaterial({ map: panelTexture(), metalness: 0.65, roughness: 0.28, emissive: '#0b1628' });
-    const white = new THREE.MeshStandardMaterial({ color: '#d9d4c7', metalness: 0.1, roughness: 0.6, emissive: '#15130f' });
-    craft.add(new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.6), foil));
-    for (const side of [-1, 1]) {
-      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.03, 0.03), white);
-      arm.position.x = side * 0.45;
-      craft.add(arm);
-      const panel = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.5, 0.02), cells);
-      panel.position.x = side * 1.45;
-      craft.add(panel);
-    }
-    const dish = new THREE.Mesh(new THREE.SphereGeometry(0.42, 32, 12, 0, TAU, 0, 0.75), white);
-    dish.material.side = THREE.DoubleSide;
-    dish.rotation.x = -Math.PI / 2;
-    dish.position.z = 0.62;
-    craft.add(dish);
-    const beaconColor = new THREE.Color(PEACH);
-    const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 8), new THREE.MeshBasicMaterial({ color: beaconColor.clone() }));
-    beacon.position.set(0, 0.28, 0);
-    craft.add(beacon);
+    const relay = buildRelayCraft();
+    craft.add(relay.craft);
 
     const pulses = [0, 1, 2].map(() => {
       const m = new THREE.Mesh(new THREE.RingGeometry(0.985, 1, 128), new THREE.MeshBasicMaterial({
@@ -367,17 +359,16 @@ export function createStarSystem(
 
     const focus = { value: 0 };
     return {
-      id: spec.id, pivot, frame: 1.0, focus, shotOut: -0.85,
+      id: spec.id, pivot, frame: 0.72, focus, shotOut: -0.85,
       update(t) {
         const a = angle0 + omega * t;
         pivot.position.set(Math.cos(a) * orbitR, 1.2, -Math.sin(a) * orbitR);
         craft.lookAt(0, 0, 0);
         craft.rotateZ(Math.sin(t * 0.2) * 0.15);
-        const blink = (t % 1.6) < 0.12 ? 6 : 0.4;
-        (beacon.material as THREE.MeshBasicMaterial).color.copy(beaconColor).multiplyScalar(blink);
+        relay.blink(t);
         pulses.forEach((m, i) => {
           const ph = ((t * 0.28) + i / pulses.length) % 1;
-          m.scale.setScalar(0.5 + ph * 2.6);
+          m.scale.setScalar(0.5 + ph * 2.0);
           const mat = m.material as THREE.MeshBasicMaterial;
           mat.opacity = Math.pow(1 - ph, 2.5) * 0.45;
         });
@@ -420,6 +411,71 @@ export function createStarSystem(
       uniforms: { uPR: pixelRatio, uScale: pointScale },
       blending: THREE.AdditiveBlending, transparent: true, depthWrite: false,
     });
+  }
+
+  function makeScaffold(R: number, seed: number) {
+    const Rs = R * 1.28;
+    const wire = new THREE.WireframeGeometry(new THREE.IcosahedronGeometry(Rs, 3));
+    const src = wire.getAttribute('position') as THREE.BufferAttribute;
+    const n = src.count;
+    const rand = new Float32Array(n), h = new Float32Array(n), along = new Float32Array(n);
+    for (let i = 0; i < n; i += 2) {
+      rand[i] = rand[i + 1] = Math.random();
+      h[i] = h[i + 1] = Math.max(src.getY(i), src.getY(i + 1)) / Rs;
+      along[i + 1] = 1;
+    }
+    wire.setAttribute('aRand', new THREE.BufferAttribute(rand, 1));
+    wire.setAttribute('aH', new THREE.BufferAttribute(h, 1));
+    wire.setAttribute('aT', new THREE.BufferAttribute(along, 1));
+    const front = { value: 0 };
+    const group = new THREE.Group();
+    group.add(new THREE.LineSegments(wire, new THREE.ShaderMaterial({
+      vertexShader: GLSL.SCAFFOLD_VERT, fragmentShader: GLSL.SCAFFOLD_FRAG,
+      uniforms: { uFront: front, uTime: time, uColor: { value: new THREE.Color(MIST) }, uWeld: { value: new THREE.Color(PEACH) } },
+      blending: THREE.AdditiveBlending, transparent: true, depthWrite: false,
+    })));
+
+    // The welding line: a ring riding the build front, throwing sparks.
+    const ringPts: THREE.Vector3[] = [];
+    for (let i = 0; i < 128; i++) ringPts.push(new THREE.Vector3(Math.cos((i / 128) * TAU), 0, Math.sin((i / 128) * TAU)));
+    const ring = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ringPts), new THREE.LineBasicMaterial({
+      color: new THREE.Color(PEACH).multiplyScalar(1.6), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false,
+    }));
+    group.add(ring);
+
+    const sparkN = 70;
+    const sPos = new Float32Array(sparkN * 3), sCol = new Float32Array(sparkN * 3), sSize = new Float32Array(sparkN).fill(0.035);
+    const sg = new THREE.BufferGeometry();
+    const sPosAttr = new THREE.BufferAttribute(sPos, 3), sColAttr = new THREE.BufferAttribute(sCol, 3);
+    sg.setAttribute('position', sPosAttr);
+    sg.setAttribute('aColor', sColAttr);
+    sg.setAttribute('aSize', new THREE.BufferAttribute(sSize, 1));
+    const sparks = new THREE.Points(sg, particleMaterial());
+    sparks.frustumCulled = false;
+    group.add(sparks);
+    const weld = new THREE.Color(PEACH).lerp(new THREE.Color(1, 1, 1), 0.4);
+
+    return {
+      group,
+      update(t: number) {
+        const f = 0.32 + 0.36 * Math.sin(t * 0.09 + seed);
+        front.value = f;
+        const y = f * Rs, r = Math.sqrt(Math.max(Rs * Rs - y * y, 0));
+        ring.position.y = y;
+        ring.scale.set(r, 1, r);
+        group.rotation.y = t * 0.03;
+        for (let i = 0; i < sparkN; i++) {
+          const a = Math.random() * TAU;
+          const out = 1 + Math.random() * 0.06;
+          sPos[i * 3] = Math.cos(a) * r * out;
+          sPos[i * 3 + 1] = y + (Math.random() - 0.3) * 0.08 * R;
+          sPos[i * 3 + 2] = Math.sin(a) * r * out;
+          const k = Math.random() < 0.3 ? 1.5 + Math.random() * 2 : 0;
+          sCol[i * 3] = weld.r * k; sCol[i * 3 + 1] = weld.g * k; sCol[i * 3 + 2] = weld.b * k;
+        }
+        sPosAttr.needsUpdate = sColAttr.needsUpdate = true;
+      },
+    };
   }
 
   function debrisDisc(R: number, tint: THREE.Color) {
@@ -504,6 +560,9 @@ export function createStarSystem(
 
   // ── Camera ─────────────────────────────────────────────────────────────
   let focusId: string | null = null;
+  let diving = false, diveT = 0;
+  let scrollP = 0;
+  const ease = (x: number) => x * x * (3 - 2 * x);
   const pointer = new THREE.Vector2();
   const goalPos = new THREE.Vector3(), goalTarget = new THREE.Vector3();
   const camPos = new THREE.Vector3(), camTarget = new THREE.Vector3();
@@ -513,7 +572,7 @@ export function createStarSystem(
     const az = OVERVIEW_AZ + Math.sin(t * 0.035) * 0.2 + pointer.x * 0.06;
     const pol = OVERVIEW_POLAR + Math.sin(t * 0.05) * 0.025 + pointer.y * 0.035;
     goalTarget.copy(OVERVIEW_TARGET);
-    goalPos.setFromSphericalCoords(OVERVIEW_DIST, pol, az).add(OVERVIEW_TARGET);
+    goalPos.setFromSphericalCoords(OVERVIEW_DIST * (1 + scrollP * 0.5), pol - scrollP * 0.32, az + scrollP * 0.25).add(OVERVIEW_TARGET);
   }
 
   // A three-quarter shot from the side of the orbit: the terminator runs down
@@ -527,7 +586,7 @@ export function createStarSystem(
     const side = new THREE.Vector3(-out.z, 0, out.x);
     const dir = side.multiplyScalar(1).addScaledVector(out, (body.shotOut ?? 0.12) + pointer.x * 0.08).addScaledVector(UP, 0.3 + pointer.y * 0.05).normalize();
     dir.applyAxisAngle(UP, Math.sin(t * 0.08) * 0.12);
-    const dist = body.frame * 9 + 2;
+    const dist = (body.frame * 9 + 2) * (1 + scrollP * 0.6) * (1 - 0.7 * ease(diveT));
     goalPos.copy(tmp).addScaledVector(dir, dist);
     fwd.copy(tmp).sub(goalPos).normalize();
     right.crossVectors(fwd, UP).normalize();
@@ -568,7 +627,10 @@ export function createStarSystem(
     if (body) focusGoal(body, simT); else overviewGoal(simT);
     for (const b of tracked) if (b.focus) b.focus.value += ((b === body ? 1 : 0) - b.focus.value) * Math.min(1, dt * 3);
 
-    const k = reduced ? 60 : body ? 1.25 : 0.85;
+    if (diving) diveT = Math.min(1, diveT + dt / 1.3);
+    bloom.strength = 0.62 + ease(diveT) * 0.9;
+    renderer.toneMappingExposure = (1 - scrollP * 0.4) * (1 + ease(diveT) * 0.5);
+    const k = reduced ? 60 : diving ? 2.6 : body ? 1.25 : 0.85;
     camPos.lerp(goalPos, 1 - Math.exp(-dt * k));
     camTarget.lerp(goalTarget, 1 - Math.exp(-dt * (reduced ? 60 : 1.9)));
     // Arc over the system in transit rather than cutting through the sun.
@@ -627,7 +689,9 @@ export function createStarSystem(
       pointScale.value = height / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
       if (!running) tick(0);
     },
-    setFocus(id) { focusId = id; },
+    setFocus(id) { if (!diving) focusId = id; },
+    dive(id) { focusId = id; diving = true; diveT = 0; },
+    setScroll(progress) { scrollP = THREE.MathUtils.clamp(progress, 0, 1); },
     setPointer(nx, ny) { pointer.set(nx, ny); },
     pick(x, y) {
       raycaster.setFromCamera(new THREE.Vector2((x / width) * 2 - 1, -(y / height) * 2 + 1), camera);

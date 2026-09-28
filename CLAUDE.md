@@ -19,7 +19,6 @@ Pages are thin; content is data.
 - `app/data/apps.ts` → every app page (`app/apps/[slug]/page.tsx` renders it). `noPage` entries get no page and no sitemap row.
 - `app/data/journal.ts` → journal posts, bodies as `Block[]`. Feeds `/journal`, `/journal/[slug]`, `feed.xml`, sitemap.
 - `app/data/posts.ts` → the home page's journal cards only. **Separate list from `journal.ts`** — a new journal post doesn't appear on the home page unless it's added here too.
-- `app/data/now.ts` → the home page "Now" board.
 - `app/apps/ground-control/themes/page.tsx` → the one hand-built sub-page. Theme list, price and Polar checkout links are at the top of the file; its comments explain the per-placement link rule.
 - `app/components/boutique/` → site components; `app/components/journal/` → journal shells and diagrams.
 - `app/sitemap.ts` → built from `APPS` + `journal.ts`, plus a hand-listed `appSubPages` array. A new non-`APPS` page must be added there.

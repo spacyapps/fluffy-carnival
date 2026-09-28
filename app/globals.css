@@ -91,6 +91,32 @@ body::-webkit-scrollbar {
   transform: scaleX(1);
 }
 
+/* Home page scroll reveals (see ScrollFX) */
+.fx [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 40px, 0);
+  filter: blur(8px);
+  transition:
+    opacity 1s cubic-bezier(.2, .7, .2, 1) var(--d, 0s),
+    transform 1.3s cubic-bezier(.16, 1, .3, 1) var(--d, 0s),
+    filter 1s ease var(--d, 0s),
+    clip-path 1.3s cubic-bezier(.16, 1, .3, 1) var(--d, 0s);
+}
+.fx [data-reveal="line"] {
+  transform: translate3d(0, .5em, 0);
+  clip-path: inset(100% 0 0 0);
+}
+.fx [data-reveal="card"] {
+  transform: perspective(1000px) translate3d(0, 70px, 0) rotateX(12deg) scale(.97);
+  transform-origin: 50% 100%;
+}
+.fx [data-reveal][data-in] {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  clip-path: inset(-10% -5% -25% -5%);
+}
+
 /* Journal */
 @keyframes jr-spin    { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes jr-spinrev { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }

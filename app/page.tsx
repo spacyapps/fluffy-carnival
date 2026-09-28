@@ -17,8 +17,8 @@ import AppIcon from './components/boutique/AppIcon';
 import ScaleWrapper from './components/boutique/ScaleWrapper';
 import { APPS } from './data/apps';
 import { POSTS } from './data/posts';
-import { NOW } from './data/now';
 import { POSTS as JOURNAL } from './data/journal';
+import ScrollFX from './components/starsystem/ScrollFX';
 import StarSystemHero, { type MissionStop, type JournalStop } from './components/starsystem/StarSystemHero';
 
 const missions: MissionStop[] = APPS.map(a => ({
@@ -48,18 +48,25 @@ export default function Home() {
       {/* HERO */}
       <StarSystemHero missions={missions} latest={latest} />
 
+      {/* Everything below the hero is a curtain that slides up over it. */}
+      <div style={{ position: 'relative', zIndex: 1, background: 'var(--bg)', borderRadius: '32px 32px 0 0', boxShadow: '0 -40px 90px rgba(0,0,0,0.55)', overflow: 'hidden' }}>
+      <ScrollFX />
+
       {/* MARQUEE */}
-      <Marquee />
+      <div style={{ transform: 'skewX(var(--scroll-skew, 0deg))', transformOrigin: '50% 50%' }}>
+        <Marquee />
+      </div>
 
       {/* APPS */}
       <section id="missions" className="bo-section" style={{ padding: '96px 56px' }}>
         <div className="bo-flex-col" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 56 }}>
           <div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 3, color: 'var(--accent)', marginBottom: 14 }}>
+            <div data-reveal="" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 3, color: 'var(--accent)', marginBottom: 14 }}>
               I.  MISSIONS
             </div>
             <h2
               className="bo-h-xl"
+            data-reveal="line"
               style={{
                 fontFamily: 'var(--font-serif)',
                 fontWeight: 300,
@@ -73,8 +80,8 @@ export default function Home() {
               <span style={{ fontStyle: 'italic', color: 'var(--accent-2)' }}>currently in orbit.</span>
             </h2>
           </div>
-          <div className="bo-hide-mobile" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink-faint)', letterSpacing: 1.5 }}>
-            03 SHIPPED · 01 INCOMING
+          <div className="bo-hide-mobile" data-reveal="" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink-faint)', letterSpacing: 1.5, '--d': '0.2s' } as React.CSSProperties}>
+            {String(APPS.filter(a => a.phase === 'live').length).padStart(2, '0')} LIVE · {String(APPS.filter(a => a.phase === 'in-play').length).padStart(2, '0')} UNDER CONSTRUCTION
           </div>
         </div>
 
@@ -90,7 +97,6 @@ export default function Home() {
                   border: '1px solid var(--line)',
                   borderRadius: 14,
                   cursor: app.noPage ? 'default' : 'pointer',
-                  animation: `bo-fadein .55s ease-out ${i * 0.06}s both`,
                   height: '100%',
                   boxSizing: 'border-box',
                 }}
@@ -150,80 +156,19 @@ export default function Home() {
                 )}
               </div>
             );
-            if (app.noPage) {
-              return <div key={app.slug}>{cardInner}</div>;
-            }
             // Cards with a secondaryCta lay their own full-card link inside
             // cardInner instead (see above) — two <a> tags can't nest.
-            return app.secondaryCta ? (
-              <div key={app.slug}>{cardInner}</div>
-            ) : (
-              <Link key={app.slug} href={`/apps/${app.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+            const card = app.noPage || app.secondaryCta ? cardInner : (
+              <Link href={`/apps/${app.slug}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block', height: '100%' }}>
                 {cardInner}
               </Link>
             );
-          })}
-        </div>
-      </section>
-
-      {/* NOW */}
-      <section id="now" className="bo-section" style={{ padding: '88px 56px', borderTop: '1px solid var(--line)' }}>
-        <div className="bo-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: 64, alignItems: 'flex-start' }}>
-          <div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 3, color: 'var(--accent-3)', marginBottom: 14 }}>
-              II.  ON THE WORKBENCH
-            </div>
-            <h2
-              className="bo-h-lg"
-              style={{
-                fontFamily: 'var(--font-serif)',
-                fontWeight: 300,
-                fontSize: 60,
-                margin: '0 0 24px',
-                letterSpacing: -1.8,
-                lineHeight: 0.95,
-              }}
-            >
-              <span style={{ fontStyle: 'italic' }}>Now</span> — what I&apos;m actually building.
-            </h2>
-            <p style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--ink-dim)', fontWeight: 300, maxWidth: 360, fontFamily: 'var(--font-body)', margin: 0 }}>
-              Current mission status — updated when things ship, break, or get gently shelved.
-            </p>
-            <div style={{ marginTop: 28, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-faint)', letterSpacing: 1.5, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span
-                style={{
-                  display: 'inline-block',
-                  width: 7,
-                  height: 7,
-                  borderRadius: '50%',
-                  background: 'var(--accent)',
-                  animation: 'bo-pulse 2s ease-in-out infinite',
-                }}
-              />
-              LAST PINGED 05.08.2026 — 22:17 PT
-            </div>
-          </div>
-          <div>
-            {NOW.map((item, i) => (
-              <div
-                key={i}
-                className="bo-now-row"
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '70px 130px 1fr 90px',
-                  gap: 20,
-                  padding: '20px 0',
-                  alignItems: 'baseline',
-                  borderBottom: '1px solid var(--line)',
-                }}
-              >
-                <span className="bo-now-date" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-faint)', letterSpacing: 1 }}>{item.date}</span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: item.statusColor, letterSpacing: 1.5, textTransform: 'uppercase', fontWeight: 600 }}>● {item.status}</span>
-                <span style={{ fontFamily: 'var(--font-serif)', fontSize: 20, fontWeight: 400, color: 'var(--ink)', letterSpacing: -0.4, lineHeight: 1.3 }}>{item.title}</span>
-                <span className="bo-now-tag" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-faint)', textAlign: 'right', letterSpacing: 1, textTransform: 'uppercase' }}>{item.tag}</span>
+            return (
+              <div key={app.slug} data-reveal="card" style={{ '--d': `${0.1 + i * 0.09}s` } as React.CSSProperties}>
+                {card}
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
       </section>
 
@@ -231,11 +176,12 @@ export default function Home() {
       <section id="journal" className="bo-section" style={{ padding: '96px 56px', borderTop: '1px solid var(--line)' }}>
         <div className="bo-flex-col" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 56 }}>
           <div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 3, color: 'var(--accent-2)', marginBottom: 14 }}>
-              III.  THE JOURNAL
+            <div data-reveal="" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 3, color: 'var(--accent-2)', marginBottom: 14 }}>
+              II.  THE JOURNAL
             </div>
             <h2
               className="bo-h-lg"
+            data-reveal="line"
               style={{
                 fontFamily: 'var(--font-serif)',
                 fontWeight: 300,
@@ -254,7 +200,7 @@ export default function Home() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 24, alignItems: 'stretch' }}>
-          <Link href={POSTS[0].link ?? '/journal'} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Link href={POSTS[0].link ?? '/journal'} data-reveal="card" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
             <article
               className="bo-card"
               style={{
@@ -287,8 +233,8 @@ export default function Home() {
           </Link>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-            {POSTS.slice(1).filter(p => !p.title.startsWith('Coming')).map(post => (
-              <Link key={post.slug} href={post.link ?? `/journal/${post.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+            {POSTS.slice(1).filter(p => !p.title.startsWith('Coming')).map((post, i) => (
+              <Link key={post.slug} href={post.link ?? `/journal/${post.slug}`} data-reveal="card" style={{ textDecoration: 'none', color: 'inherit', display: 'block', '--d': `${0.15 + i * 0.1}s` } as React.CSSProperties}>
                 <article className="bo-card" style={{ padding: '28px 32px', cursor: 'pointer', background: 'var(--bg-panel)', border: '1px solid var(--line)', borderRadius: 14 }}>
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-faint)', letterSpacing: 2, marginBottom: 14 }}>
                     {post.date.toUpperCase()} · {post.read.toUpperCase()}
@@ -311,11 +257,12 @@ export default function Home() {
       <section id="contact" className="bo-section" style={{ position: 'relative', padding: '96px 56px 64px', borderTop: '1px solid var(--line)', overflow: 'hidden' }}>
         <Stars density={30} />
         <div style={{ position: 'relative' }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 3, color: 'var(--accent)', marginBottom: 18 }}>
-            IV.  SIGNAL STATUS
+          <div data-reveal="" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 3, color: 'var(--accent)', marginBottom: 18 }}>
+            III.  SIGNAL STATUS
           </div>
           <h2
             className="bo-h-xxl"
+            data-reveal="line"
             style={{
               fontFamily: 'var(--font-serif)',
               fontWeight: 300,
@@ -327,10 +274,10 @@ export default function Home() {
           >
             <span style={{ fontStyle: 'italic' }}>Transmissions</span> open.
           </h2>
-          <p style={{ fontSize: 17, color: 'var(--ink-dim)', lineHeight: 1.6, fontWeight: 300, margin: '24px 0 0', fontFamily: 'var(--font-body)' }}>
+          <p data-reveal="" style={{ fontSize: 17, color: 'var(--ink-dim)', lineHeight: 1.6, fontWeight: 300, margin: '24px 0 0', fontFamily: 'var(--font-body)', '--d': '0.15s' } as React.CSSProperties}>
             Questions, ideas, or just saying hello —
           </p>
-          <div style={{ marginTop: 24, display: 'flex', alignItems: 'center', gap: 28, flexWrap: 'wrap' }}>
+          <div data-reveal="" style={{ marginTop: 24, display: 'flex', alignItems: 'center', gap: 28, flexWrap: 'wrap', '--d': '0.25s' } as React.CSSProperties}>
             <ContactLink />
             <a
               href="https://www.instagram.com/spacyappsofficial"
@@ -396,6 +343,7 @@ export default function Home() {
           © MMX–MMXXVI  ·  @SPACYAPPS
         </span>
       </footer>
+      </div>
 
     </div>
     </ScaleWrapper>
