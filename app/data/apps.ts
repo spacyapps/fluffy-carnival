@@ -40,6 +40,9 @@ export interface App {
     };
   }[];
   noPage?: boolean;
+  // Where the mission sits in the home page's star system: 'live' planets are
+  // lit and inhabited, 'in-play' ones are still forming on a dashed orbit.
+  phase: 'live' | 'in-play';
   cta?: string;
   // A second, smaller link on the home-page card — e.g. straight to a
   // storefront — so visitors don't have to open the briefing first just to
@@ -110,6 +113,7 @@ export interface App {
 export const APPS: App[] = [
   {
     slug: 'secret-stuff',
+    phase: 'live',
     name: 'Secret Stuff',
     glyph: 'S',
     color: '#7d4ad9',
@@ -189,6 +193,7 @@ export const APPS: App[] = [
   },
   {
     slug: 'ground-control',
+    phase: 'live',
     name: 'Ground Control',
     glyph: '🛰',
     color: '#5bc0bd',
@@ -379,6 +384,7 @@ export const APPS: App[] = [
   },
   {
     slug: 'checkpoint',
+    phase: 'live',
     name: 'Checkpoint',
     glyph: '🔒',
     color: '#3a8fb7',
@@ -496,6 +502,7 @@ ARCHITECTURE NOTES
   },
   {
     slug: 'tsukibase',
+    phase: 'in-play',
     name: 'TsukiBase',
     glyph: '月',
     color: '#c0392b',
@@ -531,6 +538,7 @@ ARCHITECTURE NOTES
   },
   {
     slug: 'conduit',
+    phase: 'in-play',
     name: 'Conduit',
     glyph: '〜',
     color: '#2d6a9f',

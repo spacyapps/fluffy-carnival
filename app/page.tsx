@@ -13,28 +13,32 @@ export const viewport: Viewport = {
 import ContactLink from './components/boutique/ContactLink';
 import BigPlanet from './components/boutique/BigPlanet';
 import Marquee from './components/boutique/Marquee';
-import Nav from './components/boutique/Nav';
 import AppIcon from './components/boutique/AppIcon';
 import ScaleWrapper from './components/boutique/ScaleWrapper';
 import { APPS } from './data/apps';
 import { POSTS } from './data/posts';
 import { NOW } from './data/now';
+import { POSTS as JOURNAL } from './data/journal';
+import StarSystemHero, { type MissionStop, type JournalStop } from './components/starsystem/StarSystemHero';
 
-function Comet() {
-  return (
-    <svg width="150" height="50" viewBox="0 0 150 50" style={{ display: 'block' }}>
-      <defs>
-        <linearGradient id="cmt-tail" x1="0" x2="1">
-          <stop offset="0" stopColor="#e8a87c" stopOpacity="0" />
-          <stop offset="1" stopColor="#e8a87c" stopOpacity="0.8" />
-        </linearGradient>
-      </defs>
-      <path d="M 0 25 Q 60 18, 130 25" stroke="url(#cmt-tail)" strokeWidth="2" fill="none" />
-      <circle cx="132" cy="25" r="5" fill="#e8a87c" />
-      <circle cx="132" cy="25" r="9" fill="#e8a87c" opacity="0.3" />
-    </svg>
-  );
-}
+const missions: MissionStop[] = APPS.map(a => ({
+  slug: a.slug,
+  name: a.name,
+  color: a.color,
+  phase: a.phase,
+  platform: a.platform,
+  version: a.version,
+  tagline: a.tagline,
+  href: a.noPage ? null : `/apps/${a.slug}`,
+}));
+
+// The newest dated journal entry — undated ones are placeholders.
+const newest = JOURNAL.filter(p => p.date).sort((a, b) => b.date.localeCompare(a.date))[0];
+const latest: JournalStop = {
+  title: newest.title,
+  date: newest.dateLabel,
+  href: newest.link ?? `/journal/${newest.slug}`,
+};
 
 export default function Home() {
   return (
@@ -42,78 +46,7 @@ export default function Home() {
     <div style={{ width: '100%', background: 'var(--bg)', color: 'var(--ink)', fontFamily: 'var(--font-body)' }}>
 
       {/* HERO */}
-      <section className="bo-hero" style={{ position: 'relative', minHeight: 920, padding: '24px 56px 80px', overflow: 'hidden' }}>
-        <Stars density={100} />
-        <Nav />
-
-        <div className="bo-planet-hero" style={{ position: 'relative', display: 'flex', justifyContent: 'center', marginTop: 40, zIndex: 2 }}>
-          <BigPlanet size={400} />
-        </div>
-
-        <div className="bo-hide-mobile" style={{ position: 'absolute', top: '38%', right: '8%', opacity: 0.6, animation: 'bo-float 5s ease-in-out infinite' }}>
-          <Comet />
-        </div>
-
-        <div style={{ position: 'relative', textAlign: 'center', marginTop: 40, zIndex: 3 }}>
-          <h1
-            style={{
-              fontFamily: 'var(--font-serif)',
-              fontWeight: 300,
-              fontSize: 'clamp(80px, 11vw, 160px)',
-              margin: 0,
-              letterSpacing: -4,
-              lineHeight: 0.92,
-              color: 'var(--ink)',
-            }}
-          >
-            Small missions,<br />
-            <span style={{ fontStyle: 'italic', fontWeight: 400, color: 'var(--accent)' }}>far-flung</span> ideas.
-          </h1>
-        </div>
-
-        <div style={{ position: 'relative', textAlign: 'center', marginTop: 40, maxWidth: 620, marginLeft: 'auto', marginRight: 'auto', zIndex: 3 }}>
-          <p style={{ fontSize: 18, lineHeight: 1.6, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>
-            <span style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', color: 'var(--ink)' }}>SPACYAPPS</span>{' '}is a one-person studio building Apple apps to assist certain user types. The site is also a space log — there&apos;s writing here when it&apos;s received from orbit.
-          </p>
-          <div className="bo-cta-wrap" style={{ display: 'flex', gap: 14, justifyContent: 'center', marginTop: 36 }}>
-            <Link
-              href="#missions"
-              style={{
-                background: 'var(--accent)',
-                color: 'var(--bg)',
-                border: 'none',
-                padding: '14px 28px',
-                borderRadius: 999,
-                fontSize: 14,
-                fontWeight: 600,
-                fontFamily: 'var(--font-body)',
-                letterSpacing: 0.2,
-                textDecoration: 'none',
-                display: 'inline-block',
-              }}
-            >
-              Tour the missions →
-            </Link>
-            <Link
-              href="/journal"
-              style={{
-                background: 'transparent',
-                color: 'var(--ink)',
-                border: '1px solid var(--line)',
-                padding: '14px 28px',
-                borderRadius: 999,
-                fontSize: 14,
-                fontWeight: 500,
-                fontFamily: 'var(--font-body)',
-                textDecoration: 'none',
-                display: 'inline-block',
-              }}
-            >
-              Explore the journal star map
-            </Link>
-          </div>
-        </div>
-      </section>
+      <StarSystemHero missions={missions} latest={latest} />
 
       {/* MARQUEE */}
       <Marquee />
