@@ -25,9 +25,6 @@ export interface Post {
   kind: 'essay' | 'photo' | 'code';
   pinned?: boolean;
   link?: string;
-  cx: number;
-  cy: number;
-  ring: number;
   angle: number;
   excerpt: string;
   body: Block[];
@@ -67,14 +64,14 @@ export const POSTS: Post[] = [
     title: 'Signature Gesture Matching Algorithm', date: '2026-05-08', dateLabel: 'May 8, 2026',
     read: '8 min', kind: 'essay', pinned: true,
     link: '/apps/secret-stuff#dive-original-signature-algorithm',
-    cx: 1060, cy: 160, ring: 0, angle: 35,
+    angle: 35,
     excerpt: 'How a greedy pointer walk and overlapping tolerance boxes turn two imperfect hand-drawn paths into a reliable authentication lock — written in Obj-C circa 2010, still running today.',
     body: [],
   },
   {
     id: 'fl-05', slug: 'secret-stuff-first-release', topic: 'first_light',
     title: 'Secret Stuff — First Release', date: '2026-05-09', dateLabel: 'May 9, 2026',
-    read: '3 min', kind: 'essay', cx: 910, cy: 540, ring: 0, angle: 0,
+    read: '3 min', kind: 'essay', angle: 0,
     excerpt: 'The story of shipping Secret Stuff for the first time — what it took, what broke, and what stuck.',
     body: [
       { kind: 'lede', text: 'Back in 2009 or 2010 (roughly), when everyone was constantly borrowing each other\'s phones, I ran into a problem. Friends would swipe through my photos, notes, and everything else without thinking twice. I loved sharing — but I also wanted some things to stay private.' },
@@ -100,21 +97,21 @@ export const POSTS: Post[] = [
   {
     id: 'fl-03', slug: 'first-light-03', topic: 'first_light',
     title: 'First Light · 03', date: '', dateLabel: 'Coming soon',
-    read: '—', kind: 'essay', cx: 120, cy: 640, ring: 0, angle: 285,
+    read: '—', kind: 'essay', angle: 285,
     excerpt: 'Incoming.',
     body: [],
   },
   {
     id: 'fl-04', slug: 'first-light-04', topic: 'first_light',
     title: 'First Light · 04', date: '', dateLabel: 'Coming soon',
-    read: '—', kind: 'essay', cx: 360, cy: 240, ring: 0, angle: 320,
+    read: '—', kind: 'essay', angle: 320,
     excerpt: 'Incoming.',
     body: [],
   },
   {
     id: 'dr-01', slug: 'expansion-01', topic: 'drift',
     title: 'Mastering Human-AI Collaboration', date: '2026-05-09', dateLabel: 'May 9, 2026',
-    read: '6 min', kind: 'essay', cx: 1050, cy: 360, ring: 1, angle: 30,
+    read: '6 min', kind: 'essay', angle: 30,
     excerpt: 'AI adaptation isn\'t about resistance — it\'s about thoughtful partnership. A practical guide to staying ahead by keeping your own thinking in the driver\'s seat.',
     body: [
       { kind: 'lede', text: 'AI is one of the most powerful tools humanity has ever created. As Uncle Ben told Peter Parker, "With great power comes great responsibility." That advice has never been more relevant.' },
@@ -166,7 +163,7 @@ export const POSTS: Post[] = [
     id: 'dr-02', slug: 'expansion-02', topic: 'drift',
     title: 'Pure Vibe Programming Trials',
     date: '2026-05-10', dateLabel: 'May 10, 2026',
-    read: '4 min', kind: 'essay', cx: 1230, cy: 270, ring: 1, angle: 75,
+    read: '4 min', kind: 'essay', angle: 75,
     excerpt: 'An ongoing experiment: can AI be the developer while I stay in the lead as product owner? Checkpoint was the first trial. Conduit is the next.',
     body: [
       { kind: 'lede', text: 'There\'s a mode of working with AI that gets called "vibe coding" — where you describe what you want and let the model write the code. I\'ve been running a more structured version of that experiment, and I want to log it here as it happens.' },
@@ -233,7 +230,7 @@ export const POSTS: Post[] = [
     id: 'dr-03', slug: 'expansion-03', topic: 'drift',
     title: 'The Comments Next Door',
     date: '2026-05-13', dateLabel: 'May 13, 2026',
-    read: '4 min', kind: 'essay', cx: 1380, cy: 380, ring: 1, angle: 130,
+    read: '4 min', kind: 'essay', angle: 130,
     excerpt: 'The age-old debate about where to document your code — wiki, README, .md, commit message. The answer was always next to the code. AI just made it non-negotiable.',
     body: [
       { kind: 'lede', text: 'The debate is old. Where does context live — in the code, in a wiki, in a README, in a commit message? Every team has a different answer. I\'ve always had comments in my code (sometimes too much), but better than nothing. Now I\'m more sure than ever.' },
@@ -270,7 +267,7 @@ export const POSTS: Post[] = [
   {
     id: 'dr-04', slug: 'is-innovation-lost-now', topic: 'drift',
     title: 'Is Innovation Lost Now?', date: '2026-05-23', dateLabel: 'May 23, 2026',
-    read: '6 min', kind: 'essay', cx: 1430, cy: 590, ring: 1, angle: 185,
+    read: '6 min', kind: 'essay', angle: 185,
     excerpt: 'Innovation — is it from AI, or from me? The answer hasn\'t changed since Think Different. What has changed is who carries the implementation.',
     body: [
       { kind: 'lede', text: 'Innovation — is it from AI, or from me?' },
@@ -316,15 +313,8 @@ export const POSTS: Post[] = [
   {
     id: 'dr-05', slug: 'expansion-05', topic: 'drift',
     title: 'Expansion · 05', date: '', dateLabel: 'Coming soon',
-    read: '—', kind: 'essay', cx: 1300, cy: 750, ring: 1, angle: 240,
+    read: '—', kind: 'essay', angle: 240,
     excerpt: 'Incoming.',
     body: [],
   },
 ];
-
-export const CONSTELLATION_LINES: Record<string, [number, number][]> = {
-  first_light: [[0, 1], [1, 2], [2, 3]],
-  drift:       [[0, 1], [1, 2], [2, 3], [3, 4]],
-};
-
-export const SKY = { width: 1600, height: 1000 };

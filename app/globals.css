@@ -211,9 +211,6 @@ body::-webkit-scrollbar {
 @keyframes jr-fadein  { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes jr-blink   { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-.jr-star, .jr-orbit-node { cursor: pointer; transition: transform .2s ease, filter .2s; transform-origin: center; transform-box: fill-box; }
-.jr-star:hover        { transform: scale(1.5); filter: brightness(1.5); }
-.jr-orbit-node:hover  { transform: scale(1.4); filter: brightness(1.3); }
 
 @media (prefers-reduced-motion: reduce) {
   .bo-card {

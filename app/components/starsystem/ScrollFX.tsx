@@ -1,7 +1,7 @@
 'use client';
 
-// Scroll choreography for the home page below the hero: elements marked
-// data-reveal rise into place as they enter. Everything shows as-is without
+// Scroll reveals for the home page below the hero and for journal posts'
+// figures: elements marked data-reveal rise into place as they enter. Everything shows as-is without
 // JS, and for reduced motion the 'fx' class is never added.
 
 import { useEffect } from 'react';

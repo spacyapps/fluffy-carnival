@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useRef } from 'react';
+import ScrollFX from '../starsystem/ScrollFX';
 import Stars from '../boutique/Stars';
 import Logotype from '../boutique/Logotype';
 import BigPlanet from '../boutique/BigPlanet';
@@ -34,8 +36,30 @@ export default function PostReaderShell({ post, topic, siblings }: {
   topic: Topic;
   siblings: Post[];
 }) {
+  // Reading progress through the article body, 0..1, written to --read on the
+  // shell so the sticky strip's hairline fills without re-rendering.
+  const shellRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    let raf = 0;
+    const measure = () => {
+      raf = 0;
+      const body = bodyRef.current, shell = shellRef.current;
+      if (!body || !shell) return;
+      const r = body.getBoundingClientRect();
+      const read = Math.min(1, Math.max(0, (window.innerHeight * 0.35 - r.top) / r.height));
+      shell.style.setProperty('--read', read.toFixed(4));
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(measure); };
+    measure();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); cancelAnimationFrame(raf); };
+  }, []);
+
   return (
-    <div style={{ width: '100%', minHeight: '100vh', background: 'var(--bg)', color: 'var(--ink)', fontFamily: 'var(--font-body)', position: 'relative', overflowX: 'hidden' }}>
+    <div ref={shellRef} style={{ '--read': 0, width: '100%', minHeight: '100vh', background: 'var(--bg)', color: 'var(--ink)', fontFamily: 'var(--font-body)', position: 'relative', overflowX: 'clip' } as React.CSSProperties}>
+      <ScrollFX />
       <Stars density={60} />
 
       {/* STICKY TOP STRIP */}
@@ -55,6 +79,11 @@ export default function PostReaderShell({ post, topic, siblings }: {
         <Logotype size={11} />
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 2, color: 'var(--ink-faint)' }}>
           {topic.glyph} {topic.name.toUpperCase()} · {post.dateLabel.toUpperCase()}
+        </div>
+        {/* Reading progress: a hairline in the topic colour, with a small body riding its leading edge. */}
+        <div aria-hidden="true" style={{ position: 'absolute', left: 0, right: 0, bottom: -1, height: 1, pointerEvents: 'none' }}>
+          <div style={{ height: '100%', background: `linear-gradient(90deg, transparent, ${topic.color})`, transform: 'scaleX(var(--read))', transformOrigin: 'left' }} />
+          <div style={{ position: 'absolute', top: -2.5, left: 'calc(var(--read) * 100%)', width: 6, height: 6, marginLeft: -3, borderRadius: '50%', background: topic.color, boxShadow: `0 0 10px ${topic.color}`, opacity: 'min(1, calc(var(--read) * 40))' }} />
         </div>
       </div>
 
@@ -88,7 +117,7 @@ export default function PostReaderShell({ post, topic, siblings }: {
       </header>
 
       {/* BODY */}
-      <article style={{ position: 'relative', maxWidth: 720, margin: '0 auto', padding: '36px 56px 64px' }}>
+      <article ref={bodyRef} style={{ position: 'relative', maxWidth: 720, margin: '0 auto', padding: '36px 56px 64px' }}>
         {post.body.length === 0 ? (
           <div style={{ margin: '64px auto', maxWidth: 440, padding: '32px 36px', border: '1px solid var(--line)', borderRadius: 8, fontFamily: 'var(--font-mono)' }}>
             <div style={{ fontSize: 10, letterSpacing: 3, color: topic.color, marginBottom: 28 }}>
