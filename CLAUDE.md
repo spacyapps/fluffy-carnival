@@ -21,6 +21,8 @@ Pages are thin; content is data.
 - `app/data/posts.ts` → the home page's journal cards only. **Separate list from `journal.ts`** — a new journal post doesn't appear on the home page unless it's added here too.
 - `app/apps/ground-control/themes/page.tsx` → the one hand-built sub-page. Theme list, price and Polar checkout links are at the top of the file; its comments explain the per-placement link rule.
 - `app/components/boutique/` → site components; `app/components/journal/` → journal shells and diagrams.
+- `app/components/starsystem/` → the home hero, a three.js star system (`scene.ts`), one planet per `APPS` entry, styled by its `phase`.
+- `app/components/journal/Orrery.tsx` + `orreryScene.ts` → the journal index, a three.js brass orrery; posts are beads, undated posts are empty clasps.
 - `app/sitemap.ts` → built from `APPS` + `journal.ts`, plus a hand-listed `appSubPages` array. A new non-`APPS` page must be added there.
 - `app/dev/` → local scratch pages, untracked. Not part of the site.
 
@@ -29,5 +31,6 @@ Pages are thin; content is data.
 - **Fixed 1080px layout.** `layout.tsx` sets `width: 1080`; `ScaleWrapper` scales it down on narrow screens. Don't add responsive CSS.
 - **Inline styles in JSX**, using the tokens in `app/globals.css` (`--bg`, `--ink*`, `--accent*`, `--font-*`). No Tailwind.
 - **Undated journal entries are placeholders** ("Coming soon"). They're noindexed and kept out of the sitemap and feed by checking `date` — keep `date: ''` until a post is real.
+- **The home scene and the journal orrery share no code.** Walter wants the journal to be its own world; don't import `starsystem/` from `journal/` or vice versa.
 - **The site carries the story, the app repos carry the facts.** Link to a repo's docs rather than copying specs onto a page.
 - **This repo is public.** No private notes, keys or unreleased details in code or comments.
