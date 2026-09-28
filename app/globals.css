@@ -10,6 +10,7 @@
   --accent: #e8a87c;
   --accent-2: #9bb5c9;
   --accent-3: #c89bd1;
+  --live: #8fd4a0;
 
   --font-serif: var(--font-fraunces), 'Cormorant Garamond', Georgia, serif;
   --font-display: var(--font-bricolage), 'Inter Tight', sans-serif;
@@ -65,8 +66,94 @@ body::-webkit-scrollbar {
 
 .bo-card:hover {
   transform: translateY(-4px);
+}
+
+.bo-card:not(.bo-glow):hover {
   border-color: rgba(232, 168, 124, 0.35) !important;
   background: rgba(232, 168, 124, 0.04) !important;
+}
+
+/* Glow cards (home page): a soft light in the card's own colour (--glow)
+   follows the pointer inside the card, and a brighter arc of it rides the
+   border. CardGlow feeds --mx/--my; without it the light rests at the top. */
+@property --glow-o {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+
+.bo-glow {
+  --glow: var(--accent);
+  position: relative;
+  background-image: radial-gradient(360px circle at var(--mx, 50%) var(--my, 0%), color-mix(in srgb, var(--glow) var(--glow-o), transparent), transparent 70%);
+  transition: transform 0.3s ease, border-color 0.3s ease, --glow-o 0.5s ease;
+}
+
+.bo-glow::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  border-radius: inherit;
+  background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 0%), var(--glow), transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.bo-glow:hover {
+  --glow-o: 16%;
+  border-color: color-mix(in srgb, var(--glow) 35%, transparent) !important;
+}
+
+.bo-glow:hover::after {
+  opacity: 0.9;
+}
+
+/* Construction sites read as blueprints: dashed edge, a faint mist grid,
+   and a dimmed icon and tagline that come up to full when you look closer. */
+.bo-site {
+  background-image:
+    radial-gradient(360px circle at var(--mx, 50%) var(--my, 0%), color-mix(in srgb, var(--glow) var(--glow-o), transparent), transparent 70%),
+    linear-gradient(rgba(155, 181, 201, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(155, 181, 201, 0.055) 1px, transparent 1px);
+  background-size: auto, 22px 22px, 22px 22px;
+  background-position: 0 0, -1px -1px, -1px -1px;
+}
+
+.bo-site .bo-site-dim {
+  opacity: 0.62;
+  filter: saturate(0.45);
+  transition: opacity 0.5s ease, filter 0.5s ease;
+}
+
+.bo-site:hover .bo-site-dim {
+  opacity: 1;
+  filter: none;
+}
+
+/* Contact relay: a radar sweep that circles every 9s, blips that flash as
+   the beam passes them, and pings that go out while the address is hovered. */
+@keyframes relay-blip {
+  0%   { opacity: 1; transform: translate(-50%, -50%) scale(1.6); }
+  25%  { opacity: 0.35; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0.18; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes relay-ping {
+  from { transform: translate(-50%, -50%) scale(0.05); opacity: 0.9; }
+  to   { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+}
+
+.relay-ping {
+  opacity: 0;
+}
+
+#contact:has(a[href^="mailto:"]:hover) .relay-ping {
+  animation: relay-ping 1.8s cubic-bezier(.2, .6, .3, 1) infinite;
 }
 
 .bo-link {

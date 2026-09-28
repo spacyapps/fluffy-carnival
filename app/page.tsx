@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
-import Stars from './components/boutique/Stars';
 
 export const metadata: Metadata = {
   alternates: { canonical: '/' },
@@ -12,13 +11,14 @@ export const viewport: Viewport = {
 };
 import ContactLink from './components/boutique/ContactLink';
 import BigPlanet from './components/boutique/BigPlanet';
-import Marquee from './components/boutique/Marquee';
 import AppIcon from './components/boutique/AppIcon';
 import ScaleWrapper from './components/boutique/ScaleWrapper';
 import { APPS } from './data/apps';
 import { POSTS } from './data/posts';
 import { POSTS as JOURNAL } from './data/journal';
 import ScrollFX from './components/starsystem/ScrollFX';
+import CardGlow from './components/boutique/CardGlow';
+import RelaySweep from './components/boutique/RelaySweep';
 import StarSystemHero, { type MissionStop, type JournalStop } from './components/starsystem/StarSystemHero';
 
 const missions: MissionStop[] = APPS.map(a => ({
@@ -31,6 +31,11 @@ const missions: MissionStop[] = APPS.map(a => ({
   tagline: a.tagline,
   href: a.noPage ? null : `/apps/${a.slug}`,
 }));
+
+// Cards grouped by phase, numbered in the order they appear.
+const PHASE_ROWS = (['live', 'in-play'] as const)
+  .map(phase => APPS.filter(a => a.phase === phase))
+  .map((row, r, rows) => row.map((app, j) => ({ app, i: rows.slice(0, r).reduce((n, x) => n + x.length, 0) + j })));
 
 // The newest dated journal entry — undated ones are placeholders.
 const newest = JOURNAL.filter(p => p.date).sort((a, b) => b.date.localeCompare(a.date))[0];
@@ -51,15 +56,11 @@ export default function Home() {
       {/* Everything below the hero is a curtain that slides up over it. */}
       <div style={{ position: 'relative', zIndex: 1, background: 'var(--bg)', borderRadius: '32px 32px 0 0', boxShadow: '0 -40px 90px rgba(0,0,0,0.55)', overflow: 'hidden' }}>
       <ScrollFX />
-
-      {/* MARQUEE */}
-      <div style={{ transform: 'skewX(var(--scroll-skew, 0deg))', transformOrigin: '50% 50%' }}>
-        <Marquee />
-      </div>
+      <CardGlow />
 
       {/* APPS */}
       <section id="missions" className="bo-section" style={{ padding: '96px 56px' }}>
-        <div className="bo-flex-col" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 56 }}>
+        <div style={{ marginBottom: 56 }}>
           <div>
             <div data-reveal="" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 3, color: 'var(--accent)', marginBottom: 14 }}>
               I.  MISSIONS
@@ -80,40 +81,42 @@ export default function Home() {
               <span style={{ fontStyle: 'italic', color: 'var(--accent-2)' }}>currently in orbit.</span>
             </h2>
           </div>
-          <div className="bo-hide-mobile" data-reveal="" style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--ink-faint)', letterSpacing: 1.5, '--d': '0.2s' } as React.CSSProperties}>
-            {String(APPS.filter(a => a.phase === 'live').length).padStart(2, '0')} LIVE · {String(APPS.filter(a => a.phase === 'in-play').length).padStart(2, '0')} UNDER CONSTRUCTION
-          </div>
         </div>
 
-        <div className="bo-grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24 }}>
-          {APPS.map((app, i) => {
+        {/* Live worlds first, construction sites on their own row beneath. */}
+        {PHASE_ROWS.map((row, r) => (
+        <div key={r} className="bo-grid-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, marginTop: r ? 48 : 0 }}>
+          {row.map(({ app, i }) => {
+            const site = app.phase === 'in-play';
             const cardInner = (
               <div
-                className="bo-card"
+                className={site ? 'bo-card bo-glow bo-site' : 'bo-card bo-glow'}
                 style={{
+                  '--glow': app.color,
                   position: 'relative',
                   padding: '36px 30px 28px',
-                  background: 'var(--bg-panel)',
-                  border: '1px solid var(--line)',
+                  backgroundColor: 'var(--bg-panel)',
+                  border: site ? '1px dashed rgba(155,181,201,0.3)' : '1px solid var(--line)',
                   borderRadius: 14,
                   cursor: app.noPage ? 'default' : 'pointer',
                   height: '100%',
                   boxSizing: 'border-box',
-                }}
+                } as React.CSSProperties}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
-                  <AppIcon glyph={app.glyph} color={app.color} size={56} icon={app.icon} />
+                  <div className="bo-site-dim"><AppIcon glyph={app.glyph} color={app.color} size={56} icon={app.icon} /></div>
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-faint)', letterSpacing: 1.5, textAlign: 'right', lineHeight: 1.6 }}>
                     №{String(i + 1).padStart(2, '0')}
                   </span>
                 </div>
+                <PhaseTag live={app.phase === 'live'} />
                 <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 32, fontWeight: 400, margin: '0 0 4px', letterSpacing: -0.7, lineHeight: 1 }}>
                   {app.name}
                 </h3>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-faint)', letterSpacing: 1.5, marginBottom: 16 }}>
                   {app.platform.toUpperCase()}{app.version !== '—' && <>  ·  v{app.version}</>}
                 </div>
-                <p style={{ fontSize: 14.5, lineHeight: 1.6, color: 'var(--ink-dim)', margin: (app.companion || app.milestones) ? '0 0 16px' : '0 0 24px', fontWeight: 300, minHeight: 70, fontFamily: 'var(--font-body)' }}>
+                <p className="bo-site-dim" style={{ fontSize: 14.5, lineHeight: 1.6, color: 'var(--ink-dim)', margin: (app.companion || app.milestones) ? '0 0 16px' : '0 0 24px', fontWeight: 300, minHeight: 70, fontFamily: 'var(--font-body)' }}>
                   {app.tagline}
                 </p>
                 {app.milestones && (
@@ -170,6 +173,7 @@ export default function Home() {
             );
           })}
         </div>
+        ))}
       </section>
 
       {/* LOG */}
@@ -202,11 +206,11 @@ export default function Home() {
         <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 24, alignItems: 'stretch' }}>
           <Link href={POSTS[0].link ?? '/journal'} data-reveal="card" style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
             <article
-              className="bo-card"
+              className="bo-card bo-glow"
               style={{
                 padding: '44px 48px',
                 cursor: 'pointer',
-                background: 'var(--bg-panel)',
+                backgroundColor: 'var(--bg-panel)',
                 border: '1px solid var(--line)',
                 borderRadius: 14,
                 position: 'relative',
@@ -235,7 +239,7 @@ export default function Home() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             {POSTS.slice(1).filter(p => !p.title.startsWith('Coming')).map((post, i) => (
               <Link key={post.slug} href={post.link ?? `/journal/${post.slug}`} data-reveal="card" style={{ textDecoration: 'none', color: 'inherit', display: 'block', '--d': `${0.15 + i * 0.1}s` } as React.CSSProperties}>
-                <article className="bo-card" style={{ padding: '28px 32px', cursor: 'pointer', background: 'var(--bg-panel)', border: '1px solid var(--line)', borderRadius: 14 }}>
+                <article className="bo-card bo-glow" style={{ padding: '28px 32px', cursor: 'pointer', backgroundColor: 'var(--bg-panel)', border: '1px solid var(--line)', borderRadius: 14 }}>
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-faint)', letterSpacing: 2, marginBottom: 14 }}>
                     {post.date.toUpperCase()} · {post.read.toUpperCase()}
                   </div>
@@ -255,7 +259,7 @@ export default function Home() {
 
       {/* CONTACT */}
       <section id="contact" className="bo-section" style={{ position: 'relative', padding: '96px 56px 64px', borderTop: '1px solid var(--line)', overflow: 'hidden' }}>
-        <Stars density={30} />
+        <RelaySweep blips={APPS.map(a => ({ live: a.phase === 'live' }))} />
         <div style={{ position: 'relative' }}>
           <div data-reveal="" style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 3, color: 'var(--accent)', marginBottom: 18 }}>
             III.  SIGNAL STATUS
@@ -347,5 +351,19 @@ export default function Home() {
 
     </div>
     </ScaleWrapper>
+  );
+}
+
+// A card's status, in the hero's language: a pulsing green dot for a world
+// that's live, a slowly turning dashed ring for one still being built.
+function PhaseTag({ live }: { live: boolean }) {
+  const color = live ? 'var(--live)' : 'var(--accent-2)';
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, fontFamily: 'var(--font-mono)', fontSize: 10.5, letterSpacing: 2, color }}>
+      {live
+        ? <span style={{ width: 6, height: 6, borderRadius: '50%', background: color, boxShadow: `0 0 8px ${color}`, animation: 'bo-pulse 2.4s ease-in-out infinite' }} />
+        : <span style={{ width: 7, height: 7, borderRadius: '50%', border: `1px dashed ${color}`, animation: 'jr-spin 6s linear infinite' }} />}
+      {live ? 'LIVE' : 'UNDER CONSTRUCTION'}
+    </div>
   );
 }

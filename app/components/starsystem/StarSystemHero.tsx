@@ -49,6 +49,7 @@ const JOURNAL_ID = 'journal';
 const CONTACT_ID = 'contact';
 const MIST = '#9bb5c9';
 const PEACH = '#e8a87c';
+const GREEN = 'var(--live)'; // live signal: soft phosphor green, muted to sit beside peach and mist
 
 type Chapter = { id: string | null; label: string };
 
@@ -261,7 +262,7 @@ export default function StarSystemHero({ missions, latest }: { missions: Mission
               const active = current.id === l.id;
               const href = hrefFor(l.id);
               const building = l.kind === 'in-play';
-              const dot = building || l.kind === 'journal' ? MIST : PEACH;
+              const dot = l.kind === 'live' ? GREEN : building || l.kind === 'journal' ? MIST : PEACH;
               const style: React.CSSProperties = {
                 position: 'absolute', left: 0, top: 0,
                 display: 'inline-flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap',
@@ -288,9 +289,9 @@ export default function StarSystemHero({ missions, latest }: { missions: Mission
                     <span
                       style={{
                         fontSize: 8.5, letterSpacing: 1.5, padding: '2px 6px', borderRadius: 4,
-                        color: building ? '#0e1014' : PEACH,
-                        background: building ? `repeating-linear-gradient(-45deg, ${MIST} 0 5px, #c9d6e0 5px 10px)` : 'rgba(232,168,124,0.12)',
-                        border: building ? 'none' : '1px solid rgba(232,168,124,0.3)',
+                        color: building ? '#0e1014' : GREEN,
+                        background: building ? `repeating-linear-gradient(-45deg, ${MIST} 0 5px, #c9d6e0 5px 10px)` : 'rgba(143,212,160,0.12)',
+                        border: building ? 'none' : '1px solid rgba(143,212,160,0.3)',
                         fontWeight: 600,
                       }}
                     >
@@ -449,7 +450,7 @@ function Caption({ chapter, index, missions, latest, liveCount, travelOnClick }:
     <>
       <div style={kicker}>
         Mission {String(index).padStart(2, '0')} ·{' '}
-        <span style={{ color: live ? 'var(--accent)' : 'var(--accent-2)' }}>{live ? '●' : '◌'} {PHASE_LABEL[m.phase]}</span>
+        <span style={{ color: live ? GREEN : 'var(--accent-2)' }}>{live ? '●' : '◌'} {PHASE_LABEL[m.phase]}</span>
         {' '}· {m.platform}{m.version !== '—' && ` v${m.version}`}
       </div>
       <h2 style={title}>{m.name}</h2>
