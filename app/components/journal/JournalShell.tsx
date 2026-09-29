@@ -1,16 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Stars from '../boutique/Stars';
 import Logotype from '../boutique/Logotype';
-import { POSTS, TOPICS, type Post, type Topic } from '../../data/journal';
+import { POSTS, type Post, type Topic } from '../../data/journal';
 import RefineLoopSVG from './RefineLoopSVG';
 import HumanEdgeSVG from './HumanEdgeSVG';
 import CommentContextSVG from './CommentContextSVG';
 import SonarCommentSVG from './SonarCommentSVG';
-import Orrery from './Orrery';
+import Lounge from './Lounge';
 
 // ── useIsMobile ───────────────────────────────────────────────────────────────
 function useIsMobile() {
@@ -254,72 +253,37 @@ export function PostBody({ blocks, topic }: { blocks: Post['body']; topic: Topic
   return <div>{elements}</div>;
 }
 
-// Posts without a date are placeholders: drawn unlit, not clickable.
-const unlit = (p: Post) => !p.date;
-const metaLine = (p: Post) => (unlit(p) ? p.dateLabel : `${p.dateLabel} · ${p.read}`).toUpperCase();
+// Posts without a date are placeholders; the index leaves them out entirely.
+// Newest first, so the drawer's front sleeve is the latest entry.
+const PUBLISHED = POSTS.filter(p => p.date).sort((a, b) => b.date.localeCompare(a.date));
 
 // ── IndexView ─────────────────────────────────────────────────────────────────
+// The plain list: the selected entry large on top, the rest below it.
 function IndexView({ isMobile }: { isMobile: boolean }) {
-  const router = useRouter();
+  const lead = PUBLISHED.find(p => p.pinned) ?? PUBLISHED[0];
+  const rest = PUBLISHED.filter(p => p !== lead);
+  const href = (p: Post) => p.link ?? `/journal/${p.slug}`;
   return (
-    <div style={{ maxWidth: 1100, margin: '0 auto', padding: isMobile ? '16px 16px 40px' : '24px 56px 64px' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? 32 : 56 }}>
-        {Object.values(TOPICS).map(t => {
-          const list = POSTS.filter(p => p.topic === t.id);
-          return (
-            <section key={t.id}>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8 }}>
-                <span style={{ color: t.color, fontFamily: 'var(--font-mono)', fontSize: 14 }}>{t.glyph}</span>
-                <h3 style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 28, fontWeight: 400, margin: 0, letterSpacing: -0.6, color: t.color }}>{t.name}</h3>
-              </div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 2, color: 'var(--ink-faint)', marginBottom: 24 }}>
-                {String(list.length).padStart(2, '0')} ENTRIES
-              </div>
-              <div>
-                {list.map((post, i) => unlit(post) ? (
-                  <div key={post.id} style={{ display: 'grid', gridTemplateColumns: '32px 1fr', gap: 12, alignItems: 'baseline', padding: '16px 6px', borderBottom: '1px dotted var(--line)', opacity: 0.42 }}>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-faint)', letterSpacing: 1 }}>{String(i + 1).padStart(2, '0')}.</span>
-                    <div>
-                      <div style={{ fontFamily: 'var(--font-serif)', fontSize: 22, fontWeight: 400, color: 'var(--ink)', lineHeight: 1.2, letterSpacing: -0.4, marginBottom: 4 }}>{post.title}</div>
-                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-faint)', letterSpacing: 1.5 }}>{metaLine(post)}</div>
-                    </div>
-                  </div>
-                ) : (
-                  <div key={post.id} onClick={() => router.push(post.link ?? `/journal/${post.slug}`)}
-                    style={{ display: 'grid', gridTemplateColumns: '32px 1fr', gap: 12, alignItems: 'baseline', padding: '16px 6px', cursor: 'pointer', borderBottom: '1px dotted var(--line)', borderRadius: 4, transition: 'background .2s' }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(236,230,214,0.03)')}
-                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                  >
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-faint)', letterSpacing: 1 }}>{String(i + 1).padStart(2, '0')}.</span>
-                    <div>
-                      <div style={{ fontFamily: 'var(--font-serif)', fontSize: 22, fontWeight: 400, fontStyle: post.pinned ? 'italic' : 'normal', color: 'var(--ink)', lineHeight: 1.2, letterSpacing: -0.4, marginBottom: 4 }}>
-                        {post.title}{post.pinned && <span style={{ color: t.color, marginLeft: 8, fontStyle: 'normal', fontSize: 13 }}>✦</span>}
-                      </div>
-                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-faint)', letterSpacing: 1.5 }}>
-                        {post.dateLabel.toUpperCase()} · {post.read.toUpperCase()} · {post.kind.toUpperCase()}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-// ── HoverCard ─────────────────────────────────────────────────────────────────
-function HoverCard({ post }: { post: Post }) {
-  const t = TOPICS[post.topic];
-  return (
-    <div style={{ position: 'fixed', bottom: 32, left: '50%', transform: 'translateX(-50%)', background: 'var(--bg-panel)', border: '1px solid var(--line)', borderRadius: 12, padding: '14px 22px', maxWidth: 520, width: 'max-content', color: 'var(--ink)', zIndex: 50, boxShadow: '0 12px 40px rgba(0,0,0,0.4)', textAlign: 'center', animation: 'jr-fadein .25s ease-out', pointerEvents: 'none' }}>
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2, color: t.color, marginBottom: 6 }}>
-        {t.glyph} {t.name.toUpperCase()} · {post.dateLabel.toUpperCase()} · {post.read.toUpperCase()}
-      </div>
-      <div style={{ fontFamily: 'var(--font-serif)', fontSize: 17, fontStyle: post.pinned ? 'italic' : 'normal', marginBottom: 4 }}>{post.title}</div>
-      <div style={{ fontFamily: 'var(--font-serif)', fontSize: 13, color: 'var(--ink-dim)', fontWeight: 300, lineHeight: 1.5 }}>{post.excerpt}</div>
+    <div style={{ maxWidth: 820, margin: '0 auto', padding: isMobile ? '16px 16px 40px' : '32px 56px 64px' }}>
+      <Link href={href(lead)} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+        <article className="bo-card" style={{ padding: isMobile ? '24px 22px' : '36px 40px', border: '1px solid var(--line)', borderRadius: 14, background: 'rgba(236,230,214,0.03)', marginBottom: 40 }}>
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10.5, letterSpacing: 2.5, color: 'var(--accent)', marginBottom: 14 }}>
+            ✦ {lead.pinned ? 'SELECTED' : 'LATEST'} · {lead.dateLabel.toUpperCase()} · {lead.read.toUpperCase()}
+          </div>
+          <h3 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: isMobile ? 30 : 42, lineHeight: 1.08, letterSpacing: -1, margin: '0 0 14px' }}>{lead.title}</h3>
+          <p style={{ fontFamily: 'var(--font-serif)', fontSize: 16, lineHeight: 1.6, color: 'var(--ink-dim)', fontWeight: 300, margin: 0 }}>{lead.excerpt}</p>
+        </article>
+      </Link>
+      {rest.map((post, i) => (
+        <Link key={post.id} href={href(post)} style={{ textDecoration: 'none', color: 'inherit', display: 'grid', gridTemplateColumns: '40px 1fr', gap: 12, alignItems: 'baseline', padding: '18px 6px', borderBottom: '1px dotted var(--line)' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--ink-faint)', letterSpacing: 1 }}>{String(i + 1).padStart(2, '0')}.</span>
+          <div>
+            <div style={{ fontFamily: 'var(--font-serif)', fontSize: 22, fontWeight: 400, lineHeight: 1.2, letterSpacing: -0.4, marginBottom: 6 }}>{post.title}</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--ink-faint)', letterSpacing: 1.5, marginBottom: 8 }}>{post.dateLabel.toUpperCase()} · {post.read.toUpperCase()}</div>
+            <div style={{ fontFamily: 'var(--font-serif)', fontSize: 14.5, lineHeight: 1.55, color: 'var(--ink-dim)', fontWeight: 300 }}>{post.excerpt}</div>
+          </div>
+        </Link>
+      ))}
     </div>
   );
 }
@@ -327,9 +291,7 @@ function HoverCard({ post }: { post: Post }) {
 // ── JournalShell ──────────────────────────────────────────────────────────────
 export default function JournalShell() {
   const isMobile = useIsMobile();
-  const [metaphor, setMetaphor] = useState<'orrery' | 'index'>('orrery');
-  const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
-  const [hovered, setHovered] = useState<Post | null>(null);
+  const [metaphor, setMetaphor] = useState<'lounge' | 'index'>('lounge');
 
   useEffect(() => {
     if (isMobile) setMetaphor('index');
@@ -361,69 +323,47 @@ export default function JournalShell() {
       )}
 
       {/* HERO */}
-      <header style={{ position: 'relative', zIndex: 2, padding: isMobile ? '32px 16px 16px' : '40px 56px 8px', textAlign: 'center' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 4, color: 'var(--accent)', marginBottom: 18 }}>
-          ✦  THE JOURNAL  ·  EST. MMXXIV  ·  CHARTED  ✦
+      <header style={{ position: 'relative', zIndex: 2, padding: isMobile ? '28px 16px 12px' : '28px 56px 4px', textAlign: 'center' }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 4, color: 'var(--accent)', marginBottom: 14 }}>
+          ✦  THE JOURNAL  ·  EST. MMXXIV  ✦
         </div>
-        <h1 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: isMobile ? 'clamp(36px, 10vw, 60px)' : 'clamp(56px, 6.5vw, 92px)', margin: 0, letterSpacing: -3, lineHeight: 0.95 }}>
-          A <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>star chart</span> of the writing.
+        <h1 style={{ fontFamily: 'var(--font-serif)', fontWeight: 300, fontSize: isMobile ? 'clamp(32px, 9vw, 48px)' : 'clamp(40px, 4.4vw, 60px)', margin: 0, letterSpacing: -1.5, lineHeight: 1 }}>
+          Notes from <span style={{ fontStyle: 'italic', color: 'var(--accent)' }}>orbit</span>.
         </h1>
         {!isMobile && (
-          <div style={{ maxWidth: 620, margin: '20px auto 0', fontSize: 16, lineHeight: 1.6, color: 'var(--ink-dim)', fontWeight: 300 }}>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <li>Organised by <em style={{ color: 'var(--ink)' }}>topic</em>, not by date</li>
-              <li>Each topic is its own hoop — pick a bead to read</li>
-            </ul>
-          </div>
+          <p style={{ margin: '14px auto 0', fontSize: 15, lineHeight: 1.6, color: 'var(--ink-dim)', fontWeight: 300 }}>
+            Files on the apps to the left, magazines on the ideas to the right.
+          </p>
         )}
       </header>
 
       {/* CONTROLS */}
-      <div style={{ position: 'relative', zIndex: 3, maxWidth: 1320, margin: isMobile ? '36px auto 0' : '28px auto 0', padding: isMobile ? '0 16px' : '0 56px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', flexWrap: 'wrap', gap: isMobile ? 20 : 16, alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ position: 'relative', zIndex: 3, maxWidth: 1320, margin: isMobile ? '28px auto 0' : '20px auto 0', padding: isMobile ? '0 16px' : '0 56px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', flexWrap: 'wrap', gap: isMobile ? 20 : 16, alignItems: 'center', justifyContent: 'center' }}>
         {/* Metaphor switch */}
         <div style={{ display: 'flex', padding: 4, borderRadius: 999, border: '1px solid var(--line)', background: 'rgba(0,0,0,0.18)' }}>
-          {(['orrery', 'index'] as const).map(opt => (
+          {(['lounge', 'index'] as const).map(opt => (
             <button key={opt} onClick={() => setMetaphor(opt)} style={{ padding: isMobile ? '8px 14px' : '10px 22px', borderRadius: 999, background: metaphor === opt ? 'var(--accent)' : 'transparent', color: metaphor === opt ? 'var(--bg)' : 'var(--ink-dim)', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 2, fontWeight: 600, transition: 'background .25s, color .25s' }}>
               {opt.toUpperCase()}
             </button>
           ))}
         </div>
-
-        {/* Topic legend — hidden in index view */}
-        {metaphor !== 'index' && (
-          <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-            {Object.values(TOPICS).map(t => {
-              const active = activeTopicId === t.id;
-              return (
-                <button key={t.id} onClick={() => setActiveTopicId(active ? null : t.id)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', background: active ? `${t.color}20` : 'transparent', border: `1px solid ${active ? t.color + '88' : 'var(--line)'}`, borderRadius: 999, color: 'var(--ink)', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: 1.5, transition: 'background .25s, border-color .25s' }}>
-                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: t.color, boxShadow: `0 0 8px ${t.color}`, display: 'inline-block' }} />
-                  <span style={{ fontWeight: 600 }}>{t.name.toUpperCase()}</span>
-                  {!isMobile && <><span style={{ color: 'var(--ink-faint)' }}>·</span><span style={{ color: 'var(--ink-dim)', fontWeight: 400 }}>{t.subtitle}</span></>}
-                </button>
-              );
-            })}
-          </div>
-        )}
       </div>
 
       {/* MAP SURFACE */}
       <main style={{ position: 'relative', zIndex: 1, padding: '12px 0 80px' }}>
-        {metaphor === 'orrery' && (
-          <div style={{ width: '100%', maxWidth: 1500, margin: '0 auto', aspectRatio: '5 / 2' }}>
-            <Orrery topics={TOPICS} hovered={hovered} setHovered={setHovered} activeTopicId={activeTopicId} onFail={() => setMetaphor('index')} />
+        {metaphor === 'lounge' && (
+          <div style={{ width: '100%', maxWidth: 1600, margin: '0 auto', aspectRatio: '16 / 9' }}>
+            <Lounge posts={PUBLISHED} onFail={() => setMetaphor('index')} />
           </div>
         )}
         {metaphor === 'index' && <IndexView isMobile={isMobile} />}
       </main>
 
-      {/* HOVER CARD */}
-      {hovered && !isMobile && <HoverCard post={hovered} />}
-
       {/* FOOTER */}
       <footer style={{ position: 'relative', zIndex: 2, padding: isMobile ? '24px 16px 20px' : '40px 56px 32px', borderTop: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
         <Logotype size={11} color="var(--ink-faint)" />
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2, color: 'var(--ink-faint)' }}>
-          {POSTS.filter(p => !unlit(p)).length} ENTRIES · {Object.keys(TOPICS).length} TOPICS
+          {PUBLISHED.length} ENTRIES
         </span>
         <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2, color: 'var(--ink-faint)' }}>
           © MMX–MMXXVI SPACYAPPS
