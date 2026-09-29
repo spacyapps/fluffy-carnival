@@ -180,14 +180,24 @@ export default function StarSystemHero({ missions, latest }: { missions: Mission
     return missions.find(m => m.slug === id)?.href ?? null;
   };
 
-  // Tapping a body, its label or a caption link: the camera dives at it and
-  // the veil carries the visitor to its page.
+  // Tapping a body or its label flies the camera there and brings up its
+  // card; the page is one more tap away, on the card's link or on the body
+  // again. Caption links go straight to their page.
+  const visit = (id: string, x: number, y: number) => {
+    const i = chapters.findIndex(c => c.id === id);
+    if (i < 0) return;
+    if (chapters[chapter].id !== id) { goTo(i); return; }
+    travel(id, x, y);
+  };
   const travel = (id: string, x: number, y: number, hrefOverride?: string, labelOverride?: string) => {
     const href = hrefOverride ?? hrefFor(id);
     const i = chapters.findIndex(c => c.id === id);
     if (i >= 0) goTo(i);
     if (!href) return;
     if (href.startsWith('mailto:')) { window.location.assign(href); return; }
+    launch(id, x, y, href, i, labelOverride);
+  };
+  const launch = (id: string, x: number, y: number, href: string, i: number, labelOverride?: string) => {
     systemRef.current?.dive(id);
     const m = missions.find(x => x.slug === id);
     depart({
@@ -223,7 +233,7 @@ export default function StarSystemHero({ missions, latest }: { missions: Mission
     if (!wrapRef.current || !system) return;
     const { x, y } = localPoint(e);
     const id = system.pick(x, y);
-    if (id) travel(id, e.clientX, e.clientY);
+    if (id) visit(id, e.clientX, e.clientY);
   };
 
   const liveCount = missions.filter(m => m.phase === 'live').length;
@@ -304,7 +314,8 @@ export default function StarSystemHero({ missions, latest }: { missions: Mission
               const hover = { onMouseEnter: () => setHovering(true), onMouseLeave: () => setHovering(false) };
               if (!href) return <button key={l.id} ref={register} onClick={() => goTo(chapters.findIndex(c => c.id === l.id))} style={{ ...style, cursor: 'pointer' }} {...hover}>{inner}</button>;
               if (href.startsWith('mailto:')) return <a key={l.id} ref={register} href={href} style={style} {...hover}>{inner}</a>;
-              return <Link key={l.id} ref={register} href={href} onClick={travelOnClick(l.id)} style={style} {...hover}>{inner}</Link>;
+              const onClick = (e: React.MouseEvent) => { if (!plainClick(e)) return; e.preventDefault(); visit(l.id, e.clientX, e.clientY); };
+              return <Link key={l.id} ref={register} href={href} onClick={onClick} style={style} {...hover}>{inner}</Link>;
             })}
           </div>
         )}
@@ -401,6 +412,8 @@ function Caption({ chapter, index, missions, latest, liveCount, travelOnClick }:
   const title: React.CSSProperties = { fontFamily: 'var(--font-serif)', fontSize: 36, fontWeight: 300, letterSpacing: -0.8, lineHeight: 1.02, margin: '0 0 10px', color: 'var(--ink)' };
   const body: React.CSSProperties = { fontSize: 14, lineHeight: 1.6, color: 'var(--ink-dim)', fontWeight: 300, margin: '0 0 16px', fontFamily: 'var(--font-body)' };
   const cta: React.CSSProperties = { fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 15.5, color: 'var(--accent)', textDecoration: 'none' };
+  // The way in: it swells a few times as the card arrives, then rests.
+  const beckon: React.CSSProperties = { ...cta, display: 'inline-block', animation: 'ss-beckon 1.6s ease-in-out .6s 3' };
 
   if (chapter.id === null) {
     return (
@@ -424,7 +437,7 @@ function Caption({ chapter, index, missions, latest, liveCount, travelOnClick }:
           Latest, {latest.date}:{' '}
           <Link href={latest.href} onClick={travelOnClick(JOURNAL_ID, latest.href, latest.title)} className="bo-link" style={{ color: 'var(--ink)' }}>{latest.title}</Link>
         </p>
-        <Link href="/journal" onClick={travelOnClick(JOURNAL_ID)} className="bo-link" style={cta}>Explore the journal star map →</Link>
+        <Link href="/journal" onClick={travelOnClick(JOURNAL_ID)} className="bo-link" style={beckon}>Explore the journal star map →</Link>
       </>
     );
   }
@@ -456,7 +469,7 @@ function Caption({ chapter, index, missions, latest, liveCount, travelOnClick }:
       <h2 style={title}>{m.name}</h2>
       <p style={body}>{m.tagline}</p>
       {m.href
-        ? <Link href={m.href} onClick={travelOnClick(m.slug)} className="bo-link" style={cta}>{live ? 'Open the briefing →' : 'See the construction site →'}</Link>
+        ? <Link href={m.href} onClick={travelOnClick(m.slug)} className="bo-link" style={beckon}>{live ? 'Open the briefing →' : 'See the construction site →'}</Link>
         : <span style={{ ...cta, color: 'var(--ink-faint)' }}>Plans still on the drawing board…</span>}
     </>
   );

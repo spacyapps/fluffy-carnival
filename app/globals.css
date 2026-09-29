@@ -210,6 +210,7 @@ body::-webkit-scrollbar {
 @keyframes jr-pulse   { 0%,100% { transform: scale(1); opacity: .5; } 50% { transform: scale(1.6); opacity: 0; } }
 @keyframes jr-fadein  { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes jr-blink   { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+@keyframes ss-beckon { 0%, 100% { transform: scale(1); text-shadow: none; } 45% { transform: scale(1.06); text-shadow: 0 0 14px rgba(232,168,124,0.75); } }
 
 
 @media (prefers-reduced-motion: reduce) {
