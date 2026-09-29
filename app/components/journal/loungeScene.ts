@@ -41,12 +41,31 @@ const CUSHION_TOP = 0.46;
 // Through her eyes: reclining on the chaise, looking down her legs to the
 // galaxy. (+x is screen-left when looking down +z.)
 const CHAISE_Z = 0.55;
-const EYE = new THREE.Vector3(0, CUSHION_TOP + 0.72, -0.72);
-const AIM = new THREE.Vector3(0, 0.56, 2.4);
+// Her poses, as weights on the morph targets baked by scripts/journal-legs.py.
+// pose -> weights on [cross, lift, side] (why)
+const POSE_KEYS = ['cross', 'lift', 'side'] as const;
+const POSES = {
+  rest:  [0, 0, 0],  // the base file: knees lightly crossed
+  cross: [1, 0, 0],  // one thigh well over the other
+  lift:  [0, 1, 0],  // top leg raised clear; only ever passed through
+  side:  [0, 0, 1],  // legs together, lying tilted to one side
+} satisfies Record<string, number[]>;
+type PoseName = keyof typeof POSES;
+
+const EYE_POV = new THREE.Vector3(0, CUSHION_TOP + 0.72, -0.72);
+const AIM_POV = new THREE.Vector3(0, 0.56, 2.4);
 const GOLD = '#c9a466';
 const COVER_GLOW = 0.42;
 
-export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fonts, opts: { reducedMotion: boolean }): Lounge {
+export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fonts, opts: { reducedMotion: boolean; upper?: boolean; view?: string | null; pose?: string | null }): Lounge {
+  // ?view=side / ?view=front: looks at her from beside the chaise or from
+  // the window, for working on the figure.
+  // view -> [eye, aim]
+  const VIEWS: Record<string, [THREE.Vector3, THREE.Vector3]> = {
+    side: [new THREE.Vector3(-1.7, 1.25, 0.35), new THREE.Vector3(0, 0.72, 0.35)],
+    front: [new THREE.Vector3(0.1, 1.15, 2.1), new THREE.Vector3(0, 0.85, 0)],
+  };
+  const [EYE, AIM] = VIEWS[opts.view ?? ''] ?? [EYE_POV.clone(), AIM_POV.clone()];
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -148,16 +167,42 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
   const draco = new DRACOLoader().setDecoderPath('/draco/');
   const legs = new THREE.Group();
   scene.add(legs);
-  const legsReady = new GLTFLoader().setDRACOLoader(draco).loadAsync('/journal/lounge-legs.glb').then(gltf => {
+  const loader = new GLTFLoader().setDRACOLoader(draco);
+  const posed: THREE.Mesh[] = [];
+  const legsReady = loader.loadAsync('/journal/lounge-legs.glb').then(gltf => {
     gltf.scene.traverse(o => {
       const m = o as THREE.Mesh;
       if (!m.isMesh) return;
       m.material = legsMat;
       m.castShadow = m.receiveShadow = true;
+      // The whole figure is in the file; unless asked, only her legs are
+      // drawn (and cast shadows): drop every triangle that touches her body
+      // above the thighs, her arms or her hands.
+      if (!opts.upper) m.geometry.setIndex(lowerOnly(m.geometry));
     });
     legs.add(gltf.scene);
-    // Lay her on the cushion: lowest point just into it, the tops of her
-    // thighs just under the bottom of the view, centred on the whole pose.
+    // Her other poses come in as morph targets once the room is up; they
+    // share the base's vertices. target order = POSE_KEYS.
+    Promise.all(POSE_KEYS.map(k => loader.loadAsync(`/journal/lounge-legs-${k}.glb`))).then(extra => {
+      const byName = (g: typeof gltf) => {
+        const m = new Map<string, THREE.Mesh>();
+        g.scene.traverse(o => { if ((o as THREE.Mesh).isMesh) m.set(o.name, o as THREE.Mesh); });
+        return m;
+      };
+      const base = byName(gltf), others = extra.map(byName);
+      const sets = [...base].map(([name, mesh]) => [mesh, others.map(o => o.get(name))] as const);
+      const fits = sets.every(([m, os]) => os.every(o => o && o.geometry.attributes.position.count === m.geometry.attributes.position.count));
+      if (!fits) return;   // mismatched bakes: she just keeps her resting pose
+      for (const [m, os] of sets) {
+        m.geometry.morphAttributes.position = os.map(o => o!.geometry.attributes.position);
+        m.geometry.morphAttributes.normal = os.map(o => o!.geometry.attributes.normal);
+        m.updateMorphTargets();
+        posed.push(m);
+      }
+      if (heldPose) setWeights(POSES[heldPose]);
+    }).catch(() => {});
+    // Lay her on the cushion by her legs: lowest point just into it, the tops
+    // of her thighs just under the bottom of the view, centred on the pose.
     const world = () => {
       legs.updateMatrixWorld(true);
       const pts: THREE.Vector3[] = [];
@@ -165,7 +210,11 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
         const m = o as THREE.Mesh;
         if (!m.isMesh) return;
         const pos = m.geometry.attributes.position;
-        for (let i = 0; i < pos.count; i += 3) pts.push(new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld));
+        const col = m.geometry.attributes.color;
+        for (let i = 0; i < pos.count; i += 3) {
+          if (col && !isLeg(col, i)) continue;   // place her by her legs, whatever else is shown
+          pts.push(new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld));
+        }
       });
       return pts;
     };
@@ -288,6 +337,22 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
   let lookX = 0, lookY = 0, curX = 0, curY = 0;
   let hovered: string | null = null;
   let lapId: string | null = null, dragId: string | null = null;
+  // Her legs while something rests in her lap: now and then she shifts to
+  // another of her poses, and back to resting once the lap is clear. Moving
+  // into or out of the side pose goes by way of the lifted one, so the top
+  // leg clears the other. A pose is its morph weights, in POSE_KEYS order.
+  const heldPose = opts.pose && opts.pose in POSES ? opts.pose as PoseName : null;
+  let legPose: PoseName = heldPose ?? 'rest', nextShift = 0;
+  let route: number[][] = [], leg = 0;
+  const shiftIn = () => time + 3 + Math.random() * 5;
+  const setWeights = (wts: number[]) => { for (const m of posed) wts.forEach((v, i) => { m.morphTargetInfluences![i] = v; }); };
+  const goTo = (to: PoseName) => {
+    if (to === legPose) return;
+    const via = (to === 'side') !== (legPose === 'side');
+    route = [POSES[legPose], ...(via ? [POSES.lift] : []), POSES[to]];
+    leg = 0;
+    legPose = to;
+  };
   const dragAt = new THREE.Vector3(), tmpP = new THREE.Vector3(), tmpN = new THREE.Vector3();
   const reduced = opts.reducedMotion;
   const camRight = new THREE.Vector3().subVectors(AIM, EYE).normalize().cross(new THREE.Vector3(0, 1, 0)).normalize();
@@ -337,6 +402,23 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
       b.mat.emissiveIntensity = COVER_GLOW + 0.2 * b.lift + (inLap ? 0.12 : 0);
     }
 
+    if (posed.length && !reduced && !heldPose) {
+      if (!lapId) goTo('rest');
+      else if (time > nextShift && !route.length) {
+        const choices = (['rest', 'cross', 'side'] as const).filter(p => p !== legPose);
+        goTo(choices[Math.floor(Math.random() * choices.length)]);
+        nextShift = shiftIn();
+      }
+      if (route.length) {
+        // One eased hop per 0.9 s along the route.
+        leg = Math.min(route.length - 1, leg + dt / 0.9);
+        const i = Math.min(route.length - 2, Math.floor(leg)), k = leg - i;
+        const e = k * k * (3 - 2 * k);
+        setWeights(route[i].map((v, j) => v + (route[i + 1][j] - v) * e));
+        if (leg >= route.length - 1) route = [];
+      }
+    }
+
     composer.render();
     if (frameCb) {
       const f = left.localToWorld(new THREE.Vector3(0, 0.54 + H + 0.2, -0.05));
@@ -366,7 +448,8 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
       return (hit?.object.userData.id as string | undefined) ?? null;
     },
     setHovered(id) { hovered = id; },
-    setLap(id) { lapId = id; },
+    // A new entry in her lap: she shifts within a second, however it arrived.
+    setLap(id) { if (id && id !== lapId) nextShift = time + 0.6 + Math.random() * 0.6; lapId = id; },
     drag(id, x, y) {
       const b = bodies.find(q => q.item.id === id);
       if (!b) return;
@@ -380,9 +463,7 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
     drop(id, x, y) {
       dragId = null;
       // Let go over the middle of the view and it settles in her lap.
-      const landed = y > h * 0.3 && Math.abs(x - w / 2) < w * 0.32;
-      if (landed) lapId = id;
-      return landed;
+      return y > h * 0.3 && Math.abs(x - w / 2) < w * 0.32;
     },
     look(nx, ny) { lookX = nx; lookY = ny; },
     onFrame(cb) { frameCb = cb; },
@@ -413,40 +494,97 @@ function suitMaterial() {
     sheen: 1, sheenColor: new THREE.Color('#fff6ea'), sheenRoughness: 0.55,
   });
   mat.onBeforeCompile = shader => {
+    // Rest-pose x (sideways) and y (-y is her front) arrive in the UVs; the
+    // glTF export stores v as 1 - v, so undo that here.
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying vec2 vRest;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvRest = vec2(uv.x, 1.0 - uv.y);');
     shader.fragmentShader = shader.fragmentShader
+      .replace('#include <common>', '#include <common>\nvarying vec2 vRest;')
       .replace('#include <color_fragment>', /* glsl */ `
         float hz = vColor.r * 1.8;
         float sx = (vColor.g - 0.5) / 5.0;
         float fy = -(vColor.b - 0.5) / 5.0;
-        float boot = step(0.75, vColor.a);
-        float heel = step(0.25, vColor.a) * (1.0 - boot);
+        float reg = vColor.a;
+        // region -> alpha (see scripts/journal-legs.py)
+        float boot = step(0.75, reg);                              // boot, 1
+        float heel = step(0.35, reg) * (1.0 - boot);               // heel, 0.5
+        float cuff = step(0.15, reg) * (1.0 - step(0.35, reg));    // sleeve cuff, 0.2
+        float skin = step(0.05, reg) * (1.0 - step(0.15, reg));    // hands, 0.1
         float front = smoothstep(0.0, 0.015, fy);
-        float centre = 1.0 - smoothstep(0.0, 0.055, abs(sx));
-        // The boots are real geometry now (shoe, shaft, heel); here they get
-        // their gold: a rolled edge along the V-cut top, piping from the V
-        // down the front to the toe, and the heel itself.
+
+        // Boots: gold rolled edge along the V-cut top, piping down the front,
+        // and the heel.
         float shaftTop = 0.26 - 0.07 * (1.0 - smoothstep(0.0, 0.05, abs(sx))) * front;
         float shaft = max(boot, heel);
         float rim = boot * (1.0 - smoothstep(0.004, 0.008, shaftTop - hz)) * step(0.1, hz);
         float piping = boot * front * (1.0 - smoothstep(0.002, 0.004, abs(sx)));
-        // The suit's gold band where the shorts end, high on the thigh.
-        float band = 1.0 - smoothstep(0.008, 0.012, abs(hz - 0.81));
-        float gold = max(max(rim, piping), max(band, heel));
+
+        // The suit: a gold band where the shorts end,
+        // princess lines from the hem in to the waist and out round the bust
+        // to the armpits, a yoke from the collar, a mandarin collar edged in
+        // gold, and an emblem on the upper chest. Front only, by rest y.
+        float ux = abs(vRest.x);
+        float fr = 1.0 - smoothstep(-0.07, -0.035, vRest.y);
+        float torso = step(ux, mix(0.25, 0.2, step(1.15, hz))) * (1.0 - boot) * (1.0 - heel);
+        float band = (1.0 - smoothstep(0.006, 0.009, abs(hz - 0.765))) * step(ux, 0.25);
+        float w = mix(0.13, 0.108, smoothstep(0.80, 0.90, hz));
+        w = mix(w, 0.075, smoothstep(0.90, 1.05, hz));
+        w = mix(w, 0.09, smoothstep(1.05, 1.13, hz));
+        w = mix(w, 0.15, smoothstep(1.13, 1.28, hz));
+        float princess = (1.0 - smoothstep(0.003, 0.0055, abs(ux - w))) * step(0.77, hz) * (1.0 - step(1.29, hz)) * fr;
+        float yt = clamp((1.405 - hz) / 0.115, 0.0, 1.0);
+        float yoke = (1.0 - smoothstep(0.003, 0.0055, abs(ux - (0.035 + 0.105 * yt)))) * step(1.29, hz) * step(hz, 1.405) * fr;
+        float collar = step(1.432, hz) + (1.0 - smoothstep(0.003, 0.005, abs(hz - 1.402))) * step(ux, 0.075);
+        vec2 e = vec2(ux, hz - 1.30);
+        float d = e.x / 0.028 + abs(e.y) / 0.042;
+        float emblem = (step(d, 1.0) * step(0.7, d)
+          + step(ux, 0.004) * step(abs(e.y), 0.055)
+          + step(abs(e.y + 0.004), 0.004) * step(ux, 0.036)) * (1.0 - smoothstep(-0.075, -0.055, vRest.y));
+        float trim = min(1.0, princess + yoke + collar + emblem) * torso;
+
+        float gold = min(1.0, max(max(rim, piping), max(band, heel)) + trim + cuff);
         vec3 suit = vec3(0.94, 0.92, 0.88);
         vec3 leather = vec3(0.98, 0.97, 0.95);
         vec3 goldC = vec3(0.8, 0.62, 0.34);
-        diffuseColor.rgb = mix(mix(suit, leather, shaft), goldC, gold);
+        vec3 skinC = vec3(0.93, 0.79, 0.7);
+        diffuseColor.rgb = mix(mix(mix(suit, leather, shaft), goldC, gold), skinC, skin);
       `)
       .replace('#include <roughnessmap_fragment>', /* glsl */ `
         #include <roughnessmap_fragment>
-        roughnessFactor = mix(mix(0.78, 0.58, shaft), mix(0.3, 0.45, heel), gold);
+        roughnessFactor = mix(mix(mix(0.78, 0.58, shaft), mix(0.3, 0.45, heel), gold), 0.5, skin);
       `)
       .replace('#include <metalnessmap_fragment>', /* glsl */ `
         #include <metalnessmap_fragment>
-        metalnessFactor = gold * (1.0 - 0.5 * heel);
+        metalnessFactor = gold * 0.75 * (1.0 - 0.4 * heel) * (1.0 - skin);
+      `)
+      // Gold thread catches a little light of its own; polished metal alone
+      // would only mirror the dark sky and read brown.
+      .replace('#include <emissivemap_fragment>', /* glsl */ `
+        #include <emissivemap_fragment>
+        totalEmissiveRadiance += goldC * gold * 0.16;
       `);
   };
   return mat;
+}
+
+// Which vertices are her legs (and boots): below the tops of the thighs in
+// the rest pose, and not a hand or cuff, whose arms hang that low at rest.
+const THIGH_TOP = 0.84;
+function isLeg(col: THREE.BufferAttribute | THREE.InterleavedBufferAttribute, i: number) {
+  const reg = col.getW(i);
+  return col.getX(i) * 1.8 < THIGH_TOP && !(reg > 0.05 && reg < 0.35);
+}
+function lowerOnly(g: THREE.BufferGeometry) {
+  const col = g.attributes.color;
+  const idx = g.index;
+  if (!col || !idx) return idx;
+  const keep: number[] = [];
+  for (let t = 0; t < idx.count; t += 3) {
+    const a = idx.getX(t), b = idx.getX(t + 1), c = idx.getX(t + 2);
+    if (isLeg(col, a) && isLeg(col, b) && isLeg(col, c)) keep.push(a, b, c);
+  }
+  return keep;
 }
 
 // Channel quilting for the cushion: soft rolls across its width.

@@ -23,7 +23,7 @@ Pages are thin; content is data.
 - `app/components/boutique/` → site components; `app/components/journal/` → journal shells and diagrams.
 - `app/components/starsystem/` → the home hero, a three.js star system (`scene.ts`), one planet per `APPS` entry, styled by its `phase`.
 - `app/components/journal/Lounge.tsx` + `loungeScene.ts` → the journal index, a three.js lounge seen through her eyes: legs on a chaise, a galaxy window (`loungeSky.ts`), files left and magazines right (`loungeTextures.ts`). Which pile a post goes on, its icon and cover image are the tables at the top of `Lounge.tsx`. Undated posts are left out.
-- `scripts/journal-legs.py` → rebuilds `public/journal/lounge-legs.glb` in Blender + MPFB; the pose is in its header. The suit, boots' gold and thigh band are painted in `loungeScene.ts`'s shader, not the mesh.
+- `scripts/journal-legs.py` → rebuilds her figure (`public/journal/lounge-legs*.glb`, four leg poses the page blends between) in Blender + MPFB; the poses are in its header. It's the whole body minus the head; the page draws only her legs unless the URL has `?body=1` (`?view=side` / `?view=front` look at her from outside; `?pose=cross|side|lift` holds a pose). The suit, its gold trim and the boots' gold are painted in `loungeScene.ts`'s shader, not the mesh.
 - `app/sitemap.ts` → built from `APPS` + `journal.ts`, plus a hand-listed `appSubPages` array. A new non-`APPS` page must be added there.
 - `app/dev/` → local scratch pages, untracked. Not part of the site.
 

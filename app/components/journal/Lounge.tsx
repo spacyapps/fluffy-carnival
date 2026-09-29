@@ -74,7 +74,16 @@ export default function Lounge({ posts, onFail }: { posts: Post[]; onFail: () =>
 
       let scene: Scene;
       try {
-        scene = createLounge(canvas, items, fonts, { reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches });
+        // ?body=1 draws her whole figure (the head isn't modelled); ?view=side
+        // or ?view=front looks at her from outside; ?pose=cross|side|lift holds a
+        // pose. For working on the figure.
+        const q = new URLSearchParams(window.location.search);
+        scene = createLounge(canvas, items, fonts, {
+          reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+          upper: q.get('body') === '1',
+          view: q.get('view'),
+          pose: q.get('pose'),
+        });
       } catch {
         onFail();
         return;
