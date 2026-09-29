@@ -37,7 +37,7 @@ RENDER = argv[2] if len(argv) > 2 else None
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
 macro = TargetService.get_default_macro_info_dict()
-macro.update({'gender': 0.0, 'age': 0.5, 'muscle': 0.4, 'weight': 0.48, 'proportions': 1.0, 'height': 0.575, 'cupsize': 1.0, 'firmness': 0.65})
+macro.update({'gender': 0.0, 'age': 0.5, 'muscle': 0.4, 'weight': 0.48, 'proportions': 1.0, 'height': 0.575, 'cupsize': 0.9, 'firmness': 0.65})
 body = HumanService.create_human(macro_detail_dict=macro)
 # An hourglass figure: full bust, cinched waist, soft full hips, narrow
 # shoulders, long legs.
@@ -50,8 +50,9 @@ TARGETS = {
     'legs/measure-thigh-circ-incr': 0.25,  # soft, full thighs
     'torso/measure-waist-circ-decr': 0.7,  # a sharp waist
     'torso/measure-hips-circ-incr': 0.35,  # full hips
-    'torso/measure-bust-circ-incr': 0.4,   # full bust, on top of the cup-size macro
+    'torso/measure-bust-circ-incr': 0.3,   # full bust, on top of the cup-size macro
     'torso/measure-underbust-circ-decr': 0.2,
+    'breast/breast-dist-decr': 0.65,     # closer together, same size
     'torso/measure-shoulder-dist-decr': 0.35,  # narrow shoulders
     'breast/nipple-point-decr': 1.0,    # smooth under the suit: it's clothing, not skin
     'breast/nipple-size-decr': 1.0,
