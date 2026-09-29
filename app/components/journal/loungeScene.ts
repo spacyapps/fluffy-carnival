@@ -15,7 +15,7 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { createLoungeSky } from './loungeSky';
 import { folderTexture, magazineTexture, COVER, type CoverArt, type Fonts } from './loungeTextures';
-import { createFigure, POSES, type PoseName, type Side } from './loungeFigure';
+import { createFigure, mj, POSES, type PoseName, type Side } from './loungeFigure';
 
 export type Item = CoverArt & { id: string; kind: 'file' | 'magazine' };
 export type ScreenXY = { x: number; y: number };
@@ -164,6 +164,7 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
   const figure = createFigure(new GLTFLoader().setDRACOLoader(draco).loadAsync('/journal/lounge-figure.glb'), {
     upper: !!opts.upper,
     cushionTop: CUSHION_TOP,
+    reduced: opts.reducedMotion,
     // Lay her legs on the cushion: lowest point just into it, the tops of her
     // thighs just under the bottom of the view, a touch right of centre
     // (screen-right is -x).
@@ -211,7 +212,7 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
       const lit = { map: tex, emissive: new THREE.Color('#ffffff'), emissiveMap: tex, emissiveIntensity: COVER_GLOW };
       const mat = item.kind === 'file'
         ? new THREE.MeshStandardMaterial({ ...lit, roughness: 0.55 })
-        : new THREE.MeshPhysicalMaterial({ ...lit, roughness: 0.28, clearcoat: 1, clearcoatRoughness: 0.12 });
+        : new THREE.MeshPhysicalMaterial({ ...lit, roughness: 0.32, clearcoat: 0.7, clearcoatRoughness: 0.3 });   // soft gloss: no hot spot when it's close to her
       const edge = new THREE.MeshStandardMaterial({ color: item.kind === 'file' ? '#d9d2c6' : '#f2eee8', roughness: 0.6 });
       const mesh = new THREE.Mesh(new THREE.BoxGeometry(W, H, item.kind === 'file' ? 0.008 : 0.004), [edge, edge, edge, edge, mat, edge]);
       mesh.castShadow = mesh.receiveShadow = true;
@@ -285,13 +286,25 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
   const heldPose = opts.pose && opts.pose in POSES ? opts.pose as PoseName : null;
   let nextShift = 0;
   const shiftIn = () => time + 3 + Math.random() * 5;
-  // A tapped entry is fetched: her hand reaches toward it, it glides into her
-  // open hand, and she brings it to her lap. Files come to her left hand,
+  // A tapped entry is fetched: her hand reaches toward it, it lifts and
+  // glides into her open hand, she closes it and brings it to her lap, and
+  // her other hand comes to take the far edge. Files come to her left hand,
   // magazines to her right.
+  // step -> seconds into the fetch (why)
+  const FETCH = {
+    reach: 0.8,      // her hand goes out toward it
+    summon: 0.5,     // it starts toward her hand as she reaches
+    fly: 0.6,        // ...and arrives as her hand is fully out
+    grasp: 1.0,      // her fingers close on it
+    bring: 1.15,     // she brings it in
+    bringDur: 0.95,
+    meet: 1.55,      // her other hand comes to the far edge
+    meetDur: 0.7,
+    done: 2.3,
+  };
   let fetch: { id: string; side: Side; t: number } | null = null;
-  const REACH = 0.45, TAKE = 0.95, BRING = 1.7;   // seconds into a fetch
-  const grip = new THREE.Vector3(), edge = new THREE.Vector3(), edgeL = new THREE.Vector3(), edgeR = new THREE.Vector3();
-  const dragAt = new THREE.Vector3(), tmpP = new THREE.Vector3(), tmpN = new THREE.Vector3();
+  const wristP = new THREE.Vector3(), edgeA = new THREE.Vector3(), edgeB = new THREE.Vector3(), off = new THREE.Vector3(), axis = new THREE.Vector3();
+  const dragAt = new THREE.Vector3(), tmpP = new THREE.Vector3(), tmpN = new THREE.Vector3(), tmpQ = new THREE.Quaternion(), UP = new THREE.Vector3(0, 1, 0);
   const reduced = opts.reducedMotion;
   const camRight = new THREE.Vector3().subVectors(AIM, EYE).normalize().cross(new THREE.Vector3(0, 1, 0)).normalize();
   // Her lap: resting over her thighs, the cover turned to us. Its place is
@@ -311,24 +324,17 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
     return { x: (v.x * 0.5 + 0.5) * w, y: (-v.y * 0.5 + 0.5) * h };
   };
 
-  // Where her hand holds the card: the middle of its left or right edge
-  // (her left is +x), at its lap pose, or on the card as it is now.
-  function lapEdge(side: Side, out: THREE.Vector3) {
-    const o = new THREE.Object3D();
-    o.position.copy(LAP.p); o.quaternion.copy(LAP.q); o.scale.setScalar(LAP.s);
-    o.updateMatrixWorld();
-    const a = new THREE.Vector3(W / 2, -H * 0.12, 0).applyMatrix4(o.matrixWorld);
-    const b = new THREE.Vector3(-W / 2, -H * 0.12, 0).applyMatrix4(o.matrixWorld);
-    return out.copy((a.x > b.x) === (side === 'L') ? a : b);
+  // Where her hand holds a card: at its left or right edge (her left is +x),
+  // just outside it, level with its face (+z) and low, so her fingers curl
+  // over the edge below the title. As an offset from the card's centre.
+  function gripOffset(side: Side, q: THREE.Quaternion, scale: number, out: THREE.Vector3) {
+    axis.set(1, 0, 0).applyQuaternion(q);
+    const sign = (axis.x > 0) === (side === 'L') ? 1 : -1;
+    return out.set(sign * (W * 0.5 + 0.035), -H * 0.28, 0.004).multiplyScalar(scale).applyQuaternion(q);
   }
-  // Her hands hold it at its side edges, palms just outside the card, level
-  // with its face (+z) and low, so her fingers curl over the edges below the title.
-  function cardEdges(g: THREE.Object3D, left: THREE.Vector3, right: THREE.Vector3) {
-    g.updateMatrixWorld();
-    const a = new THREE.Vector3(W * 0.5 + 0.035, -H * 0.28, 0.004).applyMatrix4(g.matrixWorld);
-    const b = new THREE.Vector3(-W * 0.5 - 0.035, -H * 0.28, 0.004).applyMatrix4(g.matrixWorld);
-    if (a.x > b.x) { left.copy(a); right.copy(b); } else { left.copy(b); right.copy(a); }
-  }
+  // That point with the card in her lap, or on a card as it is now.
+  const lapGrip = (side: Side, out: THREE.Vector3) => gripOffset(side, LAP.q, LAP.s, out).add(LAP.p);
+  const cardGrip = (g: THREE.Object3D, side: Side, out: THREE.Vector3) => gripOffset(side, g.quaternion, g.scale.x, out).add(g.position);
 
   const frame = (now: number) => {
     raf = requestAnimationFrame(frame);
@@ -339,48 +345,28 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
     curX += (lookX - curX) * 0.05;
     curY += (lookY - curY) * 0.05;
     // A glance toward the pointer (screen-right is -x here), nothing more.
-    camera.position.copy(EYE).addScaledVector(camRight, curX * 0.02).add(new THREE.Vector3(0, -curY * 0.012, 0));
-    camera.lookAt(tmpP.copy(AIM).addScaledVector(camRight, curX * 0.12).add(new THREE.Vector3(0, -curY * 0.08, 0)));
+    // Her eyes rise and fall a touch with her breath.
+    const breath = reduced ? 0 : Math.sin((time / 4.6) * Math.PI * 2) * 0.0018;
+    camera.position.copy(EYE).addScaledVector(camRight, curX * 0.02);
+    camera.position.y += breath - curY * 0.012;
+    camera.lookAt(tmpP.copy(AIM).addScaledVector(camRight, curX * 0.12).addScaledVector(UP, -curY * 0.08));
     sky.update(camera, time);
 
-    // Each entry eases toward where it belongs: its pile (lifted a little
-    // when hovered), her lap, or the pointer while it's being carried.
+    // Her hands first: fetching, holding the entry in her lap by its edges,
+    // or at rest. Goals read the cards as they were last frame.
     if (fetch) fetch.t += dt;
-    if (fetch && fetch.t > BRING) fetch = null;
-    for (const b of bodies) {
-      const id = b.item.id;
-      const inLap = id === lapId, carried = id === dragId;
-      const f = fetch && fetch.id === id ? fetch : null;
-      b.lift += ((hovered === id && !inLap ? 1 : 0) - b.lift) * 0.15;
-      let tp: THREE.Vector3 = carried ? dragAt : inLap ? LAP.p : tmpP.copy(b.home.p).addScaledVector(tmpN.set(0, 0, 1).applyQuaternion(b.home.q), b.lift * 0.03);
-      let k = reduced ? 1 : carried ? 0.3 : 0.1;
-      if (f && f.t < REACH) tp = b.home.p;                              // her hand is on its way
-      else if (f && f.t < TAKE) { tp = figure.grip(f.side, grip); k = 0.22; }   // into her hand
-      else if (f) {                                                     // in her hand, to her lap
-        lapEdge(f.side, edge);
-        tp = figure.grip(f.side, grip).add(tmpN.subVectors(LAP.p, edge));
-        k = 0.3;
-      }
-      const tq = (inLap || carried) && !(f && f.t < REACH) ? LAP.q : b.home.q;
-      const ts = inLap ? LAP.s : b.home.s;
-      b.group.position.lerp(tp, k);
-      b.group.quaternion.slerp(tq, k);
-      b.group.scale.setScalar(b.group.scale.x + (ts - b.group.scale.x) * k);
-      b.mat.emissiveIntensity = inLap ? COVER_GLOW * 0.45 : COVER_GLOW + 0.2 * b.lift;
-    }
-
-    // Her hands: fetching, holding the entry in her lap by its edges, or at rest.
+    if (fetch && fetch.t > FETCH.done) fetch = null;
     const held = lapId ? bodies.find(q => q.item.id === lapId) : undefined;
-    if (fetch && fetch.t < BRING) {
+    if (fetch) {
+      const t = fetch.t, side = fetch.side, other: Side = side === 'L' ? 'R' : 'L';
       const b = bodies.find(q => q.item.id === fetch!.id)!;
-      const other: Side = fetch.side === 'L' ? 'R' : 'L';
-      if (fetch.t < TAKE) figure.setHand(fetch.side, { kind: 'at', p: b.home.p.clone(), curl: fetch.t < REACH ? 0.05 : 0.5 });
-      else figure.setHand(fetch.side, { kind: 'at', p: lapEdge(fetch.side, edge).clone(), curl: 0.6 });
-      figure.setHand(other, { kind: 'rest' });
+      if (t < FETCH.bring) figure.setHand(side, { kind: 'at', p: b.home.p, curl: t < FETCH.grasp ? 0.08 : 0.8, key: 'reach', dur: FETCH.reach, arc: 0.06 });
+      else figure.setHand(side, { kind: 'at', p: lapGrip(side, edgeA), curl: 0.8, key: 'bring', dur: FETCH.bringDur, arc: 0.05 });
+      if (t < FETCH.meet) figure.setHand(other, { kind: 'rest' });
+      else figure.setHand(other, { kind: 'at', p: lapGrip(other, edgeB), curl: 0.8, key: 'meet', dur: FETCH.meetDur, arc: 0.03 });
     } else if (held && !dragId) {
-      cardEdges(held.group, edgeL, edgeR);
-      figure.setHand('L', { kind: 'at', p: edgeL.clone(), curl: 0.85 });
-      figure.setHand('R', { kind: 'at', p: edgeR.clone(), curl: 0.85 });
+      figure.setHand('L', { kind: 'at', p: cardGrip(held.group, 'L', edgeA), curl: 0.85, key: 'hold' });
+      figure.setHand('R', { kind: 'at', p: cardGrip(held.group, 'R', edgeB), curl: 0.85, key: 'hold' });
     } else {
       figure.setHand('L', { kind: 'rest' });
       figure.setHand('R', { kind: 'rest' });
@@ -388,21 +374,56 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
     if (heldPose) figure.setPose(heldPose);
     else if (!reduced) {
       if (!lapId) figure.setPose('rest');
-      else if (time > nextShift && figure.pose() !== 'lift') {
+      else if (time > nextShift && !fetch) {
         const choices = (['rest', 'cross', 'side'] as const).filter(p => p !== figure.pose());
         figure.setPose(choices[Math.floor(Math.random() * choices.length)]);
         nextShift = shiftIn();
       }
     }
-    figure.update(reduced ? 1 : dt, time);
+    figure.update(dt, time);
+
+    // Then each entry: in her hand while she fetches it, else easing toward
+    // its pile (lifted a little when hovered), her lap, or the pointer.
+    for (const b of bodies) {
+      const id = b.item.id;
+      const inLap = id === lapId, carried = id === dragId;
+      const f = fetch && fetch.id === id ? fetch : null;
+      b.lift += ((hovered === id && !inLap ? 1 : 0) - b.lift) * 0.15;
+      b.mat.emissiveIntensity = inLap ? COVER_GLOW * 0.45 : COVER_GLOW + 0.2 * b.lift;
+      if (f && f.t >= FETCH.summon) {
+        // Hanging from her hand by its edge: flying in, then held.
+        figure.hand(f.side, wristP);
+        const u = Math.min(1, (f.t - FETCH.summon) / FETCH.fly), e = reduced ? 1 : mj(u);
+        const held = tmpP.copy(wristP).sub(gripOffset(f.side, LAP.q, LAP.s, off));
+        if (e < 1) {
+          b.group.position.copy(b.home.p).lerp(held, e).addScaledVector(UP, 0.05 * Math.sin(Math.PI * u));
+          b.group.quaternion.copy(b.home.q).slerp(LAP.q, e);
+          b.group.scale.setScalar(b.home.s + (LAP.s - b.home.s) * e);
+        } else {
+          b.group.position.copy(held);
+          b.group.quaternion.copy(LAP.q);
+          b.group.scale.setScalar(LAP.s);
+        }
+        continue;
+      }
+      // Waiting to be taken, it lifts a little toward her.
+      const lift = f ? 1 : b.lift;
+      const tp = carried ? dragAt : inLap && !f ? LAP.p : tmpP.copy(b.home.p).addScaledVector(tmpN.set(0, 0, 1).applyQuaternion(b.home.q), lift * 0.03);
+      const k = reduced ? 1 : carried ? 0.3 : 0.1;
+      const tq = (inLap || carried) && !f ? LAP.q : b.home.q;
+      const ts = inLap && !f ? LAP.s : b.home.s;
+      b.group.position.lerp(tp, k);
+      b.group.quaternion.slerp(tq, k);
+      b.group.scale.setScalar(b.group.scale.x + (ts - b.group.scale.x) * k);
+    }
 
     composer.render();
     if (frameCb) {
-      const f = left.localToWorld(new THREE.Vector3(0, 0.54 + H + 0.2, -0.05));
-      const m = right.localToWorld(new THREE.Vector3(0, 0.53 + H * 1.85, 0.1));
+      const f = toScreen(left.localToWorld(tmpP.set(0, 0.54 + H + 0.2, -0.05)));
+      const m = toScreen(right.localToWorld(tmpP.set(0, 0.53 + H * 1.85, 0.1)));
       const lapLeft = toScreen(tmpP.copy(LAP.p).addScaledVector(camRight, -(W * LAP.s) / 2));
       const lapRight = toScreen(tmpP.copy(LAP.p).addScaledVector(camRight, (W * LAP.s) / 2));
-      frameCb({ files: toScreen(f), magazines: toScreen(m), lapLeft, lapRight });
+      frameCb({ files: f, magazines: m, lapLeft, lapRight });
     }
   };
 
@@ -429,7 +450,8 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
     // Tapped ones she fetches herself; dragged ones are already on their way.
     setLap(id) {
       if (id && id !== lapId) {
-        nextShift = time + 0.6 + Math.random() * 0.6;
+        // Her legs shift once her hands are settled, not mid-reach.
+        nextShift = time + (justDropped || reduced ? 0.6 : FETCH.done + 0.4) + Math.random() * 0.6;
         const b = bodies.find(q => q.item.id === id);
         if (b && !justDropped && !reduced) fetch = { id, side: b.item.kind === 'file' ? 'L' : 'R', t: 0 };
       }

@@ -1,7 +1,14 @@
 // Her, in the lounge: the rigged figure from scripts/journal-figure.py, posed
-// live. Leg poses are bone turns blended over time; each arm is solved from
-// where its hand should be (a two-bone reach: shoulder, elbow, wrist), so a
-// hand can rest on her thigh, reach toward an entry, or hold one in her lap.
+// live. How she moves, so it reads as a person and not a machine:
+// - deliberate moves (a reach, bringing a card in, shifting her legs) follow
+//   a minimum-jerk curve, the profile human arms move in: they ease out,
+//   peak and ease in, with no sudden change of speed;
+// - anything that follows something else (a resting hand, a hand holding a
+//   card) rides a critically damped spring, so it settles and never snaps;
+// - hands travel in shallow arcs, hips lead the knees and feet, fingers curl
+//   one after another, the shoulder helps on long reaches, and she breathes.
+// Arms are solved from where each wrist should be (shoulder, elbow, wrist),
+// with a soft limit near full reach so the elbow never locks with a jolt.
 // The suit, its gold trim and the boots are painted in the shader below from
 // where each vertex sits at rest.
 
@@ -10,10 +17,8 @@ import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 // Bone turns, as the Blender script used to bake them: degrees (x, y, z) in
 // each bone's own frame, Blender's XYZ order.
-type Turns = Record<string, [number, number, number]>;
-
-// Seated, leaning back a little. The arms are left to the solver.
-const BODY: Turns = { 'spine01': [-25, 0, 0] };
+type Turn = [number, number, number];
+type Turns = Record<string, Turn>;
 
 // pose -> leg turns (why)
 export const POSES = {
@@ -23,35 +28,78 @@ export const POSES = {
   side:  { 'upperleg01.L': [-94, 17, 40], 'upperleg01.R': [-94, -14, 44], 'lowerleg01.L': [28, 0, 0], 'lowerleg01.R': [32, 0, 0], 'foot.L': [15, 0, 0], 'foot.R': [15, 0, 0] },  // legs together, tilted to one side
 } satisfies Record<string, Turns>;
 export type PoseName = keyof typeof POSES;
+const LEG_BONES = Object.keys(POSES.rest);
+
+// How her body moves. Seconds, degrees, metres, hertz.
+// knob -> value (why)
+const MOTION = {
+  lean: -25,          // spine01 at rest: leaning back on the chaise
+  breathe: 4.6,       // seconds per breath
+  breatheDeg: 1.1,    // chest rise, spread over two spine bones
+  legs: 1.25,         // a leg shift, direct
+  legsVia: 1.8,       // a leg shift that lifts the top leg clear first
+  legLag: { upperleg01: 0, lowerleg01: 0.12, foot: 0.22 } as Record<string, number>,  // hips lead, feet follow
+  shift: 2.5,         // spine twist that goes with a leg shift
+  handMove: 0.75,     // a hand move, unless the caller says otherwise
+  handArc: 0.035,     // how high a hand's path bows
+  follow: 4.2,        // spring frequency when a hand tracks something
+  restCurl: 0.5,      // relaxed fingers, hanging
+  layCurl: 0.15,      // fingers lying along her thigh: nearly straight
+  palm: 0.03,         // wrist centre above the surface a hand rests on
+  fidget: [8, 14],    // seconds between small resettles of a resting hand
+  drum: [6, 12],      // seconds between finger drums
+};
+// finger -> curl speed (why): index closes first, pinky last, thumb in between
+const CURL_RATE = [0, 7, 11, 9.5, 8.5, 7.5];
 
 export type Side = 'L' | 'R';   // her left is +x (screen-left from her eyes)
 // What a hand is doing: resting (on her thigh or the chaise), or going to a
-// point with some curl of the fingers (0 open, 1 closed).
-export type HandGoal = { kind: 'rest' } | { kind: 'at'; p: THREE.Vector3; curl: number };
+// point with some curl of the fingers (0 open, 1 closed). A new `key` starts
+// a fresh, eased move there; the same key keeps tracking a moving point.
+export type HandGoal =
+  | { kind: 'rest' }
+  | { kind: 'at'; p: THREE.Vector3; curl: number; key: string; dur?: number; arc?: number };
 
 export type Figure = {
   root: THREE.Group;
   ready: Promise<void>;
-  // Legs and cushion placement are settled once ready: the chaise top and
-  // where her lap is, for the card.
+  // Settled once ready: where her lap is, for the card.
   lap: THREE.Vector3;
   setPose(to: PoseName): void;
   pose(): PoseName;
   setHand(side: Side, goal: HandGoal): void;
-  grip(side: Side, out: THREE.Vector3): THREE.Vector3;
+  // Where her wrist actually is (what a held card hangs from).
+  hand(side: Side, out: THREE.Vector3): THREE.Vector3;
   update(dt: number, time: number): void;
   dispose(): void;
 };
 
+// Minimum-jerk profile, 0..1 -> 0..1: zero speed and acceleration at both ends.
+export const mj = (t: number) => { const u = Math.min(1, Math.max(0, t)); return u * u * u * (10 - 15 * u + 6 * u * u); };
+// A single hump, 0 at both ends, 1 in the middle, arriving and leaving at
+// zero speed so an arced move still starts and stops gently.
+const hump = (t: number) => { const u = Math.min(1, Math.max(0, t)); return 16 * u * u * (1 - u) * (1 - u); };
+
 // Blender's XYZ euler is three's 'ZYX'.
-const turnQ = ([x, y, z]: [number, number, number]) =>
-  new THREE.Quaternion().setFromEuler(new THREE.Euler(THREE.MathUtils.degToRad(x), THREE.MathUtils.degToRad(y), THREE.MathUtils.degToRad(z), 'ZYX'));
+const eul = new THREE.Euler();
+const turnInto = (out: THREE.Quaternion, x: number, y: number, z: number) =>
+  out.setFromEuler(eul.set(THREE.MathUtils.degToRad(x), THREE.MathUtils.degToRad(y), THREE.MathUtils.degToRad(z), 'ZYX'));
 // three strips '.' from node names.
 const node = (name: string) => name.replace(/[[\].:/]/g, '');
 
+type Hand = {
+  goal: HandGoal; key: string;
+  pos: THREE.Vector3; vel: THREE.Vector3;             // the wrist target as it moves
+  wrist: THREE.Vector3;                                // where the wrist actually got to
+  from: THREE.Vector3; v0: THREE.Vector3; t: number; dur: number; arc: number; moving: boolean; settled: boolean;
+  curl: number[];                                      // per finger, 1..5
+  fidget: number; nextFidget: number; nudge: THREE.Vector3;
+  lay: THREE.Vector3; layOn: boolean;                  // which way the hand should lie, when resting on something
+};
+
 export function createFigure(
   load: Promise<GLTF>,
-  opts: { upper: boolean; cushionTop: number; place: (box: THREE.Box3) => THREE.Vector3 },
+  opts: { upper: boolean; cushionTop: number; reduced: boolean; place: (box: THREE.Box3) => THREE.Vector3 },
 ): Figure {
   const root = new THREE.Group();
   const mat = suitMaterial();
@@ -61,17 +109,28 @@ export function createFigure(
   const meshes: THREE.SkinnedMesh[] = [];
   const bone = (name: string) => bones.get(node(name));
 
-  // Leg pose, blended along a route of poses; into or out of 'side' goes via
-  // 'lift' so the top leg clears the other.
-  let current: PoseName = 'rest';
-  let route: PoseName[] = [], along = 0;
+  // Scratch space: nothing below allocates once she's loaded.
+  const v1 = new THREE.Vector3(), v2 = new THREE.Vector3(), v3 = new THREE.Vector3(), v4 = new THREE.Vector3();
+  const vS = new THREE.Vector3(), vE = new THREE.Vector3(), vW = new THREE.Vector3(), vElbow = new THREE.Vector3(), vWrist = new THREE.Vector3(), vPole = new THREE.Vector3();
+  const q1 = new THREE.Quaternion(), q2 = new THREE.Quaternion(), q3 = new THREE.Quaternion(), qT = new THREE.Quaternion(), qI = new THREE.Quaternion();
+  const UP = new THREE.Vector3(0, 1, 0);
 
-  // Per hand: the goal, where the wrist is being steered now, and finger curl.
-  const hands = {
-    L: { goal: { kind: 'rest' } as HandGoal, at: new THREE.Vector3(), curl: 0.35, settled: false },
-    R: { goal: { kind: 'rest' } as HandGoal, at: new THREE.Vector3(), curl: 0.35, settled: false },
-  };
-  const lengths = { L: [0, 0], R: [0, 0] };
+  // ── legs: each pose cached as final bone rotations ──
+  let legBones: THREE.Bone[] = [];
+  const poseQ = {} as Record<PoseName, THREE.Quaternion[]>;
+  let legTarget: PoseName = 'rest';
+  const legMove = { active: false, t: 0, dur: 1, via: false, a: [] as THREE.Quaternion[], c: [] as THREE.Quaternion[], b: [] as THREE.Quaternion[], lag: [] as number[], twist: 0 };
+
+  // ── hands ──
+  const newHand = (): Hand => ({
+    goal: { kind: 'rest' }, key: '', pos: new THREE.Vector3(), vel: new THREE.Vector3(), wrist: new THREE.Vector3(), from: new THREE.Vector3(), v0: new THREE.Vector3(),
+    t: 0, dur: 1, arc: 0, moving: false, settled: false, curl: [0, 0.5, 0.5, 0.5, 0.5, 0.5],
+    fidget: 0, nextFidget: 3 + Math.random() * 6, nudge: new THREE.Vector3(),
+    lay: new THREE.Vector3(), layOn: false,
+  });
+  const hands: Record<Side, Hand> = { L: newHand(), R: newHand() };
+  const arm = {} as Record<Side, { clav?: THREE.Bone; s: THREE.Bone; e: THREE.Bone; w: THREE.Bone; l1: number; l2: number; fingers: (THREE.Bone | undefined)[][] }>;
+  let drumAt = -10, nextDrum = 4;
 
   const ready = load.then(gltf => {
     gltf.scene.traverse(o => {
@@ -84,8 +143,8 @@ export function createFigure(
     gltf.scene.updateMatrixWorld(true);
     const blender = (b: THREE.Bone) => { const g = b.getWorldPosition(new THREE.Vector3()); return new THREE.Vector3(g.x, -g.z, g.y); };
     const forearms = (['L', 'R'] as const).map(side => {
-      const shoulder = blender(bone('upperarm01.' + side)!), elbow = blender(bone('lowerarm01.' + side)!), wrist = blender(bone('wrist.' + side)!);
-      return { shoulder, upper: elbow.clone().sub(shoulder).normalize(), elbow, dir: wrist.sub(elbow).normalize(), sign: side === 'L' ? 1 : -1 };
+      const elbow = blender(bone('lowerarm01.' + side)!), wrist = blender(bone('wrist.' + side)!);
+      return { elbow, dir: wrist.sub(elbow).normalize(), sign: side === 'L' ? 1 : -1 };
     });
     if (!opts.upper) {
       const [l, r] = forearms;
@@ -104,18 +163,39 @@ export function createFigure(
     });
     root.add(gltf.scene);
 
+    // Cache the leg poses and the arm chains; a missing bone just means
+    // that part stays at rest.
+    legBones = LEG_BONES.map(n => bone(n)).filter((b): b is THREE.Bone => !!b);
+    for (const name of Object.keys(POSES) as PoseName[]) {
+      const turns = POSES[name] as Turns;
+      poseQ[name] = legBones.map(b => {
+        const key = LEG_BONES.find(n => node(n) === b.name)!;
+        const [x, y, z] = turns[key];
+        return restQ.get(b)!.clone().multiply(turnInto(new THREE.Quaternion(), x, y, z));
+      });
+    }
+    legMove.lag = legBones.map(b => MOTION.legLag[Object.keys(MOTION.legLag).find(k => b.name.startsWith(k.replace('.', ''))) ?? 'foot'] ?? 0);
+    legMove.a = legBones.map(() => new THREE.Quaternion());
+    legMove.b = legBones.map(() => new THREE.Quaternion());
+    legMove.c = legBones.map(() => new THREE.Quaternion());
+
+    root.updateMatrixWorld(true);
     for (const side of ['L', 'R'] as const) {
-      const s = bone('upperarm01.' + side)!, e = bone('lowerarm01.' + side)!, w = bone('wrist.' + side)!;
-      root.updateMatrixWorld(true);
-      const S = s.getWorldPosition(new THREE.Vector3()), E = e.getWorldPosition(new THREE.Vector3()), W = w.getWorldPosition(new THREE.Vector3());
-      lengths[side] = [S.distanceTo(E), E.distanceTo(W)];
+      const s = bone('upperarm01.' + side), e = bone('lowerarm01.' + side), w = bone('wrist.' + side);
+      if (!s || !e || !w) continue;
+      arm[side] = {
+        clav: bone('clavicle.' + side), s, e, w,
+        l1: s.getWorldPosition(v1).distanceTo(e.getWorldPosition(v2)),
+        l2: e.getWorldPosition(v1).distanceTo(w.getWorldPosition(v2)),
+        fingers: [1, 2, 3, 4, 5].map(f => [1, 2, 3].map(j => bone(`finger${f}-${j}.${side}`))),
+      };
     }
 
     // Seat her: pose, then lay her legs on the cushion.
-    applyTurns({ ...BODY, ...POSES.rest });
+    setLegs(poseQ.rest);
+    applyBody(0, 0);
     root.updateMatrixWorld(true);
-    const pts = legPoints();
-    root.position.copy(opts.place(new THREE.Box3().setFromPoints(pts)));
+    root.position.copy(opts.place(new THREE.Box3().setFromPoints(legPoints())));
     root.updateMatrixWorld(true);
     // Her lap, for the card: over her thighs, a little way from her hips.
     const legs = legPoints();
@@ -138,134 +218,250 @@ export function createFigure(
     return out;
   }
 
-  function applyTurns(turns: Turns) {
-    for (const [name, t] of Object.entries(turns)) {
-      const b = bone(name);
-      if (b) b.quaternion.copy(restQ.get(b)!).multiply(turnQ(t));
-    }
+  function setLegs(qs: THREE.Quaternion[]) { legBones.forEach((b, i) => b.quaternion.copy(qs[i])); }
+
+  // Spine: the lean, a breath, and a small twist when her legs shift.
+  function applyBody(time: number, twist: number) {
+    const breath = opts.reduced ? 0 : Math.sin((time / MOTION.breathe) * Math.PI * 2) * MOTION.breatheDeg;
+    const s1 = bone('spine01'), s2 = bone('spine02'), s3 = bone('spine03');
+    if (s1) s1.quaternion.copy(restQ.get(s1)!).multiply(turnInto(qT, MOTION.lean, twist, 0));
+    if (s2) s2.quaternion.copy(restQ.get(s2)!).multiply(turnInto(qT, breath * 0.6, 0, 0));
+    if (s3) s3.quaternion.copy(restQ.get(s3)!).multiply(turnInto(qT, breath * 0.4, 0, 0));
   }
 
-  function blendLegs(a: PoseName, b: PoseName, k: number) {
-    const A = POSES[a] as Turns, B = POSES[b] as Turns;
-    for (const name of Object.keys(A)) {
-      const bn = bone(name);
-      if (!bn) continue;
-      const qa = restQ.get(bn)!.clone().multiply(turnQ(A[name]));
-      const qb = restQ.get(bn)!.clone().multiply(turnQ(B[name]));
-      bn.quaternion.copy(qa.slerp(qb, k));
-    }
+  function updateLegs(dt: number) {
+    if (!legMove.active) return 0;
+    legMove.t += dt;
+    const span = legMove.dur - 0.22;
+    let done = true;
+    legBones.forEach((b, i) => {
+      const s = mj((legMove.t - legMove.lag[i]) / span);
+      if (s < 1) done = false;
+      const a = legMove.a[i], c = legMove.c[i], e = legMove.b[i];
+      if (legMove.via) {
+        // A quadratic path through the lifted pose: the top leg clears the
+        // other without stopping in mid-air.
+        q1.copy(a).slerp(c, s);
+        q2.copy(c).slerp(e, s);
+        b.quaternion.copy(q1.slerp(q2, s));
+      } else b.quaternion.copy(a).slerp(e, s);
+    });
+    const progress = Math.min(1, legMove.t / legMove.dur);
+    if (done) legMove.active = false;
+    return hump(progress) * legMove.twist;
   }
 
   // ── arms ──
-  const tS = new THREE.Vector3(), tE = new THREE.Vector3(), tW = new THREE.Vector3(), tT = new THREE.Vector3();
-  const qa = new THREE.Quaternion(), qb = new THREE.Quaternion(), qc = new THREE.Quaternion();
 
-  // Turn bone b (in world terms) so the direction from `from` to `to` lines up
-  // with `want`.
-  function aim(b: THREE.Bone, from: THREE.Vector3, to: THREE.Vector3, want: THREE.Vector3) {
-    const have = tT.subVectors(to, from).normalize();
-    qa.setFromUnitVectors(have, want.clone().normalize());
-    b.getWorldQuaternion(qb);
-    b.parent!.getWorldQuaternion(qc);
-    b.quaternion.copy(qc.invert().multiply(qa.multiply(qb)));
+  // Turn bone b (in world terms) so the direction from `from` to `to` lines
+  // up with `want`, `amount` of the way.
+  function aim(b: THREE.Bone, from: THREE.Vector3, to: THREE.Vector3, want: THREE.Vector3, amount = 1) {
+    v3.subVectors(to, from).normalize();
+    v4.copy(want).normalize();
+    q1.setFromUnitVectors(v3, v4);
+    if (amount < 1) q1.copy(qI).slerp(q1, amount);
+    b.getWorldQuaternion(q2);
+    b.parent!.getWorldQuaternion(q3);
+    b.quaternion.copy(q3.invert().multiply(q1.multiply(q2)));
     b.updateMatrixWorld(true);
   }
 
   function solveArm(side: Side, target: THREE.Vector3) {
-    const s = bone('upperarm01.' + side)!, e = bone('lowerarm01.' + side)!, w = bone('wrist.' + side)!;
-    for (const b of [s, e]) b.quaternion.copy(restQ.get(b)!);
-    s.updateMatrixWorld(true);
-    s.getWorldPosition(tS);
-    const [l1, l2] = lengths[side];
-    const toT = new THREE.Vector3().subVectors(target, tS);
-    const d = THREE.MathUtils.clamp(toT.length(), Math.abs(l1 - l2) + 0.01, (l1 + l2) * 0.985);
-    const dir = toT.normalize();
+    const A = arm[side];
+    if (!A) return;
+    const { s, e, w, l1, l2 } = A;
+    if (A.clav) A.clav.quaternion.copy(restQ.get(A.clav)!);
+    s.quaternion.copy(restQ.get(s)!);
+    e.quaternion.copy(restQ.get(e)!);
+    (A.clav ?? s).updateMatrixWorld(true);
+    const reach = l1 + l2;
+    // On a long reach the shoulder comes forward to help.
+    if (A.clav) {
+      A.clav.getWorldPosition(v1);
+      s.getWorldPosition(vS);
+      const need = THREE.MathUtils.clamp((vS.distanceTo(target) - reach * 0.8) / (reach * 0.5), 0, 1);
+      if (need > 0) aim(A.clav, v1, vS, v2.subVectors(target, v1), need * 0.3);
+    }
+    s.getWorldPosition(vS);
+    // Targets arrive already within reach (see reachable); this only guards
+    // the edges.
+    const want = v1.subVectors(target, vS);
+    const d = THREE.MathUtils.clamp(want.length(), Math.abs(l1 - l2) + 0.01, reach * 0.999);
+    const dir = want.normalize();
     // Elbow: out to her side and down, the way a relaxed arm bends.
-    const sx = side === 'L' ? 1 : -1;
-    const pole = new THREE.Vector3(sx * 0.6, -0.7, -0.2);
-    pole.addScaledVector(dir, -pole.dot(dir)).normalize();
+    vPole.set(side === 'L' ? 0.6 : -0.6, -0.7, -0.2);
+    vPole.addScaledVector(dir, -vPole.dot(dir)).normalize();
     const a = (l1 * l1 - l2 * l2 + d * d) / (2 * d);
-    const hgt = Math.sqrt(Math.max(0, l1 * l1 - a * a));
-    const elbow = tS.clone().addScaledVector(dir, a).addScaledVector(pole, hgt);
-    const wrist = tS.clone().addScaledVector(dir, d);
-    e.getWorldPosition(tE);
-    aim(s, tS, tE, elbow.clone().sub(tS));
-    e.getWorldPosition(tE);
-    w.getWorldPosition(tW);
-    aim(e, tE, tW, wrist.clone().sub(tE));
+    const h = Math.sqrt(Math.max(0, l1 * l1 - a * a));
+    vElbow.copy(vS).addScaledVector(dir, a).addScaledVector(vPole, h);
+    vWrist.copy(vS).addScaledVector(dir, d);
+    e.getWorldPosition(vE);
+    aim(s, vS, vE, v2.subVectors(vElbow, vS));
+    e.getWorldPosition(vE);
+    w.getWorldPosition(vW);
+    aim(e, vE, vW, v2.subVectors(vWrist, vE));
   }
 
-  function curlFingers(side: Side, c: number, time: number, drum: number) {
+  // A hand resting on something bends at the wrist to lie along it, rather
+  // than carrying on at the forearm's angle into it. Eased in and out.
+  const layAmt: Record<Side, number> = { L: 0, R: 0 };
+  function layHand(side: Side) {
+    const A = arm[side], H = hands[side];
+    const base = A?.fingers[2][0];
+    if (!A || !base) return;
+    A.w.quaternion.copy(restQ.get(A.w)!);
+    layAmt[side] += ((H.layOn && !H.moving ? 1 : 0) - layAmt[side]) * (opts.reduced ? 1 : 0.12);
+    if (layAmt[side] < 0.01) return;
+    A.w.updateMatrixWorld(true);
+    A.w.getWorldPosition(vW);
+    base.getWorldPosition(vE);
+    aim(A.w, vW, vE, H.lay, layAmt[side]);
+  }
+
+  function poseFingers(side: Side, time: number, drumming: boolean) {
+    const A = arm[side], H = hands[side];
+    if (!A) return;
     for (let f = 1; f <= 5; f++) {
-      // A slow drum along the fingers when idle; the thumb keeps still.
-      const tap = f > 1 ? drum * Math.max(0, Math.sin(time * 9 - f * 0.9)) * 0.5 : 0;
-      for (let j = 1; j <= 3; j++) {
-        const b = bone(`finger${f}-${j}.${side}`);
-        if (!b) continue;
-        const deg = (f === 1 ? 18 : 32) * (c + tap) * (j === 1 ? 0.8 : 1);
-        b.quaternion.copy(restQ.get(b)!).multiply(turnQ([deg, 0, 0]));
+      // The drum: fingers lift and fall pinky to index, twice.
+      let tap = 0;
+      if (drumming && f > 1) {
+        for (let k = 0; k < 2; k++) {
+          const x = time - drumAt - k * 0.42 - (5 - f) * 0.085;
+          tap -= 0.45 * Math.exp(-(x * x) / 0.0025);
+        }
       }
+      const c = H.curl[f] + tap;
+      A.fingers[f - 1].forEach((b, j) => {
+        if (!b) return;
+        // joint -> share of the curl (why): knuckle and middle joint do most
+        const deg = (f === 1 ? 20 : 34) * c * [0.85, 1, 0.8][j];
+        b.quaternion.copy(restQ.get(b)!).multiply(turnInto(qT, deg, 0, 0));
+      });
     }
   }
 
-  // Where a resting hand goes: her left on her left thigh, her right on the
-  // chaise beside her hip.
+  // Where a resting hand goes: on the chaise off to her side. Each drifts a
+  // little, and now and then resettles.
   function restAt(side: Side, time: number, out: THREE.Vector3) {
-    const hip = bone('upperleg01.' + side)!.getWorldPosition(new THREE.Vector3());
-    if (side === 'L') {
-      const knee = bone('lowerleg01.L')!.getWorldPosition(new THREE.Vector3());
-      return out.copy(hip).lerp(knee, 0.6 + 0.03 * Math.sin(time * 0.35)).add(new THREE.Vector3(0.06, 0.08, 0));
-    }
-    return out.set(hip.x - 0.2, opts.cushionTop + 0.035, hip.z + 0.42);
+    const H = hands[side];
+    const hip = bone('upperleg01.' + side);
+    if (!hip) return out.copy(H.pos);
+    hip.getWorldPosition(v1);
+    // Flat on the cushion beside her hip, off to her side and just out of
+    // her view, fingers pointing down the chaise. Her left is +x.
+    const sx = side === 'L' ? 1 : -1;
+    out.set(v1.x + sx * 0.2, opts.cushionTop + MOTION.palm, v1.z + 0.12 + 0.015 * Math.sin(time * 0.35 + sx));
+    H.lay.set(sx * 0.15, -0.08, 1).normalize();
+    H.layOn = true;
+    return out.add(H.nudge);
   }
 
-  let drumUntil = 0, nextDrum = 4;
-  const goalP = new THREE.Vector3();
+  // Critically damped spring toward `to`, in small steps so it's stable at
+  // any frame rate.
+  function spring(p: THREE.Vector3, v: THREE.Vector3, to: THREE.Vector3, hz: number, dt: number) {
+    const w = 2 * Math.PI * hz;
+    for (let left = dt; left > 1e-6; left -= 1 / 120) {
+      const h = Math.min(left, 1 / 120);
+      v.addScaledVector(v1.subVectors(to, p), w * w * h).multiplyScalar(1 / (1 + 2 * w * h));
+      p.addScaledVector(v, h);
+    }
+  }
+
+  // Pull a target in to where her arm can actually reach, softly: near full
+  // stretch it falls short smoothly rather than the elbow snapping straight.
+  // Doing it to the target (not in the solver) keeps where she aims and
+  // where her wrist goes the same point, so moves start without a jump.
+  function reachable(side: Side, p: THREE.Vector3) {
+    const A = arm[side];
+    if (!A) return p;
+    A.s.getWorldPosition(vS);
+    const reach = A.l1 + A.l2, soft = reach * 0.08, hard = reach - soft;
+    const d = p.distanceTo(vS);
+    if (d <= hard) return p;
+    const k = (hard + soft * (1 - Math.exp(-(d - hard) / soft))) / d;
+    return p.sub(vS).multiplyScalar(k).add(vS);
+  }
+
+  function updateHand(side: Side, dt: number, time: number) {
+    const H = hands[side];
+    const g = H.goal;
+    // Resting hands resettle now and then: a new small offset, a new move.
+    if (g.kind === 'rest' && !opts.reduced && time > H.nextFidget) {
+      H.fidget++;
+      H.nudge.set((Math.random() - 0.5) * 0.03, 0, (Math.random() - 0.5) * 0.04);
+      H.nextFidget = time + MOTION.fidget[0] + Math.random() * (MOTION.fidget[1] - MOTION.fidget[0]);
+    }
+    const target = reachable(side, g.kind === 'rest' ? restAt(side, time, v4.set(0, 0, 0)) : v4.copy(g.p));
+    const key = g.kind === 'rest' ? `rest:${H.fidget}` : g.key;
+    if (!H.settled) { H.pos.copy(target); H.wrist.copy(target); H.key = key; H.settled = true; }
+    else if (key !== H.key) {
+      H.key = key;
+      // Carry on at the speed it was already moving.
+      H.from.copy(H.pos);
+      H.v0.copy(H.vel);
+      H.t = 0;
+      H.dur = g.kind === 'rest' ? (key.endsWith(':0') || H.from.distanceTo(target) > 0.1 ? 0.9 : 1.3) : g.dur ?? MOTION.handMove;
+      H.arc = g.kind === 'rest' ? MOTION.handArc * 0.6 : g.arc ?? MOTION.handArc;
+      // Barely anywhere to go: just keep following.
+      H.moving = H.from.distanceTo(target) > 0.03;
+    }
+    if (opts.reduced) { H.pos.copy(target); H.vel.set(0, 0, 0); H.moving = false; }
+    else if (H.moving) {
+      // Minimum-jerk toward the target as it is now, bowed up into an arc.
+      // Its starting speed fades out over the move (u(1-u)^2 has slope 1 at
+      // the start and none at the end), so moves blend into one another.
+      const prev = v2.copy(H.pos);
+      H.t += dt;
+      const u = Math.min(1, H.t / H.dur);
+      H.pos.copy(H.from).lerp(target, mj(u)).addScaledVector(UP, H.arc * hump(u))
+        .addScaledVector(H.v0, H.dur * u * (1 - u) * (1 - u));
+      H.vel.subVectors(H.pos, prev).divideScalar(Math.max(dt, 1e-4));
+      if (u >= 1) { H.moving = false; H.vel.set(0, 0, 0); }
+    } else spring(H.pos, H.vel, target, MOTION.follow, dt);
+    // Fingers, each at its own pace.
+    if (g.kind !== 'rest') H.layOn = false;
+    const want = g.kind === 'rest' ? (H.layOn ? MOTION.layCurl : MOTION.restCurl) : g.curl;
+    for (let f = 1; f <= 5; f++) H.curl[f] += (want - H.curl[f]) * (opts.reduced ? 1 : 1 - Math.exp(-dt * CURL_RATE[f]));
+  }
 
   return {
     root,
     ready,
     lap,
     setPose(to) {
-      if (to === current && !route.length) return;
-      const from = route.length ? route[route.length - 1] : current;
-      if (to === from) return;
-      const via = (to === 'side') !== (from === 'side');
-      route = [current, ...(via ? ['lift' as const] : []), to];
-      along = 0;
+      if (to === legTarget || !legBones.length) return;
+      const from = legTarget;
+      legTarget = to;
+      if (opts.reduced) { setLegs(poseQ[to]); return; }
+      // Start from wherever her legs are now, so an interrupted shift flows on.
+      legMove.via = (to === 'side') !== (from === 'side');
+      legBones.forEach((b, i) => {
+        legMove.a[i].copy(b.quaternion);
+        legMove.b[i].copy(poseQ[to][i]);
+        // The via pose, pushed out so the path actually passes through it.
+        if (legMove.via) legMove.c[i].copy(legMove.a[i]).slerp(legMove.b[i], 0.5).slerp(poseQ.lift[i], 2);
+      });
+      legMove.dur = legMove.via ? MOTION.legsVia : MOTION.legs;
+      legMove.twist = (to === 'side' ? 1 : -1) * MOTION.shift;
+      legMove.t = 0;
+      legMove.active = true;
     },
-    pose: () => (route.length ? route[route.length - 1] : current),
+    pose: () => legTarget,
     setHand(side, goal) { hands[side].goal = goal; },
-    grip(side, out) {
-      // The middle of her palm: past the wrist along the hand.
-      const w = bone('wrist.' + side)!, f = bone(`finger3-1.${side}`);
-      w.getWorldPosition(out);
-      if (f) out.lerp(f.getWorldPosition(tT), 0.7);
-      return out;
-    },
+    hand: (side, out) => (arm[side] ? arm[side].w.getWorldPosition(out) : out.copy(hands[side].pos)),
     update(dt, time) {
       if (!meshes.length) return;
       // Body and legs first; the arms are solved against them.
-      applyTurns(BODY);
-      if (route.length) {
-        along = Math.min(route.length - 1, along + dt / 0.9);
-        const i = Math.min(route.length - 2, Math.floor(along)), k = along - i;
-        blendLegs(route[i], route[i + 1], k * k * (3 - 2 * k));
-        if (along >= route.length - 1) { current = route[route.length - 1]; route = []; }
-      } else blendLegs(current, current, 0);
+      const twist = updateLegs(dt);
+      applyBody(time, twist);
       root.updateMatrixWorld(true);
-
-      if (time > nextDrum) { drumUntil = time + 1.6; nextDrum = time + 6 + Math.random() * 6; }
+      if (time > nextDrum && hands.L.goal.kind === 'rest') { drumAt = time; nextDrum = time + MOTION.drum[0] + Math.random() * (MOTION.drum[1] - MOTION.drum[0]); }
       for (const side of ['L', 'R'] as const) {
-        const h = hands[side];
-        const want = h.goal.kind === 'rest' ? restAt(side, time, goalP) : goalP.copy(h.goal.p);
-        const curl = h.goal.kind === 'rest' ? 0.55 : h.goal.curl;
-        if (!h.settled) { h.at.copy(want); h.settled = true; }
-        h.at.lerp(want, 1 - Math.exp(-dt * 7));
-        h.curl += (curl - h.curl) * (1 - Math.exp(-dt * 6));
-        solveArm(side, h.at);
-        const idle = h.goal.kind === 'rest' && side === 'L' && time < drumUntil ? 1 : 0;
-        curlFingers(side, h.curl, time, idle);
+        updateHand(side, dt, time);
+        solveArm(side, hands[side].pos);
+        layHand(side);
+        if (arm[side]) arm[side].w.getWorldPosition(hands[side].wrist); else hands[side].wrist.copy(hands[side].pos);
+        poseFingers(side, time, side === 'L' && hands.L.goal.kind === 'rest' && time - drumAt < 1.2 && !opts.reduced);
       }
     },
     dispose() {
@@ -393,7 +589,7 @@ function isLeg(col: Attr, i: number) {
 // Her forearms and hands, from just below the elbow; the shader fades the
 // last few centimetres out so there's no cut edge to see. Her upper arms
 // would sit right under her eyes, so she doesn't see them.
-type Forearm = { shoulder: THREE.Vector3; upper: THREE.Vector3; elbow: THREE.Vector3; dir: THREE.Vector3; sign: number };
+type Forearm = { elbow: THREE.Vector3; dir: THREE.Vector3; sign: number };
 const rp = new THREE.Vector3(), rq = new THREE.Vector3();
 function isArm(col: Attr, uv: Attr, i: number, arms: Forearm[]) {
   const reg = col.getW(i);
