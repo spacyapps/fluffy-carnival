@@ -1,9 +1,8 @@
 // The journal's lounge, seen through her eyes: legs in the white suit and
 // boots stretched out on a floating chaise, a window wall onto a fantasy
 // galaxy, the app and tech files on a stand to the left and the magazines
-// fanned on a table to the right. The legs are a baked MPFB mesh
-// (scripts/journal-legs.py); each vertex carries its rest-pose position, and
-// the suit, boots and gold trim are painted from that in the shader here.
+// fanned on a table to the right. She is posed live (loungeFigure.ts): tap an
+// entry and her hand reaches for it, takes it and holds it in her lap.
 // Nothing here is shared with the home page's star system on purpose.
 
 import * as THREE from 'three';
@@ -16,6 +15,7 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import { createLoungeSky } from './loungeSky';
 import { folderTexture, magazineTexture, COVER, type CoverArt, type Fonts } from './loungeTextures';
+import { createFigure, POSES, type PoseName, type Side } from './loungeFigure';
 
 export type Item = CoverArt & { id: string; kind: 'file' | 'magazine' };
 export type ScreenXY = { x: number; y: number };
@@ -41,16 +41,6 @@ const CUSHION_TOP = 0.46;
 // Through her eyes: reclining on the chaise, looking down her legs to the
 // galaxy. (+x is screen-left when looking down +z.)
 const CHAISE_Z = 0.55;
-// Her poses, as weights on the morph targets baked by scripts/journal-legs.py.
-// pose -> weights on [cross, lift, side] (why)
-const POSE_KEYS = ['cross', 'lift', 'side'] as const;
-const POSES = {
-  rest:  [0, 0, 0],  // the base file: knees lightly crossed
-  cross: [1, 0, 0],  // one thigh well over the other
-  lift:  [0, 1, 0],  // top leg raised clear; only ever passed through
-  side:  [0, 0, 1],  // legs together, lying tilted to one side
-} satisfies Record<string, number[]>;
-type PoseName = keyof typeof POSES;
 
 const EYE_POV = new THREE.Vector3(0, CUSHION_TOP + 0.72, -0.72);
 const AIM_POV = new THREE.Vector3(0, 0.56, 2.4);
@@ -115,6 +105,13 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
   feet.position.set(-0.2, 1.8, 2.0);
   feet.target.position.set(-0.15, 0.55, 1.0);
   scene.add(feet, feet.target);
+  // A soft light close to her, so her own hands, sleeves and whatever she
+  // holds aren't lost in the dark; it fades out well before the room.
+  // Up and behind her, so it falls evenly rather than flaring on whatever
+  // she holds close.
+  const near = new THREE.PointLight('#fff0e0', 0.45, 2.4, 2);
+  near.position.set(EYE.x, EYE.y + 0.45, EYE.z - 0.35);
+  scene.add(near);
 
   // ── room ──
   // The floor stops at the window; past the sill there's only sky.
@@ -162,79 +159,25 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
   under.position.y = 0.012;
   chaise.add(cushion, plinth, trim, under);
 
-  // ── her legs ──
-  const legsMat = suitMaterial();
+  // ── her ──
   const draco = new DRACOLoader().setDecoderPath('/draco/');
-  const legs = new THREE.Group();
-  scene.add(legs);
-  const loader = new GLTFLoader().setDRACOLoader(draco);
-  const posed: THREE.Mesh[] = [];
-  const legsReady = loader.loadAsync('/journal/lounge-legs.glb').then(gltf => {
-    gltf.scene.traverse(o => {
-      const m = o as THREE.Mesh;
-      if (!m.isMesh) return;
-      m.material = legsMat;
-      m.castShadow = m.receiveShadow = true;
-      // The whole figure is in the file; unless asked, only her legs are
-      // drawn (and cast shadows): drop every triangle that touches her body
-      // above the thighs, her arms or her hands.
-      if (!opts.upper) m.geometry.setIndex(lowerOnly(m.geometry));
-    });
-    legs.add(gltf.scene);
-    // Her other poses come in as morph targets once the room is up; they
-    // share the base's vertices. target order = POSE_KEYS.
-    Promise.all(POSE_KEYS.map(k => loader.loadAsync(`/journal/lounge-legs-${k}.glb`))).then(extra => {
-      const byName = (g: typeof gltf) => {
-        const m = new Map<string, THREE.Mesh>();
-        g.scene.traverse(o => { if ((o as THREE.Mesh).isMesh) m.set(o.name, o as THREE.Mesh); });
-        return m;
-      };
-      const base = byName(gltf), others = extra.map(byName);
-      const sets = [...base].map(([name, mesh]) => [mesh, others.map(o => o.get(name))] as const);
-      const fits = sets.every(([m, os]) => os.every(o => o && o.geometry.attributes.position.count === m.geometry.attributes.position.count));
-      if (!fits) return;   // mismatched bakes: she just keeps her resting pose
-      for (const [m, os] of sets) {
-        m.geometry.morphAttributes.position = os.map(o => o!.geometry.attributes.position);
-        m.geometry.morphAttributes.normal = os.map(o => o!.geometry.attributes.normal);
-        m.updateMorphTargets();
-        posed.push(m);
-      }
-      if (heldPose) setWeights(POSES[heldPose]);
-    }).catch(() => {});
-    // Lay her on the cushion by her legs: lowest point just into it, the tops
-    // of her thighs just under the bottom of the view, centred on the pose.
-    const world = () => {
-      legs.updateMatrixWorld(true);
-      const pts: THREE.Vector3[] = [];
-      gltf.scene.traverse(o => {
-        const m = o as THREE.Mesh;
-        if (!m.isMesh) return;
-        const pos = m.geometry.attributes.position;
-        const col = m.geometry.attributes.color;
-        for (let i = 0; i < pos.count; i += 3) {
-          if (col && !isLeg(col, i)) continue;   // place her by her legs, whatever else is shown
-          pts.push(new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld));
-        }
-      });
-      return pts;
-    };
-    let pts = world();
-    const box = new THREE.Box3().setFromPoints(pts);
-    // A touch right of centre (screen-right is -x).
-    legs.position.set(-(box.min.x + box.max.x) / 2 - 0.05, CUSHION_TOP - box.min.y - 0.012, -0.42 - box.min.z);
-    // The lap card rests on her lap, a little way down her thighs, clear of
-    // them: measure how high the legs are there and stand it just above.
-    pts = world();
-    const lapZ = -0.05;
-    const near = pts.filter(q => Math.abs(q.z - lapZ) < 0.12);
-    const top = near.length ? Math.max(...near.map(q => q.y)) : 0.7;
-    const mid = near.length ? near.reduce((a, q) => a + q.x, 0) / near.length : 0;
-    LAP.p.set(mid, top + 0.02 + (H * LAP.s) / 2 * 0.85, lapZ);
+  const figure = createFigure(new GLTFLoader().setDRACOLoader(draco).loadAsync('/journal/lounge-figure.glb'), {
+    upper: !!opts.upper,
+    cushionTop: CUSHION_TOP,
+    // Lay her legs on the cushion: lowest point just into it, the tops of her
+    // thighs just under the bottom of the view, a touch right of centre
+    // (screen-right is -x).
+    place: box => new THREE.Vector3(-(box.min.x + box.max.x) / 2 - 0.05, CUSHION_TOP - box.min.y - 0.012, -0.42 - box.min.z),
+  });
+  scene.add(figure.root);
+  const figureReady = figure.ready.then(() => {
+    // The lap card stands just above her lap.
+    LAP.p.set(figure.lap.x, figure.lap.y + 0.02 + (H * LAP.s) / 2 * 0.85, figure.lap.z);
     aimLap();
   });
 
   // ── the files, on a slanted stand to her left ──
-  const pending: Promise<void>[] = [legsReady];
+  const pending: Promise<void>[] = [figureReady];
   type Body = {
     item: Item; group: THREE.Group; mesh: THREE.Mesh; mat: THREE.MeshStandardMaterial;
     home: { p: THREE.Vector3; q: THREE.Quaternion; s: number }; lift: number;
@@ -336,23 +279,18 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
   let w = 1, h = 1, raf = 0, last = 0, time = 0;
   let lookX = 0, lookY = 0, curX = 0, curY = 0;
   let hovered: string | null = null;
-  let lapId: string | null = null, dragId: string | null = null;
+  let lapId: string | null = null, dragId: string | null = null, justDropped = false;
   // Her legs while something rests in her lap: now and then she shifts to
-  // another of her poses, and back to resting once the lap is clear. Moving
-  // into or out of the side pose goes by way of the lifted one, so the top
-  // leg clears the other. A pose is its morph weights, in POSE_KEYS order.
+  // another pose, and back to resting once the lap is clear.
   const heldPose = opts.pose && opts.pose in POSES ? opts.pose as PoseName : null;
-  let legPose: PoseName = heldPose ?? 'rest', nextShift = 0;
-  let route: number[][] = [], leg = 0;
+  let nextShift = 0;
   const shiftIn = () => time + 3 + Math.random() * 5;
-  const setWeights = (wts: number[]) => { for (const m of posed) wts.forEach((v, i) => { m.morphTargetInfluences![i] = v; }); };
-  const goTo = (to: PoseName) => {
-    if (to === legPose) return;
-    const via = (to === 'side') !== (legPose === 'side');
-    route = [POSES[legPose], ...(via ? [POSES.lift] : []), POSES[to]];
-    leg = 0;
-    legPose = to;
-  };
+  // A tapped entry is fetched: her hand reaches toward it, it glides into her
+  // open hand, and she brings it to her lap. Files come to her left hand,
+  // magazines to her right.
+  let fetch: { id: string; side: Side; t: number } | null = null;
+  const REACH = 0.45, TAKE = 0.95, BRING = 1.7;   // seconds into a fetch
+  const grip = new THREE.Vector3(), edge = new THREE.Vector3(), edgeL = new THREE.Vector3(), edgeR = new THREE.Vector3();
   const dragAt = new THREE.Vector3(), tmpP = new THREE.Vector3(), tmpN = new THREE.Vector3();
   const reduced = opts.reducedMotion;
   const camRight = new THREE.Vector3().subVectors(AIM, EYE).normalize().cross(new THREE.Vector3(0, 1, 0)).normalize();
@@ -373,6 +311,25 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
     return { x: (v.x * 0.5 + 0.5) * w, y: (-v.y * 0.5 + 0.5) * h };
   };
 
+  // Where her hand holds the card: the middle of its left or right edge
+  // (her left is +x), at its lap pose, or on the card as it is now.
+  function lapEdge(side: Side, out: THREE.Vector3) {
+    const o = new THREE.Object3D();
+    o.position.copy(LAP.p); o.quaternion.copy(LAP.q); o.scale.setScalar(LAP.s);
+    o.updateMatrixWorld();
+    const a = new THREE.Vector3(W / 2, -H * 0.12, 0).applyMatrix4(o.matrixWorld);
+    const b = new THREE.Vector3(-W / 2, -H * 0.12, 0).applyMatrix4(o.matrixWorld);
+    return out.copy((a.x > b.x) === (side === 'L') ? a : b);
+  }
+  // Her hands hold it at its side edges, palms just outside the card, level
+  // with its face (+z) and low, so her fingers curl over the edges below the title.
+  function cardEdges(g: THREE.Object3D, left: THREE.Vector3, right: THREE.Vector3) {
+    g.updateMatrixWorld();
+    const a = new THREE.Vector3(W * 0.5 + 0.035, -H * 0.28, 0.004).applyMatrix4(g.matrixWorld);
+    const b = new THREE.Vector3(-W * 0.5 - 0.035, -H * 0.28, 0.004).applyMatrix4(g.matrixWorld);
+    if (a.x > b.x) { left.copy(a); right.copy(b); } else { left.copy(b); right.copy(a); }
+  }
+
   const frame = (now: number) => {
     raf = requestAnimationFrame(frame);
     const dt = Math.min(0.05, last ? (now - last) / 1000 : 0);
@@ -388,36 +345,56 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
 
     // Each entry eases toward where it belongs: its pile (lifted a little
     // when hovered), her lap, or the pointer while it's being carried.
+    if (fetch) fetch.t += dt;
+    if (fetch && fetch.t > BRING) fetch = null;
     for (const b of bodies) {
       const id = b.item.id;
       const inLap = id === lapId, carried = id === dragId;
+      const f = fetch && fetch.id === id ? fetch : null;
       b.lift += ((hovered === id && !inLap ? 1 : 0) - b.lift) * 0.15;
-      const tp = carried ? dragAt : inLap ? LAP.p : tmpP.copy(b.home.p).addScaledVector(tmpN.set(0, 0, 1).applyQuaternion(b.home.q), b.lift * 0.03);
-      const tq = inLap || carried ? LAP.q : b.home.q;
+      let tp: THREE.Vector3 = carried ? dragAt : inLap ? LAP.p : tmpP.copy(b.home.p).addScaledVector(tmpN.set(0, 0, 1).applyQuaternion(b.home.q), b.lift * 0.03);
+      let k = reduced ? 1 : carried ? 0.3 : 0.1;
+      if (f && f.t < REACH) tp = b.home.p;                              // her hand is on its way
+      else if (f && f.t < TAKE) { tp = figure.grip(f.side, grip); k = 0.22; }   // into her hand
+      else if (f) {                                                     // in her hand, to her lap
+        lapEdge(f.side, edge);
+        tp = figure.grip(f.side, grip).add(tmpN.subVectors(LAP.p, edge));
+        k = 0.3;
+      }
+      const tq = (inLap || carried) && !(f && f.t < REACH) ? LAP.q : b.home.q;
       const ts = inLap ? LAP.s : b.home.s;
-      const k = reduced ? 1 : carried ? 0.3 : 0.1;
       b.group.position.lerp(tp, k);
       b.group.quaternion.slerp(tq, k);
       b.group.scale.setScalar(b.group.scale.x + (ts - b.group.scale.x) * k);
-      b.mat.emissiveIntensity = COVER_GLOW + 0.2 * b.lift + (inLap ? 0.12 : 0);
+      b.mat.emissiveIntensity = inLap ? COVER_GLOW * 0.45 : COVER_GLOW + 0.2 * b.lift;
     }
 
-    if (posed.length && !reduced && !heldPose) {
-      if (!lapId) goTo('rest');
-      else if (time > nextShift && !route.length) {
-        const choices = (['rest', 'cross', 'side'] as const).filter(p => p !== legPose);
-        goTo(choices[Math.floor(Math.random() * choices.length)]);
+    // Her hands: fetching, holding the entry in her lap by its edges, or at rest.
+    const held = lapId ? bodies.find(q => q.item.id === lapId) : undefined;
+    if (fetch && fetch.t < BRING) {
+      const b = bodies.find(q => q.item.id === fetch!.id)!;
+      const other: Side = fetch.side === 'L' ? 'R' : 'L';
+      if (fetch.t < TAKE) figure.setHand(fetch.side, { kind: 'at', p: b.home.p.clone(), curl: fetch.t < REACH ? 0.05 : 0.5 });
+      else figure.setHand(fetch.side, { kind: 'at', p: lapEdge(fetch.side, edge).clone(), curl: 0.6 });
+      figure.setHand(other, { kind: 'rest' });
+    } else if (held && !dragId) {
+      cardEdges(held.group, edgeL, edgeR);
+      figure.setHand('L', { kind: 'at', p: edgeL.clone(), curl: 0.85 });
+      figure.setHand('R', { kind: 'at', p: edgeR.clone(), curl: 0.85 });
+    } else {
+      figure.setHand('L', { kind: 'rest' });
+      figure.setHand('R', { kind: 'rest' });
+    }
+    if (heldPose) figure.setPose(heldPose);
+    else if (!reduced) {
+      if (!lapId) figure.setPose('rest');
+      else if (time > nextShift && figure.pose() !== 'lift') {
+        const choices = (['rest', 'cross', 'side'] as const).filter(p => p !== figure.pose());
+        figure.setPose(choices[Math.floor(Math.random() * choices.length)]);
         nextShift = shiftIn();
       }
-      if (route.length) {
-        // One eased hop per 0.9 s along the route.
-        leg = Math.min(route.length - 1, leg + dt / 0.9);
-        const i = Math.min(route.length - 2, Math.floor(leg)), k = leg - i;
-        const e = k * k * (3 - 2 * k);
-        setWeights(route[i].map((v, j) => v + (route[i + 1][j] - v) * e));
-        if (leg >= route.length - 1) route = [];
-      }
     }
+    figure.update(reduced ? 1 : dt, time);
 
     composer.render();
     if (frameCb) {
@@ -449,7 +426,17 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
     },
     setHovered(id) { hovered = id; },
     // A new entry in her lap: she shifts within a second, however it arrived.
-    setLap(id) { if (id && id !== lapId) nextShift = time + 0.6 + Math.random() * 0.6; lapId = id; },
+    // Tapped ones she fetches herself; dragged ones are already on their way.
+    setLap(id) {
+      if (id && id !== lapId) {
+        nextShift = time + 0.6 + Math.random() * 0.6;
+        const b = bodies.find(q => q.item.id === id);
+        if (b && !justDropped && !reduced) fetch = { id, side: b.item.kind === 'file' ? 'L' : 'R', t: 0 };
+      }
+      if (!id) fetch = null;
+      justDropped = false;
+      lapId = id;
+    },
     drag(id, x, y) {
       const b = bodies.find(q => q.item.id === id);
       if (!b) return;
@@ -462,6 +449,7 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
     },
     drop(id, x, y) {
       dragId = null;
+      justDropped = true;
       // Let go over the middle of the view and it settles in her lap.
       return y > h * 0.3 && Math.abs(x - w / 2) < w * 0.32;
     },
@@ -476,6 +464,7 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
         mats.forEach(m => { (m as THREE.MeshStandardMaterial).map?.dispose(); m.dispose(); });
       });
       sky.dispose();
+      figure.dispose();
       draco.dispose();
       env.dispose();
       pmrem.dispose();
@@ -483,108 +472,6 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
       renderer.dispose();
     },
   };
-}
-
-// The suit, the stockings and the boots, painted onto the baked legs from
-// each vertex's rest pose (colour attribute): R height in the rest pose (/1.8 m),
-// G sideways from the leg's centre line, B forward/back of it, A 1 on the boots.
-function suitMaterial() {
-  const mat = new THREE.MeshPhysicalMaterial({
-    color: '#ffffff', vertexColors: true, roughness: 0.7, side: THREE.DoubleSide, specularIntensity: 0.45,
-    sheen: 1, sheenColor: new THREE.Color('#fff6ea'), sheenRoughness: 0.55,
-  });
-  mat.onBeforeCompile = shader => {
-    // Rest-pose x (sideways) and y (-y is her front) arrive in the UVs; the
-    // glTF export stores v as 1 - v, so undo that here.
-    shader.vertexShader = shader.vertexShader
-      .replace('#include <common>', '#include <common>\nvarying vec2 vRest;')
-      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvRest = vec2(uv.x, 1.0 - uv.y);');
-    shader.fragmentShader = shader.fragmentShader
-      .replace('#include <common>', '#include <common>\nvarying vec2 vRest;')
-      .replace('#include <color_fragment>', /* glsl */ `
-        float hz = vColor.r * 1.8;
-        float sx = (vColor.g - 0.5) / 5.0;
-        float fy = -(vColor.b - 0.5) / 5.0;
-        float reg = vColor.a;
-        // region -> alpha (see scripts/journal-legs.py)
-        float boot = step(0.75, reg);                              // boot, 1
-        float heel = step(0.35, reg) * (1.0 - boot);               // heel, 0.5
-        float cuff = step(0.15, reg) * (1.0 - step(0.35, reg));    // sleeve cuff, 0.2
-        float skin = step(0.05, reg) * (1.0 - step(0.15, reg));    // hands, 0.1
-        float front = smoothstep(0.0, 0.015, fy);
-
-        // Boots: gold rolled edge along the V-cut top, piping down the front,
-        // and the heel.
-        float shaftTop = 0.26 - 0.07 * (1.0 - smoothstep(0.0, 0.05, abs(sx))) * front;
-        float shaft = max(boot, heel);
-        float rim = boot * (1.0 - smoothstep(0.004, 0.008, shaftTop - hz)) * step(0.1, hz);
-        float piping = boot * front * (1.0 - smoothstep(0.002, 0.004, abs(sx)));
-
-        // The suit: a gold band where the shorts end,
-        // princess lines from the hem in to the waist and out round the bust
-        // to the armpits, a yoke from the collar, a mandarin collar edged in
-        // gold, and an emblem on the upper chest. Front only, by rest y.
-        float ux = abs(vRest.x);
-        float fr = 1.0 - smoothstep(-0.07, -0.035, vRest.y);
-        float torso = step(ux, mix(0.25, 0.2, step(1.15, hz))) * (1.0 - boot) * (1.0 - heel);
-        float band = (1.0 - smoothstep(0.006, 0.009, abs(hz - 0.765))) * step(ux, 0.25);
-        float w = mix(0.13, 0.108, smoothstep(0.80, 0.90, hz));
-        w = mix(w, 0.075, smoothstep(0.90, 1.05, hz));
-        w = mix(w, 0.09, smoothstep(1.05, 1.13, hz));
-        w = mix(w, 0.15, smoothstep(1.13, 1.28, hz));
-        float princess = (1.0 - smoothstep(0.003, 0.0055, abs(ux - w))) * step(0.77, hz) * (1.0 - step(1.29, hz)) * fr;
-        float yt = clamp((1.405 - hz) / 0.115, 0.0, 1.0);
-        float yoke = (1.0 - smoothstep(0.003, 0.0055, abs(ux - (0.035 + 0.105 * yt)))) * step(1.29, hz) * step(hz, 1.405) * fr;
-        float collar = step(1.432, hz) + (1.0 - smoothstep(0.003, 0.005, abs(hz - 1.402))) * step(ux, 0.075);
-        vec2 e = vec2(ux, hz - 1.30);
-        float d = e.x / 0.028 + abs(e.y) / 0.042;
-        float emblem = (step(d, 1.0) * step(0.7, d)
-          + step(ux, 0.004) * step(abs(e.y), 0.055)
-          + step(abs(e.y + 0.004), 0.004) * step(ux, 0.036)) * (1.0 - smoothstep(-0.075, -0.055, vRest.y));
-        float trim = min(1.0, princess + yoke + collar + emblem) * torso;
-
-        float gold = min(1.0, max(max(rim, piping), max(band, heel)) + trim + cuff);
-        vec3 suit = vec3(0.94, 0.92, 0.88);
-        vec3 leather = vec3(0.98, 0.97, 0.95);
-        vec3 goldC = vec3(0.8, 0.62, 0.34);
-        vec3 skinC = vec3(0.93, 0.79, 0.7);
-        diffuseColor.rgb = mix(mix(mix(suit, leather, shaft), goldC, gold), skinC, skin);
-      `)
-      .replace('#include <roughnessmap_fragment>', /* glsl */ `
-        #include <roughnessmap_fragment>
-        roughnessFactor = mix(mix(mix(0.78, 0.58, shaft), mix(0.3, 0.45, heel), gold), 0.5, skin);
-      `)
-      .replace('#include <metalnessmap_fragment>', /* glsl */ `
-        #include <metalnessmap_fragment>
-        metalnessFactor = gold * 0.75 * (1.0 - 0.4 * heel) * (1.0 - skin);
-      `)
-      // Gold thread catches a little light of its own; polished metal alone
-      // would only mirror the dark sky and read brown.
-      .replace('#include <emissivemap_fragment>', /* glsl */ `
-        #include <emissivemap_fragment>
-        totalEmissiveRadiance += goldC * gold * 0.16;
-      `);
-  };
-  return mat;
-}
-
-// Which vertices are her legs (and boots): below the tops of the thighs in
-// the rest pose, and not a hand or cuff, whose arms hang that low at rest.
-const THIGH_TOP = 0.84;
-function isLeg(col: THREE.BufferAttribute | THREE.InterleavedBufferAttribute, i: number) {
-  const reg = col.getW(i);
-  return col.getX(i) * 1.8 < THIGH_TOP && !(reg > 0.05 && reg < 0.35);
-}
-function lowerOnly(g: THREE.BufferGeometry) {
-  const col = g.attributes.color;
-  const idx = g.index;
-  if (!col || !idx) return idx;
-  const keep: number[] = [];
-  for (let t = 0; t < idx.count; t += 3) {
-    const a = idx.getX(t), b = idx.getX(t + 1), c = idx.getX(t + 2);
-    if (isLeg(col, a) && isLeg(col, b) && isLeg(col, c)) keep.push(a, b, c);
-  }
-  return keep;
 }
 
 // Channel quilting for the cushion: soft rolls across its width.
