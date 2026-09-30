@@ -465,6 +465,7 @@ export function createFigure(
       }
     },
     dispose() {
+      for (const t of Object.values(mat.userData.maps as Record<string, THREE.Texture>)) t.dispose();
       mat.dispose();
       for (const m of meshes) m.geometry.dispose();
     },
@@ -474,12 +475,39 @@ export function createFigure(
 // The suit, the stockings and the boots, painted from each vertex's rest
 // pose (colour attribute): R height at rest (/1.8 m), G sideways from the
 // leg's centre line, B forward/back of it, A the region.
+// Material swatches, tiled over her from where each point sits at rest.
+// file -> real size of one tile in metres (why)
+const SWATCHES = {
+  suit:    ['/journal/mat-suit.jpg', 0.08],     // stretch knit: a fine weave
+  leather: ['/journal/mat-leather.jpg', 0.06],  // boot leather grain
+  gold:    ['/journal/mat-gold.jpg', 0.05],     // brushed gold, lines running round her
+} as const;
+const EMBLEM = { src: '/journal/mat-emblem.png', size: 0.1, at: 1.30 };  // square mask; metres tall; rest height of its centre
+
 function suitMaterial() {
   const mat = new THREE.MeshPhysicalMaterial({
     color: '#ffffff', vertexColors: true, roughness: 0.7, side: THREE.DoubleSide, specularIntensity: 0.45,
     sheen: 1, sheenColor: new THREE.Color('#fff6ea'), sheenRoughness: 0.55,
   });
+  const loader = new THREE.TextureLoader();
+  const tex = (src: string, color: boolean) => {
+    const t = loader.load(src);
+    if (color) { t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; }
+    t.anisotropy = 4;
+    return t;
+  };
+  const maps = {
+    suit: tex(SWATCHES.suit[0], true), leather: tex(SWATCHES.leather[0], true),
+    gold: tex(SWATCHES.gold[0], true), emblem: tex(EMBLEM.src, false),
+  };
+  mat.userData.maps = maps;
   mat.onBeforeCompile = shader => {
+    shader.uniforms.tSuit = { value: maps.suit };
+    shader.uniforms.tLeather = { value: maps.leather };
+    shader.uniforms.tGold = { value: maps.gold };
+    shader.uniforms.tEmblem = { value: maps.emblem };
+    shader.uniforms.uTile = { value: new THREE.Vector3(SWATCHES.suit[1], SWATCHES.leather[1], SWATCHES.gold[1]) };
+    shader.uniforms.uEmblem = { value: new THREE.Vector2(EMBLEM.size, EMBLEM.at) };
     // Forearm fade (set when only her legs and forearms are drawn).
     const f = mat.userData.fade as { elbowL: THREE.Vector3; dirL: THREE.Vector3; elbowR: THREE.Vector3; dirR: THREE.Vector3 } | undefined;
     shader.uniforms.uFade = { value: f ? 1 : 0 };
@@ -498,7 +526,15 @@ function suitMaterial() {
         varying vec2 vRest;
         uniform float uFade;
         uniform vec3 uElbowL, uDirL, uElbowR, uDirR;
-        uniform vec2 uFadeRange;`)
+        uniform vec2 uFadeRange;
+        uniform sampler2D tSuit, tLeather, tGold, tEmblem;
+        uniform vec3 uTile;
+        uniform vec2 uEmblem;
+        // A swatch tiled over her body: two projections (side-on and
+        // front-on) averaged, so it holds on any surface without a UV layout.
+        vec4 swatch(sampler2D t, vec3 p, float tile) {
+          return 0.5 * (texture2D(t, p.xz / tile) + texture2D(t, p.yz / tile));
+        }`)
       .replace('#include <color_fragment>', /* glsl */ `
         float hz = vColor.r * 1.8;
         // Forearms dissolve toward the elbow in a fine stipple.
@@ -546,19 +582,35 @@ function suitMaterial() {
         float yt = clamp((1.405 - hz) / 0.115, 0.0, 1.0);
         float yoke = (1.0 - smoothstep(0.003, 0.0055, abs(ux - (0.035 + 0.105 * yt)))) * step(1.29, hz) * step(hz, 1.405) * fr;
         float collar = step(1.432, hz) + (1.0 - smoothstep(0.003, 0.005, abs(hz - 1.402))) * step(ux, 0.075);
-        vec2 e = vec2(ux, hz - 1.30);
-        float d = e.x / 0.028 + abs(e.y) / 0.042;
-        float emblem = (step(d, 1.0) * step(0.7, d)
-          + step(ux, 0.004) * step(abs(e.y), 0.055)
-          + step(abs(e.y + 0.004), 0.004) * step(ux, 0.036)) * (1.0 - smoothstep(-0.075, -0.055, vRest.y));
+        // The emblem on her upper chest, front only.
+        // (textures load flipped: v runs bottom to top, like height)
+        vec2 euv = vec2(0.5 + vRest.x / uEmblem.x, 0.5 + (hz - uEmblem.y) / uEmblem.x);
+        float inE = step(0.0, euv.x) * step(euv.x, 1.0) * step(0.0, euv.y) * step(euv.y, 1.0);
+        float emblem = inE * smoothstep(0.35, 0.65, texture2D(tEmblem, euv).r) * (1.0 - smoothstep(-0.075, -0.055, vRest.y));
         float trim = min(1.0, princess + yoke + collar + emblem) * torso;
 
         float gold = min(1.0, max(max(rim, piping), max(band, heel)) + trim + cuff);
-        vec3 suit = vec3(0.94, 0.92, 0.88);
-        vec3 leather = vec3(0.98, 0.97, 0.95);
-        vec3 goldC = vec3(0.8, 0.62, 0.34);
+        // The materials, from the swatches.
+        vec3 rp3 = vec3(vRest.x, vRest.y, hz);
+        vec3 suit = swatch(tSuit, rp3, uTile.x).rgb;
+        vec3 leather = swatch(tLeather, rp3, uTile.y).rgb;
+        vec3 goldC = swatch(tGold, rp3, uTile.z).rgb;
         vec3 skinC = vec3(0.93, 0.79, 0.7);
         diffuseColor.rgb = mix(mix(mix(suit, leather, shaft), goldC, gold), skinC, skin);
+        // Their fine grain, as a height for the bump below (metres).
+        float matLum = dot(diffuseColor.rgb, vec3(0.3, 0.59, 0.11));
+        float matH = matLum * mix(mix(0.0035, 0.002, shaft), 0.0025, gold) * (1.0 - skin);
+      `)
+      // Bump from the swatches' grain: light catches the weave and the leather.
+      .replace('#include <normal_fragment_maps>', /* glsl */ `
+        #include <normal_fragment_maps>
+        {
+          vec3 sx = dFdx(-vViewPosition), sy = dFdy(-vViewPosition);
+          vec3 r1 = cross(sy, normal), r2 = cross(normal, sx);
+          float det = dot(sx, r1) * faceDirection;
+          vec3 grad = sign(det) * (dFdx(matH) * r1 + dFdy(matH) * r2);
+          normal = normalize(abs(det) * normal - grad);
+        }
       `)
       .replace('#include <roughnessmap_fragment>', /* glsl */ `
         #include <roughnessmap_fragment>
