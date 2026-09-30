@@ -29,6 +29,9 @@ export type Lounge = {
   setHovered(id: string | null): void;
   // The entry resting in her lap, or null to send it back to its pile.
   setLap(id: string | null): void;
+  // While an entry is open in the lounge's window the room rests: dimmed
+  // behind it and drawn a few times a second.
+  setReading(on: boolean): void;
   // Carry an entry under the pointer; drop() says whether it landed in her lap.
   drag(id: string, x: number, y: number): void;
   drop(id: string, x: number, y: number): boolean;
@@ -303,6 +306,7 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
     done: 2.3,
   };
   let fetch: { id: string; side: Side; t: number } | null = null;
+  let isReading = false, lastDraw = 0;
   const wristP = new THREE.Vector3(), edgeA = new THREE.Vector3(), edgeB = new THREE.Vector3(), off = new THREE.Vector3(), axis = new THREE.Vector3();
   const dragAt = new THREE.Vector3(), tmpP = new THREE.Vector3(), tmpN = new THREE.Vector3(), tmpQ = new THREE.Quaternion(), UP = new THREE.Vector3(0, 1, 0);
   const reduced = opts.reducedMotion;
@@ -338,6 +342,9 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
 
   const frame = (now: number) => {
     raf = requestAnimationFrame(frame);
+    // Reading: the room rests at a few frames a second behind the window.
+    if (isReading && now - lastDraw < 125) return;
+    lastDraw = now;
     const dt = Math.min(0.05, last ? (now - last) / 1000 : 0);
     last = now;
     if (!opts.reducedMotion) time += dt;
@@ -381,6 +388,7 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
       }
     }
     figure.update(dt, time);
+
 
     // Then each entry: in her hand while she fetches it, else easing toward
     // its pile (lifted a little when hovered), her lap, or the pointer.
@@ -446,6 +454,9 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
       return (hit?.object.userData.id as string | undefined) ?? null;
     },
     setHovered(id) { hovered = id; },
+    setReading(on) {
+      isReading = on;
+    },
     // A new entry in her lap: she shifts within a second, however it arrived.
     // Tapped ones she fetches herself; dragged ones are already on their way.
     setLap(id) {

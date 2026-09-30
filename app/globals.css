@@ -226,3 +226,11 @@ body::-webkit-scrollbar {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Journal: a post opening as a window over the lounge. */
+@keyframes jr-window-in { from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+@keyframes jr-veil-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes jr-window-grow { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+
+/* A page shown inside the journal lounge's window: no site navigation. */
+.in-frame .bo-nav { display: none !important; }

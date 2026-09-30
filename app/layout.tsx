@@ -64,10 +64,15 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
+      // Framed pages add a class before React loads (see below).
+      suppressHydrationWarning
       lang="en"
       className={`${fraunces.variable} ${bricolage.variable} ${interTight.variable} ${jetbrainsMono.variable}`}
     >
       <body>
+        {/* A page shown inside the journal lounge's window marks itself, so
+            the site's own navigation can step aside (see .in-frame). */}
+        <script dangerouslySetInnerHTML={{ __html: "if(window.self!==window.top)document.documentElement.classList.add('in-frame')" }} />
         {children}
         <DepartureVeil />
         <Analytics />

@@ -352,8 +352,10 @@ export default function JournalShell() {
       {/* MAP SURFACE */}
       <main style={{ position: 'relative', zIndex: 1, padding: '12px 0 80px' }}>
         {metaphor === 'lounge' && (
-          <div style={{ width: '100%', maxWidth: 1600, margin: '0 auto', aspectRatio: '16 / 9' }}>
+          <div style={{ position: 'relative', width: '100%', maxWidth: 1600, margin: '0 auto', aspectRatio: '16 / 9' }}>
             <Lounge posts={PUBLISHED} onFail={() => setMetaphor('index')} />
+            {/* A post opened from the lounge appears in here (ArticleWindow). */}
+            <div id="lounge-window" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 20 }} />
           </div>
         )}
         {metaphor === 'index' && <IndexView isMobile={isMobile} />}

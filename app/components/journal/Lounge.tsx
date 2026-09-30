@@ -7,9 +7,12 @@
 // it goes back to its pile.
 
 import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+
 import { type Post } from '../../data/journal';
 import type { Item, Lounge as Scene } from './loungeScene';
+import LoungeWindow from './LoungeWindow';
+import ArticleWindow from './ArticleWindow';
+import { TOPICS } from '../../data/journal';
 
 // Which pile an entry goes on. Files are about our apps and how they're
 // built; magazines are the wider ideas.
@@ -40,7 +43,6 @@ const COVER_IMAGE: Record<string, string> = {
 const firstImage = (p: Post) => p.body.find(b => b.kind === 'image')?.src;
 
 export default function Lounge({ posts, onFail }: { posts: Post[]; onFail: () => void }) {
-  const router = useRouter();
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const filesLabel = useRef<HTMLDivElement>(null);
@@ -49,6 +51,33 @@ export default function Lounge({ posts, onFail }: { posts: Post[]; onFail: () =>
   const [hovered, setHovered] = useState<Post | null>(null);
   const [lap, setLapPost] = useState<Post | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const sceneRef = useRef<Scene | null>(null);
+  // The entry open in the lounge's window, if any.
+  const [reading, setReading] = useState<Post | null>(null);
+  const readingNow = !!reading;
+
+  // Open an entry in the lounge's window. A post puts its own address in the
+  // bar (so refresh or sharing gives the full page) and Back closes it; an
+  // entry that lives on another page of the site is shown as that page.
+  const open = (post: Post) => {
+    setReading(post);
+    if (!post.link) window.history.pushState({ lounge: post.slug }, '', `/journal/${post.slug}`);
+  };
+  const close = () => {
+    if (reading && !reading.link && window.location.pathname !== '/journal') window.history.back();
+    else setReading(null);
+  };
+  useEffect(() => {
+    const onPop = () => { if (window.location.pathname === '/journal') setReading(null); };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+  const openRef = useRef(open);
+  useEffect(() => { openRef.current = open; });
+
+  // While reading, the room rests; closing brings the entry back to her.
+  const readingRef = useRef(readingNow);
+  useEffect(() => { readingRef.current = readingNow; sceneRef.current?.setReading(readingNow); }, [readingNow]);
 
   useEffect(() => {
     const wrap = wrapRef.current, canvas = canvasRef.current;
@@ -116,6 +145,7 @@ export default function Lounge({ posts, onFail }: { posts: Post[]; onFail: () =>
       let over: string | null = null;
       let inLap: string | null = null;
       let press: { id: string | null; x: number; y: number; dragging: boolean } | null = null;
+      sceneRef.current = scene;
       const toLap = (id: string | null) => {
         inLap = id;
         scene.setLap(id);
@@ -159,14 +189,15 @@ export default function Lounge({ posts, onFail }: { posts: Post[]; onFail: () =>
         if (!id) { toLap(null); return; }
         if (id === inLap) {
           const post = find(id);
-          if (post) router.push(post.link ?? `/journal/${post.slug}`);
+          if (post) openRef.current(post);
           return;
         }
         toLap(id);
         setHovered(null);
       };
       const onLeave = () => { over = null; scene.setHovered(null); scene.look(0, 0); setHovered(null); };
-      const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') toLap(null); };
+      // Esc puts the entry back, unless it's closing the article window.
+      const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && !readingRef.current) toLap(null); };
       canvas.addEventListener('pointerdown', onDown);
       canvas.addEventListener('pointermove', onMove);
       canvas.addEventListener('pointerup', onUp);
@@ -179,7 +210,7 @@ export default function Lounge({ posts, onFail }: { posts: Post[]; onFail: () =>
         window.removeEventListener('keydown', onKey);
         canvas.removeEventListener('pointerup', onUp);
         canvas.removeEventListener('pointerleave', onLeave);
-        ro.disconnect(); io.disconnect(); scene.dispose();
+        ro.disconnect(); io.disconnect(); scene.dispose(); sceneRef.current = null;
       };
     });
 
@@ -206,13 +237,29 @@ export default function Lounge({ posts, onFail }: { posts: Post[]; onFail: () =>
       <div ref={filesLabel} style={label}>FILES<div style={{ fontSize: 10.5, fontWeight: 500, letterSpacing: 2.5, color: 'var(--accent)', marginTop: 4 }}>APPS &amp; TECH</div></div>
       <div ref={magsLabel} style={label}>MAGAZINES<div style={{ fontSize: 10.5, fontWeight: 500, letterSpacing: 2.5, color: 'var(--accent)', marginTop: 4 }}>IDEAS</div></div>
 
-      {lap && (
+      {reading && !reading.link && (
+        <ArticleWindow post={reading} topic={TOPICS[reading.topic]} onClose={close} />
+      )}
+      {reading?.link && (
+        <LoungeWindow
+          title={`${reading.title} — SpacyApps Journal`}
+          label={`${reading.dateLabel.toUpperCase()} · ${reading.read.toUpperCase()} READ`}
+          accent="var(--accent)"
+          fullHref={reading.link}
+          onClose={close}
+          scrolls={false}
+        >
+          <iframe src={reading.link} title={reading.title} style={{ display: 'block', width: '100%', height: '100%', border: 0, background: 'var(--bg)' }} />
+        </LoungeWindow>
+      )}
+
+      {lap && !readingNow && (
         <div key={'lap-' + lap.id} ref={lapCard} style={{ position: 'absolute', left: 0, top: 0, width: 300, padding: '14px 20px', borderRadius: 12, background: 'rgba(12,13,18,0.85)', border: '1px solid var(--line)', backdropFilter: 'blur(8px)', animation: 'jr-fadein .3s ease-out' }}>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2, color: 'var(--accent)', marginBottom: 6 }}>
             {lap.dateLabel.toUpperCase()} · {lap.read.toUpperCase()} READ
           </div>
           <div style={{ fontFamily: 'var(--font-serif)', fontSize: 14, color: 'var(--ink-dim)', fontWeight: 300, lineHeight: 1.5, marginBottom: 10 }}>{lap.excerpt}</div>
-          <a href={lap.link ?? `/journal/${lap.slug}`} onClick={e => { e.preventDefault(); router.push(lap.link ?? `/journal/${lap.slug}`); }} className="bo-link" style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 15.5, color: 'var(--accent)', textDecoration: 'none', display: 'inline-block', animation: 'ss-beckon 1.6s ease-in-out .6s 3' }}>
+          <a href={lap.link ?? `/journal/${lap.slug}`} onClick={e => { e.preventDefault(); open(lap); }} className="bo-link" style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 15.5, color: 'var(--accent)', textDecoration: 'none', display: 'inline-block', animation: 'ss-beckon 1.6s ease-in-out .6s 3' }}>
             Tap it again to read →
           </a>
         </div>
