@@ -115,6 +115,16 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
   const near = new THREE.PointLight('#fff0e0', 0.45, 2.4, 2);
   near.position.set(EYE.x, EYE.y + 0.45, EYE.z - 0.35);
   scene.add(near);
+  // A soft neutral wash down her legs, in a tight cone so it stays off the
+  // tables, so the white suit reads as white under the violet room. With the
+  // glow in the suit's own material (loungeFigure.ts) and a faint warm bounce
+  // low beside her, as if from the cushion.
+  const wash = new THREE.SpotLight('#fff4ea', 1.2, 3.5, 0.42, 1, 2);
+  wash.position.set(0.3, 1.5, -0.3);
+  wash.target.position.set(0, 0.5, 1.0);
+  const bounce = new THREE.PointLight('#ffe6cc', 0.14, 1.1, 2);
+  bounce.position.set(0.15, 0.62, 0.35);
+  scene.add(wash, wash.target, bounce);
 
   // ── room ──
   // The floor stops at the window; past the sill there's only sky.
@@ -202,6 +212,28 @@ export function createLounge(canvas: HTMLCanvasElement, items: Item[], fonts: Fo
     const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.06, 0.5, 24), new THREE.MeshStandardMaterial({ color: '#1a1b22', metalness: 0.9, roughness: 0.3 }));
     stem.position.y = 0.25;
     g.add(top, rim, stem);
+    // A thin glow ring under the top, and a dim light below it that washes the
+    // stem, the floor and the chaise's edge.
+    const under = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.006, 8, 96), new THREE.MeshBasicMaterial({ color: new THREE.Color('#7fe3ea').multiplyScalar(1.3) }));
+    under.rotation.x = Math.PI / 2;
+    under.position.y = 0.478;
+    const glow = new THREE.PointLight('#7fe3ea', 0.12, 1.8, 2);
+    glow.position.y = 0.4;
+    // From her eye line the undersides are hidden, so the glow also
+    // pools on the floor around the table.
+    const c = document.createElement('canvas');
+    c.width = c.height = 128;
+    const cx = c.getContext('2d')!;
+    const gr = cx.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gr.addColorStop(0, 'rgba(127,227,234,0.5)');
+    gr.addColorStop(0.45, 'rgba(127,227,234,0.16)');
+    gr.addColorStop(1, 'rgba(127,227,234,0)');
+    cx.fillStyle = gr;
+    cx.fillRect(0, 0, 128, 128);
+    const pool = new THREE.Mesh(new THREE.CircleGeometry(0.8, 48), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+    pool.rotation.x = -Math.PI / 2;
+    pool.position.y = 0.004;
+    g.add(under, glow, pool);
     scene.add(g);
     return g;
   };

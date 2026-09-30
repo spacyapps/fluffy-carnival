@@ -484,6 +484,10 @@ const SWATCHES = {
 } as const;
 const EMBLEM = { src: '/journal/mat-emblem.png', size: 0.1, at: 1.30 };  // square mask; metres tall; rest height of its centre
 
+// A soft, sky-facing glow added to the suit itself, so her body is lit more
+// without touching anything else in the room.
+const SUIT_LIFT = 0.3;
+
 function suitMaterial() {
   const mat = new THREE.MeshPhysicalMaterial({
     color: '#ffffff', vertexColors: true, roughness: 0.7, side: THREE.DoubleSide, specularIntensity: 0.45,
@@ -502,6 +506,7 @@ function suitMaterial() {
   };
   mat.userData.maps = maps;
   mat.onBeforeCompile = shader => {
+    shader.uniforms.uLift = { value: SUIT_LIFT };
     shader.uniforms.tSuit = { value: maps.suit };
     shader.uniforms.tLeather = { value: maps.leather };
     shader.uniforms.tGold = { value: maps.gold };
@@ -524,7 +529,7 @@ function suitMaterial() {
     shader.fragmentShader = shader.fragmentShader
       .replace('#include <common>', `#include <common>
         varying vec2 vRest;
-        uniform float uFade;
+        uniform float uFade, uLift;
         uniform vec3 uElbowL, uDirL, uElbowR, uDirR;
         uniform vec2 uFadeRange;
         uniform sampler2D tSuit, tLeather, tGold, tEmblem;
@@ -625,6 +630,9 @@ function suitMaterial() {
       .replace('#include <emissivemap_fragment>', /* glsl */ `
         #include <emissivemap_fragment>
         totalEmissiveRadiance += goldC * gold * 0.16 + skinC * skin * 0.1;
+        // Sky-facing surfaces take the most, so it models her form rather than flattening it.
+        float upv = dot(normal, normalize((viewMatrix * vec4(0.0, 1.0, 0.0, 0.0)).xyz)) * 0.5 + 0.5;
+        totalEmissiveRadiance += diffuseColor.rgb * vec3(1.0, 0.97, 0.92) * uLift * (0.35 + 0.65 * upv);
       `);
   };
   return mat;
