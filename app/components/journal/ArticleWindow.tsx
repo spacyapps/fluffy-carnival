@@ -9,7 +9,7 @@ import LoungeWindow from './LoungeWindow';
 import { PostBody } from './JournalShell';
 import type { Post, Topic } from '../../data/journal';
 
-export default function ArticleWindow({ post, topic, onClose }: { post: Post; topic: Topic; onClose: () => void }) {
+export default function ArticleWindow({ post, topic, onClose, full }: { post: Post; topic: Topic; onClose: () => void; full: boolean }) {
   const close = onClose;
   return (
     <LoungeWindow
@@ -19,10 +19,11 @@ export default function ArticleWindow({ post, topic, onClose }: { post: Post; to
       fullHref={`/journal/${post.slug}`}
       onClose={close}
       scrolls
+      full={full}
     >
       <ScrollFX />
-      <article style={{ maxWidth: 680, margin: '0 auto', padding: '40px 36px 64px' }}>
-        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 42, fontWeight: 300, letterSpacing: -1.2, lineHeight: 1.06, margin: '0 0 40px', textAlign: 'center' }}>
+      <article style={{ maxWidth: 680, margin: '0 auto', padding: full ? '28px 20px 56px' : '40px 36px 64px' }}>
+        <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: full ? 30 : 42, fontWeight: 300, letterSpacing: -1.2, lineHeight: 1.06, margin: full ? '0 0 28px' : '0 0 40px', textAlign: 'center' }}>
           {post.title}
         </h1>
         <PostBody blocks={post.body} topic={topic} />

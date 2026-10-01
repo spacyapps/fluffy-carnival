@@ -5,18 +5,19 @@
 // right, so the reader stays in the room with her. Used for posts
 // (ArticleWindow) and for entries that live on another page of the site,
 // shown as that page. Closing (the × button, Esc, a click outside) calls
-// onClose. If the lounge isn't on the page, the window covers the screen.
+// onClose. If the lounge isn't on the page, or on a phone, the window covers the screen.
 
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-export default function LoungeWindow({ title, label, accent, fullHref, onClose, scrolls, children }: {
+export default function LoungeWindow({ title, label, accent, fullHref, onClose, scrolls, full, children }: {
   title: string;              // the tab's title while it's open
   label: string;              // the small line top-left
   accent: string;
   fullHref: string;           // FULL PAGE ↗
   onClose: () => void;
   scrolls: boolean;           // the window scrolls its content (and shows progress), or the content scrolls itself
+  full: boolean;              // cover the screen instead of sitting in the room (phones)
   children: React.ReactNode;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -24,7 +25,9 @@ export default function LoungeWindow({ title, label, accent, fullHref, onClose, 
   const closeRef = useRef(onClose);
   useEffect(() => { closeRef.current = onClose; });
   // Only ever rendered client-side, after a tap in the lounge.
-  const [host] = useState(() => (typeof document === 'undefined' ? null : document.getElementById('lounge-window')));
+  const [host] = useState(() => (typeof document === 'undefined' || full ? null : document.getElementById('lounge-window')));
+  // Full screen goes on <body>: the lounge's wrapper masks anything outside its box.
+  const [root] = useState(() => (typeof document === 'undefined' ? null : host ?? (full ? document.body : null)));
 
   useEffect(() => {
     const panel = panelRef.current;
@@ -127,5 +130,5 @@ export default function LoungeWindow({ title, label, accent, fullHref, onClose, 
       </div>
     </div>
   );
-  return host ? createPortal(win, host) : win;
+  return root ? createPortal(win, root) : win;
 }

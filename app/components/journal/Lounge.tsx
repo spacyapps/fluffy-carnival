@@ -6,7 +6,7 @@
 // with its card below; tap it there to open it. Tap elsewhere (or Esc) and
 // it goes back to its pile.
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 
 import { type Post } from '../../data/journal';
 import type { Item, Lounge as Scene } from './loungeScene';
@@ -42,12 +42,25 @@ const COVER_IMAGE: Record<string, string> = {
 
 const firstImage = (p: Post) => p.body.find(b => b.kind === 'image')?.src;
 
+const COMPACT = '(max-width: 639px)';
+const isCompact = () => window.matchMedia(COMPACT).matches;
+const onCompact = (cb: () => void) => {
+  const mq = window.matchMedia(COMPACT);
+  mq.addEventListener('change', cb);
+  return () => mq.removeEventListener('change', cb);
+};
+
 export default function Lounge({ posts, onFail }: { posts: Post[]; onFail: () => void }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const filesLabel = useRef<HTMLDivElement>(null);
   const magsLabel = useRef<HTMLDivElement>(null);
   const lapCard = useRef<HTMLDivElement>(null);
+  // On a phone the room is a small strip: no hover or lap cards, one tap
+  // opens the entry, and it reads full screen. Same breakpoint as the shell.
+  const compact = useSyncExternalStore(onCompact, isCompact, () => false);
+  const compactRef = useRef(compact);
+  useEffect(() => { compactRef.current = compact; });
   const [hovered, setHovered] = useState<Post | null>(null);
   const [lap, setLapPost] = useState<Post | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -194,6 +207,7 @@ export default function Lounge({ posts, onFail }: { posts: Post[]; onFail: () =>
         }
         toLap(id);
         setHovered(null);
+        if (compactRef.current) { const post = find(id); if (post) openRef.current(post); }
       };
       const onLeave = () => { over = null; scene.setHovered(null); scene.look(0, 0); setHovered(null); };
       // Esc puts the entry back, unless it's closing the article window.
@@ -238,7 +252,7 @@ export default function Lounge({ posts, onFail }: { posts: Post[]; onFail: () =>
       <div ref={magsLabel} style={label}>MAGAZINES<div style={{ fontSize: 10.5, fontWeight: 500, letterSpacing: 2.5, color: 'var(--accent)', marginTop: 4 }}>IDEAS</div></div>
 
       {reading && !reading.link && (
-        <ArticleWindow post={reading} topic={TOPICS[reading.topic]} onClose={close} />
+        <ArticleWindow post={reading} topic={TOPICS[reading.topic]} onClose={close} full={compact} />
       )}
       {reading?.link && (
         <LoungeWindow
@@ -248,12 +262,13 @@ export default function Lounge({ posts, onFail }: { posts: Post[]; onFail: () =>
           fullHref={reading.link}
           onClose={close}
           scrolls={false}
+          full={compact}
         >
           <iframe src={reading.link} title={reading.title} style={{ display: 'block', width: '100%', height: '100%', border: 0, background: 'var(--bg)' }} />
         </LoungeWindow>
       )}
 
-      {lap && !readingNow && (
+      {lap && !readingNow && !compact && (
         <div key={'lap-' + lap.id} ref={lapCard} style={{ position: 'absolute', left: 0, top: 0, width: 300, padding: '14px 20px', borderRadius: 12, background: 'rgba(12,13,18,0.85)', border: '1px solid var(--line)', backdropFilter: 'blur(8px)', animation: 'jr-fadein .3s ease-out' }}>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2, color: 'var(--accent)', marginBottom: 6 }}>
             {lap.dateLabel.toUpperCase()} · {lap.read.toUpperCase()} READ
@@ -265,7 +280,7 @@ export default function Lounge({ posts, onFail }: { posts: Post[]; onFail: () =>
         </div>
       )}
 
-      {hovered && !lap && (
+      {hovered && !lap && !compact && (
         <div key={hovered.id} style={{ position: 'absolute', left: '50%', bottom: '4%', transform: 'translateX(-50%)', maxWidth: 520, width: 'max-content', padding: '14px 22px', borderRadius: 12, background: 'rgba(12,13,18,0.82)', border: '1px solid var(--line)', backdropFilter: 'blur(8px)', textAlign: 'center', pointerEvents: 'none', animation: 'jr-fadein .25s ease-out' }}>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: 2, color: 'var(--accent)', marginBottom: 6 }}>
             {hovered.dateLabel.toUpperCase()} · {hovered.read.toUpperCase()} READ
