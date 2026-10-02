@@ -641,6 +641,7 @@ function suitMaterial() {
 // Which vertices are her legs (and boots): below the tops of the thighs at
 // rest, and not a hand or cuff, whose arms hang that low at rest.
 const THIGH_TOP = 0.84;
+const HAND_TOP = 1.1;   // hands and cuffs at rest sit under this; the collar sits well over it
 type Attr = THREE.BufferAttribute | THREE.InterleavedBufferAttribute;
 function isLeg(col: Attr, i: number) {
   const reg = col.getW(i);
@@ -653,7 +654,8 @@ type Forearm = { elbow: THREE.Vector3; dir: THREE.Vector3; sign: number };
 const rp = new THREE.Vector3(), rq = new THREE.Vector3();
 function isArm(col: Attr, uv: Attr, i: number, arms: Forearm[]) {
   const reg = col.getW(i);
-  if (reg > 0.05 && reg < 0.35) return true;
+  // Hands and cuffs hang low at rest; skin up at the neck is the collar, not a hand.
+  if (reg > 0.05 && reg < 0.35) return col.getX(i) * 1.8 < HAND_TOP;
   rp.set(uv.getX(i), 1 - uv.getY(i), col.getX(i) * 1.8);
   const arm = arms.find(a => Math.sign(rp.x) === a.sign);
   if (!arm) return false;
